@@ -65,6 +65,9 @@ export default function Header() {
   };
 
   const getApiUrl = (path: string = '') => {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+    }
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     return `http://${host}:5000${path}`;
   };

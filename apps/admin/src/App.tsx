@@ -97,6 +97,9 @@ const Sparkline = ({ points, color = 'var(--primary)' }: { points: number[]; col
 
 export default function App() {
   const getApiUrl = (path: string = '') => {
+    if (import.meta.env.VITE_API_URL) {
+      return `${import.meta.env.VITE_API_URL}${path}`;
+    }
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     return `http://${host}:5000${path}`;
   };
