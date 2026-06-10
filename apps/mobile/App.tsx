@@ -56,8 +56,10 @@ export default function App() {
   // Developer setting: Backend LAN IP (Change to local Wi-Fi IP for real phones)
   const [backendIp, setBackendIp] = useState('10.0.2.2'); 
   
-  // Use EXPO_PUBLIC_API_URL if defined (for production builds on Play Store), otherwise use the local IP sync bar.
-  const apiBase = process.env.EXPO_PUBLIC_API_URL || `http://${backendIp}:5000/api`;
+  // Connect to production server by default when built/run in production mode, otherwise use local IP sync bar.
+  const apiBase = __DEV__ 
+    ? (process.env.EXPO_PUBLIC_API_URL || `http://${backendIp}:5000/api`)
+    : (process.env.EXPO_PUBLIC_API_URL || 'https://balochi-bazar-backend.vercel.app/api');
 
   // Core lists
   const [products, setProducts] = useState<Product[]>([]);
@@ -362,8 +364,8 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic Top IP Sync Bar (Only show in development/local testing mode) */}
-      {!process.env.EXPO_PUBLIC_API_URL && (
+      {/* Dynamic Top IP Sync Bar (Only show in development mode and when API URL is not hardcoded) */}
+      {__DEV__ && !process.env.EXPO_PUBLIC_API_URL && (
         <View style={styles.ipBar}>
           <Text style={styles.ipLabel}>IP Address:</Text>
           <TextInput
