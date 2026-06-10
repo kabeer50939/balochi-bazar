@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Header from '../components/Header';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Balochi Bazzar - Balochi Doch & Rentals in Gwadar',
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
+        <Suspense fallback={<div style={{ height: '70px', backgroundColor: '#131a22' }} />}>
+          <Header />
+        </Suspense>
 
         {/* Child Pages */}
         <main style={{ minHeight: 'calc(100vh - 400px)' }}>

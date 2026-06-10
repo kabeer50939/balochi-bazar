@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 interface Product {
@@ -17,7 +17,7 @@ interface Product {
   images: { id: string; url: string; isPrimary: boolean }[];
 }
 
-export default function CatalogPage() {
+function CatalogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -215,5 +215,13 @@ export default function CatalogPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={<div className="container" style={{ padding: '2rem' }}>Loading catalog...</div>}>
+      <CatalogPageContent />
+    </Suspense>
   );
 }
