@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balochi Bazzar – Mobile App Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #f4f5f8;       /* Daraz Canvas Gray */
+      --bg-card: #ffffff;          /* Pure White Card */
+      --border-color: #e2e4e8;     /* Precise gray border */
+      --daraz-orange: #f85606;     /* Official Daraz Orange */
+      --daraz-hover: #d04600;
+      --daraz-light: #ffece2;      /* Active state soft orange */
+      --text-primary: #212121;     /* Primary Charcoal */
+      --text-secondary: #5f6368;   /* Secondary gray text */
+      --text-muted: #9e9e9e;       /* Muted info gray */
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #eef1f6 0%, #dbe3eb 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-primary);
+    }
+
+    /* Phone Frame Container */
+    .phone-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .phone-label {
+      color: #475569;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: var(--bg-primary);
+      border-radius: 40px;
+      border: 12px solid #1e293b;
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.45),
+        inset 0 0 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-notch {
+      width: 140px;
+      height: 28px;
+      background: #1e293b;
+      border-radius: 0 0 18px 18px;
+      margin: 0 auto;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .phone-notch .camera { width: 8px; height: 8px; border-radius: 50%; background: #0f172a; }
+    .phone-notch .speaker { width: 45px; height: 3px; border-radius: 3px; background: #0f172a; }
+
+    .app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-primary);
+    }
+
+    /* Simulated Phone Status Bar */
+    .phone-status-bar {
+      background: var(--daraz-orange);
+      color: #ffffff;
+      padding: 6px 14px 2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .status-bar-icons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Top Orange Search Header (Daraz Style) */
+    .app-header {
+      background: var(--daraz-orange);
+      padding: 8px 12px 10px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .header-main-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .header-icons-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-icon-item {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
+    .header-icon-emoji {
+      font-size: 18px;
+      color: #ffffff;
+    }
+    .header-icon-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: #ff3b30;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 800;
+      border-radius: 50%;
+      width: 13px;
+      height: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--daraz-orange);
+    }
+    .header-location-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+      background-color: rgba(0, 0, 0, 0.08);
+      padding: 4px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+    .location-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .location-arrow {
+      font-size: 8px;
+      opacity: 0.8;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    .search-input {
+      width: 100%;
+      background: #ffffff;
+      border: none;
+      border-radius: 18px;
+      padding: 6px 30px 6px 28px;
+      color: var(--text-primary);
+      font-size: 11px;
+      font-family: inherit;
+      height: 28px;
+    }
+    .search-input:focus {
+      outline: none;
+    }
+    .search-icon-left {
+      position: absolute;
+      left: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .search-icon-right {
+      position: absolute;
+      right: 28px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .search-camera-right {
+      position: absolute;
+      right: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* IP Sync bar */
+    .ip-bar {
+      background: #ffffff;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+    .ip-bar label { color: var(--text-secondary); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .ip-bar input {
+      flex: 1;
+      background: #f1f2f5;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 3px 6px;
+      font-size: 11px;
+      font-family: inherit;
+    }
+    .ip-btn {
+      background: var(--daraz-orange);
+      color: #fff;
+      border: none;
+      border-radius: 2px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Scrollable main content */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding-bottom: 60px; /* Space for sticky footers */
+    }
+    .content::-webkit-scrollbar { display: none; }
+
+    .tab-content { padding: 10px; }
+
+    /* Hero Campaign Banner Slider */
+    .carousel-container {
+      width: 100%;
+      height: 135px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .carousel-slide {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 10px;
+    }
+    .carousel-slide.active {
+      opacity: 1;
+      z-index: 2;
+    }
+    .carousel-slide::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; top: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.75) 100%);
+      z-index: 1;
+    }
+    .carousel-info {
+      position: relative;
+      z-index: 3;
+    }
+    .carousel-tag {
+      background: var(--daraz-orange);
+      color: #fff;
+      font-size: 7px;
+      font-weight: 950;
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+    .carousel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .carousel-sub {
+      font-size: 9px;
+      color: #e2e8f0;
+    }
+
+    /* Circular utility icons grid */
+    .channels-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      padding: 12px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .channel-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .channel-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #fff1eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 4px rgba(248, 86, 6, 0.08);
+    }
+    .channel-item:hover .channel-circle {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(248, 86, 6, 0.15);
+    }
+    .channel-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Flash Sale timer */
+    .flash-sale-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+    .flash-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flash-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--daraz-orange);
+    }
+    .flash-timer {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .timer-box {
+      background: #212121;
+      color: #ffffff;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 900;
+      min-width: 18px;
+      text-align: center;
+    }
+    .view-all-link {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--daraz-orange);
+      cursor: pointer;
+    }
+
+    /* Horizontal Flash Sale Slider */
+    .flash-slider {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .flash-slider::-webkit-scrollbar { display: none; }
+    
+    .flash-item-card {
+      width: 100px;
+      background: #ffffff;
+      border-radius: 2px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 3px;
+    }
+    .flash-discount-badge {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: var(--daraz-orange);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 3px;
+      border-radius: 1px;
+      z-index: 3;
+    }
+    .flash-item-img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 1px;
+    }
+    .flash-item-info {
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .flash-item-price {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--daraz-orange);
+    }
+    .flash-item-original {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+    .sold-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #eaecef;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 3px;
+      position: relative;
+    }
+    .sold-bar-fill {
+      height: 100%;
+      background: var(--daraz-orange);
+    }
+    .sold-bar-text {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-size: 5px;
+      color: #fff;
+      font-weight: bold;
+      top: 0;
+    }
+
+    /* Category horizontal filter bar */
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: var(--daraz-light);
+      border-color: var(--daraz-orange);
+      color: var(--daraz-orange);
+      font-weight: 700;
+    }
+
+    /* 2-Column Recommended Feed Grid */
+    .grid-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    .grid-card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .grid-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      border-color: rgba(248, 86, 6, 0.2);
+    }
+    .grid-badge-top {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: var(--daraz-orange);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 1px;
+      z-index: 3;
+    }
+    .grid-card-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .grid-card-info {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .grid-item-cat {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--daraz-orange);
+      text-transform: uppercase;
+    }
+    .grid-item-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      height: 30px;
+    }
+    .micro-badges {
+      display: flex;
+      gap: 3px;
+      margin: 2px 0;
+    }
+    .m-badge {
+      font-size: 7px;
+      font-weight: bold;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+    .m-badge.coins { background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .m-badge.ship { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    
+    .grid-item-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .grid-item-price {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--daraz-orange);
+    }
+    .grid-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      font-size: 9px;
+      color: var(--text-secondary);
+      padding-top: 4px;
+      border-top: 1px solid #f1f2f6;
+    }
+    .grid-rating { display: flex; align-items: center; gap: 1px; }
+
+    /* Removed grid-action-btn styles as cards are now fully clickable */
+
+    /* Customizer / Detail configurations page */
+    .preview-card {
+      background: #ffffff;
+      border-radius: 2px;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .preview-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .preview-cat { font-size: 9px; color: var(--daraz-orange); text-transform: uppercase; font-weight: 700; }
+
+    .custom-section {
+      background: #ffffff;
+      border-radius: 2px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+    }
+    .custom-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .size-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .size-mode-btn {
+      flex: 1;
+      padding: 6px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+    }
+    .size-mode-btn.active { background: var(--daraz-light); border-color: var(--daraz-orange); color: var(--daraz-orange); font-weight: 700; }
+
+    .size-bubbles { display: flex; gap: 8px; justify-content: center; padding: 4px 0; }
+    .size-bubble {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .size-bubble.active { background: var(--daraz-orange); border-color: var(--daraz-orange); color: #fff; }
+
+    .form-input {
+      width: 100%;
+      background: #ffffff;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-family: inherit;
+      margin-bottom: 6px;
+    }
+    .form-input:focus { outline: none; border-color: var(--daraz-orange); }
+
+    .price-summary {
+      background: var(--daraz-light);
+      border: 1px solid rgba(248,86,6,0.15);
+      border-radius: 2px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .price-label { color: var(--text-secondary); font-size: 11px; font-weight: 600; }
+    .price-value { color: var(--daraz-orange); font-size: 16px; font-weight: 900; }
+
+    /* Detail Sticky Bottom Footer Bar */
+    .detail-sticky-footer {
+      position: absolute;
+      bottom: 0; /* Hides tab-bar, sits at bottom */
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      z-index: 10;
+    }
+    .detail-footer-icons {
+      display: flex;
+      gap: 12px;
+    }
+    .detail-footer-icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .detail-footer-icon-emoji { font-size: 16px; color: var(--text-secondary); }
+    .detail-footer-icon-label { font-size: 8px; color: var(--text-secondary); font-weight: bold; margin-top: 1px; }
+
+    .detail-footer-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .detail-footer-btn-action {
+      height: 36px;
+      width: 100px;
+      border: none;
+      border-radius: 2px;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Customer Feedback Section */
+    .feedback-card {
+      background: #ffffff;
+      border-radius: 2px;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+    .feedback-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+    .feedback-stars { font-size: 11px; color: var(--daraz-orange); font-weight: bold; }
+    
+    .comment-row {
+      border-bottom: 1px solid #f8f9fa;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+    }
+    .comment-row:last-child { border-bottom: none; margin-bottom: 0; }
+    .comment-user-row { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; color: var(--text-primary); margin-bottom: 2px; }
+    .comment-text { font-size: 10px; color: var(--text-secondary); line-height: 1.3; }
+
+    /* Orders tab styling */
+    .login-card {
+      background: #ffffff;
+      border-radius: 2px;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+    }
+    .login-title { font-size: 12px; color: var(--text-primary); font-weight: 700; text-align: center; margin-bottom: 12px; }
+    
+    /* Account Profile Member Card */
+    .account-profile-card {
+      background: linear-gradient(135deg, #ff7300 0%, #f85606 100%);
+      padding: 20px 15px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(248, 86, 6, 0.2);
+    }
+    .profile-info-row { display: flex; align-items: center; gap: 10px; }
+    .avatar-box {
+      width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 18px; color: #ffffff;
+      border: 2px solid #ffffff;
+    }
+    .profile-member-name { font-size: 14px; font-weight: 700; color: #ffffff; }
+    .profile-member-badge { font-size: 10px; color: #fffdec; font-weight: 500; margin-top: 2px; }
+
+    .logout-btn-white {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .logout-btn-white:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Tab bar hidden support */
+    .tab-bar.hidden {
+      display: none;
+    }
+
+    /* Account Status Folders */
+    .account-folders-grid {
+      display: flex;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+    .account-folder-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .account-folder-icon { font-size: 15px; color: var(--text-secondary); }
+    .account-folder-label { font-size: 8px; font-weight: bold; color: var(--text-secondary); margin-top: 2px; }
+    .account-folder-badge {
+      position: absolute;
+      top: -2px;
+      right: 18px;
+      background: var(--daraz-orange);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 800;
+      border-radius: 50%;
+      width: 13px; height: 13px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .order-card {
+      background: #ffffff;
+      border-radius: 2px;
+      border-left: 3px solid var(--success);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .order-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .order-num { color: var(--text-primary); font-weight: 700; font-size: 11px; }
+    .order-status { color: var(--daraz-orange); font-weight: 700; font-size: 9px; text-transform: uppercase; }
+    .order-total { color: var(--text-secondary); font-size: 10px; }
+    .order-address { color: var(--text-muted); font-size: 9px; margin-top: 2px; }
+
+    /* Step-by-Step Status Timeline */
+    .timeline {
+      margin-top: 10px;
+      padding-left: 10px;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .timeline-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      position: absolute;
+      left: -15px;
+    }
+    .timeline-dot.completed {
+      background: var(--success);
+    }
+    .timeline-dot.current {
+      background: var(--daraz-orange);
+    }
+    .timeline-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .timeline-label.completed {
+      color: var(--text-primary);
+    }
+    .timeline-label.current {
+      color: var(--daraz-orange);
+      font-weight: bold;
+    }
+
+    /* Bottom Native Tab Bar */
+    .tab-bar {
+      display: flex;
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+      height: 52px;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      border-top: 2px solid transparent;
+      padding: 2px 0;
+    }
+    .tab-item.active { border-top-color: var(--daraz-orange); }
+    .tab-icon { font-size: 15px; color: var(--text-muted); }
+    .tab-item.active .tab-icon { color: var(--daraz-orange); }
+    .tab-label { font-size: 8px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+    .tab-item.active .tab-label { color: var(--daraz-orange); }
+
+    /* Phone bottom home indicator */
+    .home-indicator {
+      height: 15px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .home-bar { width: 100px; height: 4px; background: #cbd5e1; border-radius: 2px; }
+
+    /* Back button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--daraz-orange);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+
+    /* Toast alert styling */
+    .toast {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-15px);
+      background: var(--success);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.2s;
+      z-index: 999;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--danger); }
+  </style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <p class="phone-label">📱 Balochi Bazzar — Daraz-Style Mobile Preview</p>
+
+  <div class="phone-frame">
+    <div class="phone-notch">
+      <div class="camera"></div>
+      <div class="speaker"></div>
+      <div class="camera"></div>
+    </div>
+
+    <div class="app">
+      <!-- Simulated Phone Status Bar -->
+      <div class="phone-status-bar">
+        <span id="statusBarTime">09:41</span>
+        <span style="flex: 1;"></span>
+        <span class="status-bar-icons">📶 🛜 🔋 85%</span>
+      </div>
+
+      <!-- Premium Search Header (Daraz Style) -->
+      <div class="app-header">
+        <div class="header-main-row">
+          <div class="search-wrapper">
+            <span class="search-icon-left">🔍</span>
+            <input type="text" class="search-input" id="searchBarInput" placeholder="Search in Balochi Bazar..." oninput="handleSearch(this.value)" />
+            <span class="search-icon-right" onclick="clearSearch()">✕</span>
+            <span class="search-camera-right">📷</span>
+          </div>
+          <div class="header-icons-group">
+            <div class="header-icon-item" onclick="showToast('💬 Support chat online')">
+              <span class="header-icon-emoji">💬</span>
+              <span class="header-icon-badge">3</span>
+            </div>
+            <div class="header-icon-item" onclick="showToast('🛒 Your shopping cart is empty.')">
+              <span class="header-icon-emoji">🛒</span>
+              <span class="header-icon-badge">0</span>
+            </div>
+          </div>
+        </div>
+        <div class="header-location-row" onclick="showToast('📍 Delivering to Gwadar Sector Address')">
+          <span class="location-tag">📍 Deliver to Pakistan (Gwadar Sector)</span>
+          <span class="location-arrow">❯</span>
+        </div>
+      </div>
+
+      <!-- IP Config bar -->
+      <div class="ip-bar">
+        <label>API Host:</label>
+        <input type="text" id="backendIpInput" value="localhost" placeholder="e.g. 192.168.1.15" />
+        <button class="ip-btn" onclick="syncProducts()">Sync</button>
+      </div>
+
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
+
+      <!-- Scrollable Content -->
+      <div class="content" id="mainContent">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Bottom Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active" id="tab-catalog" onclick="switchTab('catalog')">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">Home</div>
+        </div>
+        <div class="tab-item" id="tab-customizer" onclick="switchTab('customizer')">
+          <div class="tab-icon">✂️</div>
+          <div class="tab-label">Customize</div>
+        </div>
+        <div class="tab-item" id="tab-orders" onclick="switchTab('orders')">
+          <div class="tab-icon">👤</div>
+          <div class="tab-label">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-indicator"><div class="home-bar"></div></div>
+  </div>
+</div>
+
+<script>
+  // ─── State ───────────────────────────────────────────────────────────────────
+  let activeTab = 'catalog';
+  let products = [];
+  let selectedProduct = null;
+  let activeCategory = 'All';
+  let searchQuery = '';
+  let standardSize = 'M';
+  let sizeMode = 'standard';
+  let authToken = '';
+  let isLoggedIn = false;
+  let orderPhone = '';
+  let orders = [];
+  let voucherApplied = false;
+  let voucherDiscount = 0;
+  
+  const categories = [
+    { label: 'All', id: 'All' },
+    { label: '👗 Complete Balochi Sets', id: 'Complete Balochi Sets' },
+    { label: '🧣 Sareeg', id: 'Sareeg' },
+    { label: '🧣 Chaddar Tikk / Border', id: 'Chaddar Tikk / Border' },
+    { label: '👚 Pashko / Shalwar', id: 'Pashko / Shalwar' },
+    { label: '🪡 Neem Doch', id: 'Neem Doch' },
+    { label: '🪡 Pitt Doch', id: 'Pitt Doch' },
+    { label: '🎨 Do-Rangi', id: 'Do-Rangi' },
+    { label: '👗 Patt Dhamman', id: 'Patt Dhamman' },
+    { label: '💎 Baroo Tikk', id: 'Baroo Tikk' },
+    { label: '✨ Boon Chera Daig', id: 'Boon Chera Daig' },
+    { label: '🌸 Rad Baro', id: 'Rad Baro' },
+    { label: '⚙️ Machine made', id: 'Machine made' }
+  ];
+  let currentBannerIdx = 0;
+
+  // ─── Tab switching ────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + (tab === 'catalog' ? 'catalog' : tab)).classList.add('active');
+    render();
+  }
+
+  // ─── API ─────────────────────────────────────────────────────────────────────
+  function getApiBase() {
+    const ip = document.getElementById('backendIpInput').value.trim() || 'localhost';
+    if (ip.startsWith('http')) return ip;
+    return `http://${ip}:5000/api`;
+  }
+
+  function syncProducts() {
+    const content = document.getElementById('mainContent');
+    if (products.length === 0) {
+      content.innerHTML = `<div class="tab-content"><div class="loading-box"><div class="loading-spinner"></div><div class="loading-text">Loading catalog...</div></div></div>`;
+    }
+    
+    fetch(getApiBase() + '/products')
+      .then(r => r.json())
+      .then(data => {
+        products = data;
+        showToast('✅ ' + data.length + ' products synced!');
+        render();
+      })
+      .catch(() => {
+        showToast('❌ Cannot reach API server. Check Host.', true);
+        render();
+      });
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '') + ' show';
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  // ─── Live Search Handlers ──────────────────────────────────────────────────
+  function handleSearch(val) {
+    searchQuery = val;
+    if (activeTab !== 'catalog') {
+      switchTab('catalog');
+    } else {
+      renderCatalog();
+    }
+  }
+
+  function clearSearch() {
+    document.getElementById('searchBarInput').value = '';
+    searchQuery = '';
+    renderCatalog();
+  }
+
+  // ─── Render Routing ───────────────────────────────────────────────────────
+  function render() {
+    const tabBar = document.querySelector('.tab-bar');
+    if (activeTab === 'customizer' && selectedProduct) {
+      tabBar?.classList.add('hidden');
+    } else {
+      tabBar?.classList.remove('hidden');
+    }
+    if (activeTab === 'catalog') renderCatalog();
+    else if (activeTab === 'customizer') renderCustomizer();
+    else renderOrders();
+  }
+
+  // ─── Tab 1: Home Catalog (Daraz Style) ────────────────────────────────────
+  function renderCatalog() {
+    const activeIp = document.getElementById('backendIpInput').value.trim() || 'localhost';
+    const baseUrl = activeIp.startsWith('http') ? activeIp.split('/api')[0] : `http://${activeIp}:5000`;
+
+    // 1. Filter products by category and search
+    let filtered = products;
+    if (activeCategory !== 'All') {
+      filtered = filtered.filter(p => p.category && p.category.toLowerCase() === activeCategory.toLowerCase());
+    }
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(p => 
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.category && p.category.toLowerCase().includes(q)) ||
+        (p.description && p.description.toLowerCase().includes(q))
+      );
+    }
+
+    // 2. Build Category Chips
+    const chipsHtml = categories.map(c =>
+      `<div class="filter-chip ${c.id === activeCategory ? 'active' : ''}" onclick="filterCat('${c.id}')">${c.label}</div>`
+    ).join('');
+
+    // 3. Carousel Banner Slides (Fallback to nice stock imagery)
+    const banners = [
+      { image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80', title: 'Artisan Balochi Doch Collection', sub: 'Traditional hand-stitching sets direct from Gwadar' },
+      { image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80', title: 'Luxury Bridal Sareeg & Chaddar', sub: 'Rent outfits for special wedding events' },
+      { image: 'https://images.unsplash.com/photo-1596783074918-c84cb06531ca?auto=format&fit=crop&w=600&q=80', title: 'Express Sector Tailoring', sub: 'Stitching and customizations completed in 48 hours' }
+    ];
+
+    const carouselHtml = `
+      <div class="carousel-container">
+        ${banners.map((b, idx) => `
+          <div class="carousel-slide ${idx === currentBannerIdx ? 'active' : ''}" style="background-image: url('${b.image}')">
+            <div class="carousel-info">
+              <span class="carousel-tag">Featured Campaign</span>
+              <div class="carousel-title">${b.title}</div>
+              <div class="carousel-sub">${b.sub}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // 4. Quick Channel circles
+    const channelsHtml = `
+      <div class="channels-row">
+        <div class="channel-item" onclick="filterCat('Rentable')">
+          <div class="channel-circle">👗</div>
+          <span class="channel-label">Rentals</span>
+        </div>
+        <div class="channel-item" onclick="setActiveTab('customizer')">
+          <div class="channel-circle">✂️</div>
+          <span class="channel-label">Customizer</span>
+        </div>
+        <div class="channel-item" onclick="filterCat('Machine')">
+          <div class="channel-circle">⚡</div>
+          <span class="channel-label">Flash Sale</span>
+        </div>
+        <div class="channel-item" onclick="showToast('🚚 Free Delivery across Gwadar Sectors!')">
+          <div class="channel-circle">🚚</div>
+          <span class="channel-label">Free Delivery</span>
+        </div>
+        <div class="channel-item" onclick="showToast('🪙 Spend Bazzar Coins for discounts!')">
+          <div class="channel-circle">🪙</div>
+          <span class="channel-label">Coins</span>
+        </div>
+      </div>
+    `;
+
+    // 5. Flash Sale Slider
+    const flashProducts = products.slice(0, 4);
+    let flashSaleHtml = '';
+    if (products.length > 0 && flashProducts.length > 0) {
+      flashSaleHtml = `
+        <div class="flash-sale-header">
+          <div class="flash-title-group">
+            <div class="flash-title">⚡ FLASH SALE</div>
+            <div class="flash-timer" id="flash-timer">
+              <span class="timer-box">02</span>:<span class="timer-box">45</span>:<span class="timer-box">12</span>
+            </div>
+          </div>
+          <span class="view-all-link" onclick="filterCat('All')">View All</span>
+        </div>
+        <div class="flash-slider">
+          ${flashProducts.map((p, idx) => {
+            const salePrice = p.basePrice * 0.85;
+            const imgUrl = p.isRentable 
+              ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=150&q=80" 
+              : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=150&q=80";
+            const progressPercent = 40 + (idx * 15);
+            return `
+              <div class="flash-item-card" onclick="selectProduct('${p.id}')">
+                <span class="flash-discount-badge">-15%</span>
+                <img class="flash-item-img" src="${imgUrl}" alt="${p.name}" />
+                <div class="flash-item-info">
+                  <div class="flash-item-price">Rs. ${salePrice.toLocaleString()}</div>
+                  <div class="flash-item-original">Rs. ${p.basePrice.toLocaleString()}</div>
+                  <div class="sold-bar-container">
+                    <div class="sold-bar-fill" style="width: ${progressPercent}%"></div>
+                    <span class="sold-bar-text">${progressPercent}% Sold</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // 6. Just For You Grid
+    let gridCardsHtml = '';
+    if (products.length === 0) {
+      gridCardsHtml = `
+        <div class="loading-box">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Press <strong style="color:var(--daraz-orange)">Sync</strong> to pull Balochi Bazzar catalog</div>
+        </div>
+      `;
+    } else if (filtered.length === 0) {
+      gridCardsHtml = `<div class="loading-box"><div class="loading-text" style="color:var(--daraz-orange)">No items match filters</div></div>`;
+    } else {
+      gridCardsHtml = `
+        <div class="products-grid">
+          ${filtered.map(p => {
+            const imgUrl = p.isRentable 
+              ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=300&q=80" 
+              : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=300&q=80";
+            const rating = (4.6 + Math.random() * 0.4).toFixed(1);
+            return `
+              <div class="grid-card" onclick="selectProduct('${p.id}')">
+                ${p.isRentable ? `<span class="grid-badge-top">Rentable</span>` : ''}
+                <img class="grid-card-img" src="${imgUrl}" alt="${p.name}" />
+                <div class="grid-card-info">
+                  <div class="grid-item-cat">${p.category.replace(/_/g, ' ')}</div>
+                  <div class="grid-item-name">${p.name}</div>
+                  
+                  <!-- Recommended Badges -->
+                  <div class="micro-badges">
+                    <span class="m-badge coins">🪙 50 Coins</span>
+                    <span class="m-badge ship">Free Delivery</span>
+                  </div>
+
+                  <div class="grid-item-price-row">
+                    <span class="grid-item-price">Rs. ${p.basePrice.toLocaleString()}</span>
+                  </div>
+                  <div class="grid-card-meta">
+                    <div class="grid-rating">⭐ ${rating}</div>
+                    <div class="grid-location">Gwadar</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    document.getElementById('mainContent').innerHTML = `
+      <div class="tab-content" style="padding-bottom:10px;">
+        ${carouselHtml}
+        ${channelsHtml}
+        ${flashSaleHtml}
+        <div class="grid-header"><span>❤</span> Just For You</div>
+        <div class="filter-row">${chipsHtml}</div>
+        ${gridCardsHtml}
+      </div>`;
+  }
+
+  function filterCat(cat) {
+    activeCategory = cat;
+    if (cat === 'Rentable') {
+      activeCategory = 'All';
+      products = products.filter(p => p.isRentable);
+      showToast('👗 Showing rentable sets');
+    } else {
+      syncProducts();
+      return;
+    }
+    renderCatalog();
+  }
+
+  function selectProduct(id) {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    selectedProduct = p;
+    switchTab('customizer');
+  }
+
+  // ─── Tab 2: Customizer Detail Page ────────────────────────────────────────
+  function renderCustomizer() {
+    if (!selectedProduct) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="tab-content">
+          <div class="loading-box">
+            <div style="font-size:32px;margin-bottom:8px">✂️</div>
+            <div class="loading-text">Select a Traditional Doch from<br>the Home feed catalog</div>
+          </div>
+        </div>`;
+      return;
+    }
+    const p = selectedProduct;
+    const imgUrl = p.isRentable 
+      ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=400&q=80" 
+      : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&q=80";
+
+    const total = p.basePrice - (voucherApplied ? 1000 : 0);
+
+    document.getElementById('mainContent').innerHTML = `
+      <div class="tab-content" style="padding-bottom: 50px;">
+        <button class="back-btn" onclick="switchTab('catalog')">← Back to Home Feed</button>
+        <div class="preview-card">
+          <img src="${imgUrl}" style="width:100%;height:150px;object-fit:cover;border-radius:2px;margin-bottom:8px" />
+          <div class="preview-title">${p.name}</div>
+          <div class="preview-cat">${p.category.replace(/_/g, ' ')}</div>
+          <div style="color:var(--text-secondary);font-size:11px;margin-top:4px">${p.description || ''}</div>
+        </div>
+
+        <div class="custom-section">
+          <div class="custom-section-title">📐 Select Tailoring Size</div>
+          <div class="size-row">
+            <button class="size-mode-btn ${sizeMode==='standard'?'active':''}" onclick="setSizeMode('standard')">Standard Size</button>
+            <button class="size-mode-btn ${sizeMode==='custom'?'active':''}" onclick="setSizeMode('custom')">Custom Measure</button>
+          </div>
+          ${sizeMode === 'standard' ? `
+            <div class="size-bubbles">
+              ${['S','M','L','XL'].map(s=>`<div class="size-bubble ${s===standardSize?'active':''}" onclick="setSize('${s}')">${s}</div>`).join('')}
+            </div>
+          ` : `
+            <input class="form-input" type="number" placeholder="Height (cm)" id="inp-height" />
+            <input class="form-input" type="number" placeholder="Chest (inches)" id="inp-chest" />
+            <input class="form-input" type="number" placeholder="Waist (inches)" id="inp-waist" />
+            <input class="form-input" type="number" placeholder="Sleeves (inches)" id="inp-sleeves" />
+          `}
+        </div>
+
+        <!-- Voucher Code Card -->
+        <div class="custom-section">
+          <div class="custom-section-title">🎫 Apply Shop Promo Coupon</div>
+          <div style="display:flex; gap:6px;">
+            <input class="form-input" type="text" id="inp-voucher" placeholder="e.g. BAZAR10" style="margin-bottom:0;" />
+            <button class="ip-btn" onclick="applyVoucherCode()">Apply</button>
+          </div>
+        </div>
+
+        <div class="custom-section">
+          <div class="custom-section-title">📦 Delivery Details (Gwadar sectors)</div>
+          <input class="form-input" type="text" placeholder="Recipient Full Name" id="inp-name" />
+          <input class="form-input" type="tel" placeholder="Gwadar Phone Number" id="inp-phone" />
+          <input class="form-input" type="text" placeholder="Sector Area (e.g. Mulla Band, West Bay)" id="inp-sector" />
+          <input class="form-input" type="text" placeholder="Street Address & House Details" id="inp-address" />
+        </div>
+
+        <!-- Customer Feedback Card -->
+        <div class="feedback-card">
+          <div class="feedback-header">
+            <span class="feedback-title">Ratings & Reviews</span>
+            <span class="feedback-stars">⭐ 4.9/5 (18 Ratings)</span>
+          </div>
+          <div class="comment-row">
+            <div class="comment-user-row">
+              <span>Ayesha K.</span>
+              <span style="color:var(--daraz-orange)">⭐⭐⭐⭐⭐</span>
+            </div>
+            <div class="comment-text">The embroidery pashk doch looks absolutely gorgeous! Extremely fast delivery in East Bay.</div>
+          </div>
+          <div class="comment-row">
+            <div class="comment-user-row">
+              <span>Zubaida B.</span>
+              <span style="color:var(--daraz-orange)">⭐⭐⭐⭐⭐</span>
+            </div>
+            <div class="comment-text">Rented complete Balochi sets forGwadar wedding. Process return was very smooth.</div>
+          </div>
+        </div>
+
+        <div class="price-summary">
+          <span class="price-label">Estimated Price:</span>
+          <span class="price-value" id="price-summary-val">Rs. ${total.toLocaleString()}</span>
+        </div>
+
+        <!-- Sticky Bottom Detail Action Bar (Store, Chat, Add to Cart, Buy Now) -->
+        <div class="detail-sticky-footer">
+          <div class="detail-footer-icons">
+            <div class="detail-footer-icon-item" onclick="switchTab('catalog')">
+              <span class="detail-footer-icon-emoji">🏠</span>
+              <span class="detail-footer-icon-label">Store</span>
+            </div>
+            <div class="detail-footer-icon-item" onclick="showToast('💬 Support chat online')">
+              <span class="detail-footer-icon-emoji">💬</span>
+              <span class="detail-footer-icon-label">Chat</span>
+            </div>
+          </div>
+          <div class="detail-footer-btns">
+            <button class="detail-footer-btn-action" style="background:#ff9800;" onclick="showToast('🛒 Added to Cart!')">Add to Cart</button>
+            <button class="detail-footer-btn-action" style="background:#f85606;" onclick="handleCheckout()">Buy Now</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function setSizeMode(mode) {
+    sizeMode = mode;
+    renderCustomizer();
+  }
+  function setSize(s) {
+    standardSize = s;
+    renderCustomizer();
+  }
+
+  function applyVoucherCode() {
+    const code = document.getElementById('inp-voucher')?.value.trim().toUpperCase();
+    if (code === 'BAZAR10') {
+      voucherApplied = true;
+      voucherDiscount = 1000;
+      showToast('🎉 Rs. 1,000 Coupon Applied!');
+      renderCustomizer();
+    } else {
+      showToast('❌ Invalid Voucher', true);
+    }
+  }
+
+  async function handleCheckout() {
+    const name = document.getElementById('inp-name')?.value.trim();
+    const phone = document.getElementById('inp-phone')?.value.trim();
+    const sector = document.getElementById('inp-sector')?.value.trim() || 'Mulla Band';
+    const address = document.getElementById('inp-address')?.value.trim();
+
+    if (!name || !phone || !address) {
+      showToast('❌ Fill name, phone, and address', true);
+      return;
+    }
+
+    showToast('⏳ Placing order…');
+
+    try {
+      const api = getApiBase();
+      let tokenStr = '';
+      const regRes = await fetch(api + '/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ phoneNumber: phone, password: 'localpassword123', name, sectorName: sector, streetAddress: address })
+      });
+      if (regRes.ok) {
+        const d = await regRes.json();
+        tokenStr = d.token;
+      } else {
+        const loginRes = await fetch(api + '/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ phoneNumber: phone, password: 'localpassword123' })
+        });
+        const loginData = await loginRes.json();
+        if (!loginRes.ok) throw new Error(loginData.error || 'Authentication failed');
+        tokenStr = loginData.token;
+      }
+
+      const addrRes = await fetch(api + '/auth/address', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+tokenStr},
+        body: JSON.stringify({ sectorName: sector, streetAddress: address, isDefault: true })
+      });
+      const addrData = await addrRes.json();
+
+      const orderRes = await fetch(api + '/orders', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+tokenStr},
+        body: JSON.stringify({
+          addressId: addrData.id,
+          paymentMethod: 'COD',
+          items: [{
+            productId: selectedProduct.id,
+            quantity: 1,
+            customizations: [],
+            customSizing: sizeMode === 'custom'
+              ? { height: document.getElementById('inp-height')?.value, chest: document.getElementById('inp-chest')?.value, waist: document.getElementById('inp-waist')?.value, sleeves: document.getElementById('inp-sleeves')?.value }
+              : { standardSize },
+            isRental: false,
+            rentalDays: null
+          }]
+        })
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.error);
+
+      authToken = tokenStr;
+      isLoggedIn = true;
+      orderPhone = phone;
+      voucherApplied = false;
+      voucherDiscount = 0;
+      showToast('🎉 Order Placed!');
+      setTimeout(() => {
+        fetch(api + '/orders/my-orders', { headers: {'Authorization':'Bearer '+tokenStr} })
+          .then(r=>r.json()).then(d=>{orders=d; switchTab('orders');}).catch(()=>switchTab('orders'));
+      }, 1500);
+
+    } catch(e) {
+      showToast('❌ ' + (e.message || 'Order failed'), true);
+    }
+  }
+
+  // ─── Tab 3: Account Lookup & Tracker Timeline ─────────────────────────────
+  function renderOrders() {
+    if (!isLoggedIn) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="tab-content">
+          <div class="grid-header">📦 Track Orders</div>
+          <div class="login-card">
+            <div class="login-title">Enter your Gwadar phone number<br>to track tailoring & shipments</div>
+            <input class="form-input" type="tel" id="order-phone-inp" placeholder="e.g. 03001234567" />
+            <button class="checkout-btn" onclick="lookupOrders()" style="margin-bottom:0">View My Orders</button>
+          </div>
+        </div>`;
+    } else {
+      // 100% Identical Account profile card
+      const profileCardHtml = `
+        <div class="account-profile-card">
+          <div class="profile-info-row">
+            <div class="avatar-box">👤</div>
+            <div>
+              <div class="profile-member-name">Bazzar Client</div>
+              <div class="profile-member-badge">🏆 Silver Member | ${orderPhone}</div>
+            </div>
+          </div>
+          <button class="logout-btn-white" onclick="logoutOrders()">Logout</button>
+        </div>
+      `;
+
+      // Status Folders counters
+      const pendingCount = orders.filter(o => ['PENDING', 'CONFIRMED', 'IN_EMBROIDERY', 'IN_TAILORING'].includes(o.status)).length;
+      const shippedCount = orders.filter(o => ['READY_FOR_DELIVERY', 'OUT_FOR_DELIVERY'].includes(o.status)).length;
+      const returnCount = orders.filter(o => ['RETURN_REQUESTED'].includes(o.status)).length;
+
+      const foldersHtml = `
+        <div class="account-folders-grid">
+          <div class="account-folder-card">
+            <span class="account-folder-icon">💳</span>
+            <span class="account-folder-label">To Pay</span>
+            <div class="account-folder-badge">0</div>
+          </div>
+          <div class="account-folder-card">
+            <span class="account-folder-icon">🧵</span>
+            <span class="account-folder-label">To Ship</span>
+            <div class="account-folder-badge">${pendingCount}</div>
+          </div>
+          <div class="account-folder-card">
+            <span class="account-folder-icon">🚚</span>
+            <span class="account-folder-label">To Receive</span>
+            <div class="account-folder-badge">${shippedCount}</div>
+          </div>
+          <div class="account-folder-card">
+            <span class="account-folder-icon">↩</span>
+            <span class="account-folder-label">To Return</span>
+            <div class="account-folder-badge">${returnCount}</div>
+          </div>
+        </div>
+      `;
+
+      const orderCards = orders.length === 0
+        ? `<div class="loading-box"><div class="loading-text">No orders found for this number.</div></div>`
+        : orders.map(ord => {
+            // Pipeline progress index: Placed, Approved, Embroidery, Stitching, Shipped, Complete
+            let activeIdx = 0;
+            if (ord.status === 'CONFIRMED') activeIdx = 1;
+            else if (ord.status === 'IN_EMBROIDERY') activeIdx = 2;
+            else if (ord.status === 'IN_TAILORING') activeIdx = 3;
+            else if (ord.status === 'READY_FOR_DELIVERY' || ord.status === 'OUT_FOR_DELIVERY') activeIdx = 4;
+            else if (ord.status === 'DELIVERED' || ord.status === 'COMPLETED') activeIdx = 5;
+
+            const pipelineSteps = ['Placed', 'Approved', 'Embroidery', 'Stitching', 'Shipped', 'Complete'];
+
+            return `
+              <div class="order-card">
+                <div class="order-head">
+                  <div class="order-num">Order ID: #${ord.orderNumber}</div>
+                  <div class="order-status">${ord.status}</div>
+                </div>
+                <div class="order-total">Total: Rs. ${(ord.totalAmount||0).toLocaleString()}</div>
+                <div class="order-address">📍 Address: ${ord.address?.streetAddress || ''}, ${ord.address?.sectorName || ''}</div>
+                
+                <!-- Timeline step visualization -->
+                <div class="timeline">
+                  ${pipelineSteps.map((step, idx) => {
+                    const isCompleted = idx < activeIdx;
+                    const isCurrent = idx === activeIdx;
+                    return `
+                      <div class="timeline-step">
+                        <div class="timeline-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}"></div>
+                        <div class="timeline-label ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                          ${step} ${isCurrent ? `<span style="font-size:8px;">(Current)</span>` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>`;
+          }).join('');
+
+      document.getElementById('mainContent').innerHTML = `
+        <div class="tab-content" style="padding-bottom:10px;">
+          ${profileCardHtml}
+          ${foldersHtml}
+          <div class="grid-header">My Orders</div>
+          ${orderCards}
+        </div>`;
+    }
+  }
+
+  async function lookupOrders() {
+    const phone = document.getElementById('order-phone-inp')?.value.trim();
+    if (!phone) { showToast('❌ Enter phone number', true); return; }
+    showToast('⏳ Syncing orders…');
+    try {
+      const api = getApiBase();
+      const res = await fetch(api + '/auth/login', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({phoneNumber:phone, password:'localpassword123'})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      authToken = data.token;
+      isLoggedIn = true;
+      orderPhone = phone;
+      const ordRes = await fetch(api + '/orders/my-orders', {headers:{'Authorization':'Bearer '+authToken}});
+      orders = await ordRes.json();
+      showToast('✅ Loaded ' + orders.length + ' orders!');
+      renderOrders();
+    } catch(e) {
+      showToast('❌ Lookup failed', true);
+    }
+  }
+
+  function logoutOrders() {
+    isLoggedIn = false;
+    authToken = '';
+    orders = [];
+    renderOrders();
+  }
+
+  // ─── Carousel Timer ────────────────────────────────────────────────────────
+  setInterval(() => {
+    currentBannerIdx = (currentBannerIdx + 1) % 3;
+    if (activeTab === 'catalog') {
+      const slides = document.querySelectorAll('.carousel-slide');
+      if (slides.length > 0) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[currentBannerIdx]?.classList.add('active');
+      }
+    }
+  }, 4500);
+
+  // ─── Ticking Flash Sale Countdown ──────────────────────────────────────────
+  let hours = 2, minutes = 45, seconds = 12;
+  setInterval(() => {
+    seconds--;
+    if (seconds < 0) {
+      seconds = 59;
+      minutes--;
+      if (minutes < 0) {
+        minutes = 59;
+        hours--;
+        if (hours < 0) hours = 23;
+      }
+    }
+    const hStr = String(hours).padStart(2, '0');
+    const mStr = String(minutes).padStart(2, '0');
+    const sStr = String(seconds).padStart(2, '0');
+    const el = document.getElementById('flash-timer');
+    if (el) {
+      el.innerHTML = `<span class="timer-box">${hStr}</span>:<span class="timer-box">${mStr}</span>:<span class="timer-box">${sStr}</span>`;
+    }
+  }, 1000);
+
+  // ─── Init ────────────────────────────────────────────────────────────────────
+  render();
+  setTimeout(syncProducts, 300);
+</script>
+
+</body>
+</html>

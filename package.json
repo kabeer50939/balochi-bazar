@@ -1,0 +1,19 @@
+{
+  "name": "bazar-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:mobile": "npm run start --workspace=apps/mobile",
+    "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:web\" \"npm run dev:admin\"",
+    "test": "node scripts/test-api.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,796 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --bg-primary: #f4f5f8;       /* Daraz Light Gray Canvas */
+  --bg-sidebar: #ffffff;       /* Pure White Sidebar */
+  --bg-card: #ffffff;          /* Pure White Cards */
+  --border-color: #e2e4e8;     /* Precise border gray */
+  
+  --primary: #f85606;          /* Official Daraz Orange */
+  --primary-hover: #d04600;    /* Orange Hover */
+  --primary-light: #ffece2;    /* Soft Orange Active BG */
+  
+  --text-primary: #212121;     /* Primary High Contrast Gray */
+  --text-secondary: #5f6368;   /* Secondary gray text */
+  --text-muted: #9e9e9e;       /* Muted gray text */
+  
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  --radius-sm: 0px;            /* Sharp Daraz Corners */
+  --radius-md: 2px;            /* Sharp Daraz Corners */
+  --radius-lg: 3px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  line-height: 1.35;
+  font-size: 12px; /* High density baseline */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.admin-container {
+  display: flex;
+  min-height: calc(100vh - 56px);
+}
+
+/* Sidebar Styling (Daraz Seller Center clean look) */
+.sidebar {
+  width: 230px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
+}
+
+.sidebar-menu-group {
+  border-bottom: 1px solid #f1f2f6;
+  padding: 0.25rem 0;
+}
+
+.sidebar-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-group-header:hover {
+  background-color: #f8f9fa;
+}
+
+.sidebar-group-header .arrow-icon {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.sidebar-group-header.open .arrow-icon {
+  transform: rotate(90deg);
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  width: 100%;
+  padding: 0.55rem 0.85rem 0.55rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  position: relative;
+}
+
+.menu-item svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 1.5;
+  transition: stroke 0.1s ease;
+}
+
+.menu-item:hover {
+  color: var(--primary);
+  background-color: #f8f9fa;
+}
+
+.menu-item:hover svg {
+  stroke: var(--primary);
+}
+
+.menu-item.active {
+  color: var(--primary);
+  background-color: var(--primary-light);
+  font-weight: 500;
+}
+
+.menu-item.active svg {
+  stroke: var(--primary);
+}
+
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--primary);
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
+  padding: 1rem 1.5rem;
+  overflow-y: auto;
+  max-width: calc(100vw - 230px);
+}
+
+.page-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Cards & Containers */
+.daraz-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.daraz-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Key Metrics Summary Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  min-height: 95px;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #f1f2f6;
+}
+
+.metric-card.primary::before {
+  background-color: var(--primary);
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.25rem 0;
+}
+
+.metric-trend {
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--success);
+}
+
+.metric-trend.down {
+  color: var(--danger);
+}
+
+/* Time Filter Toggle Tabs (Business Advisor) */
+.time-filter-btn-group {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.time-filter-btn {
+  border: none;
+  background: none;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.time-filter-btn:not(:last-child) {
+  border-right: 1px solid var(--border-color);
+}
+
+.time-filter-btn:hover {
+  background-color: #f8f9fa;
+  color: var(--primary);
+}
+
+.time-filter-btn.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* To-Do List Cards (Seller Center Shortcuts) */
+.todo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.todo-item {
+  background-color: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.6rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.todo-item:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.todo-count {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1px;
+}
+
+.todo-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Batch Actions Panel */
+.batch-actions-panel {
+  background-color: #ffece2;
+  border: 1px solid var(--primary);
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--radius-md);
+}
+
+.batch-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: #c23b00;
+  font-weight: 500;
+}
+
+.batch-actions-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Daraz Order Card Layout */
+.order-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-card);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.order-card-header {
+  background-color: #f6f7fa;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.order-header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.order-number {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.order-card-body {
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 3.5fr 1.2fr 1.3fr 1.3fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1100px) {
+  .order-card-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.order-items-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.order-item-row {
+  display: flex;
+  gap: 0.6rem;
+  border-bottom: 1px dashed #f1f2f6;
+  padding-bottom: 0.5rem;
+}
+
+.order-item-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.order-item-img {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.order-item-details {
+  flex-grow: 1;
+  font-size: 0.75rem;
+}
+
+.order-item-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.order-item-meta {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.meta-pill {
+  padding: 1px 4px;
+  background-color: #f1f5f9;
+  border-radius: 1px;
+  font-size: 0.65rem;
+}
+
+.meta-pill.customization {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fef3c7;
+}
+
+.meta-pill.sizing {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.order-price-col, .order-status-col, .order-print-col, .order-action-col {
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.2rem;
+}
+
+.order-action-col {
+  align-items: stretch;
+}
+
+/* Horizontal Scrollable Tabs under Manage Orders */
+.daraz-tabs-wrapper {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
+}
+
+.daraz-tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.daraz-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.daraz-tab-btn {
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: all 0.1s ease;
+}
+
+.daraz-tab-btn:hover {
+  color: var(--primary);
+}
+
+.daraz-tab-btn.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.daraz-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eaecef;
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 1px 5px;
+  margin-left: 3px;
+}
+
+.daraz-tab-btn.active .tab-badge {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: 1px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  text-align: center;
+  width: fit-content;
+}
+
+.badge-pending { background-color: rgba(245, 158, 11, 0.1); color: #d97706; }
+.badge-confirmed { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; }
+.badge-in-embroidery { background-color: #fef3c7; color: #d97706; }
+.badge-in-tailoring { background-color: #f3e8ff; color: #7c3aed; }
+.badge-ready-for-delivery { background-color: #dcfce7; color: #15803d; }
+.badge-out-for-delivery { background-color: #e0f2fe; color: #0369a1; }
+.badge-delivered { background-color: #dcfce7; color: #16a34a; }
+.badge-completed { background-color: #dcfce7; color: #16a34a; }
+.badge-returned { background-color: #f1f5f9; color: #475569; }
+.badge-return-requested { background-color: #fee2e2; color: #dc2626; }
+.badge-cancelled { background-color: #fee2e2; color: #dc2626; }
+
+/* Buttons in Daraz Style */
+.btn-daraz {
+  padding: 0.35rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.btn-daraz-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.btn-daraz-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-daraz-secondary {
+  background-color: #ffffff;
+  color: var(--text-primary);
+  border-color: #dcdcdc;
+}
+
+.btn-daraz-secondary:hover {
+  background-color: #f5f6f9;
+  border-color: var(--text-muted);
+}
+
+.btn-daraz-danger {
+  background-color: #ffffff;
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-daraz-danger:hover {
+  background-color: #fee2e2;
+  border-color: var(--danger);
+}
+
+.btn-daraz-success {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+.btn-daraz-success:hover {
+  background-color: #16a34a;
+}
+
+/* Inputs & Forms */
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.3px;
+}
+
+.daraz-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  background-color: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  transition: all 0.1s ease;
+}
+
+.daraz-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(248, 86, 6, 0.08);
+}
+
+/* Toggle Switch Widget */
+.switch-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch-track {
+  width: 32px;
+  height: 18px;
+  background-color: #ccc;
+  border-radius: 9px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.switch-thumb {
+  width: 14px;
+  height: 14px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.switch-container.on .switch-track {
+  background-color: var(--primary);
+}
+
+.switch-container.on .switch-thumb {
+  transform: translateX(14px);
+}
+
+/* Mock Sparkline/Charts using SVGs */
+.sparkline-svg {
+  width: 100%;
+  height: 25px;
+  margin-top: 0.4rem;
+  stroke: var(--primary);
+  stroke-width: 1.25;
+  fill: none;
+}
+
+/* Table elements in generic views */
+.daraz-table-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.daraz-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.daraz-table th {
+  background-color: #f6f7fa;
+  padding: 0.6rem 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.75rem;
+}
+
+.daraz-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+  background: var(--bg-card);
+}
+
+.daraz-table tr:hover td {
+  background-color: #f8f9fa;
+}
+
+/* Custom Grid Columns for product details in inventory */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 50px 1.5fr 1fr 1fr 1fr 1fr 100px;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.75rem;
+}
+
+.inventory-grid.header {
+  background-color: #f6f7fa;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Daraz Document Print Modal */
+.print-layout {
+  font-family: Arial, sans-serif;
+  color: #000;
+  padding: 1rem;
+  max-width: 450px;
+  margin: 0 auto;
+  border: 1px solid #000;
+  background-color: #ffffff;
+}
+
+.print-barcode-sim {
+  height: 50px;
+  background: repeating-linear-gradient(
+    90deg,
+    #000,
+    #000 2px,
+    #fff 2px,
+    #fff 6px
+  );
+  margin: 0.5rem 0;
+}

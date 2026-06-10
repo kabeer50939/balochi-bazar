@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Balochi Bazzar",
+    "slug": "balochi-bazzar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

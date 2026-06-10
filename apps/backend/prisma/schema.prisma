@@ -1,0 +1,125 @@
+// This is your Prisma schema file for local development
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String?       @unique
+  phoneNumber  String        @unique
+  passwordHash String
+  name         String
+  role         String        @default("CUSTOMER") // "CUSTOMER", "STAFF", "ADMIN"
+  addresses    Address[]
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Address {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sectorName   String        // Gwadar sectors (e.g., Mulla Band, Sabiya, Shahi Chaman)
+  streetAddress String
+  landmark     String?
+  isDefault    Boolean       @default(false)
+  orders       Order[]
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  name          String
+  description   String
+  category      String        // "COMPLETE_SET", "SAREEG", "CHADDAR", "PASHKO_SHALWAR", "OTHER"
+  basePrice     Float
+  
+  // Inventory
+  stockQuantity Int           @default(1)
+  
+  // Rental Options
+  isRentable    Boolean       @default(false)
+  rentPerDay    Float?
+  depositFee    Float?        // Refundable security deposit
+  
+  // Customization Configuration
+  allowsCustomEmbroidery Boolean @default(false)
+  
+  images        ProductImage[]
+  orderItems    OrderItem[]
+  customizationOptions ProductCustomizationOption[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  isPrimary Boolean  @default(false)
+}
+
+model ProductCustomizationOption {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sectionName String   // e.g., "Sareeg", "Chaddar", "Pashko"
+  optionName  String   // e.g., "Koreshi", "Pikko", "Bala Morag"
+  priceMarkup Float    @default(0.00)
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  addressId     String
+  address       Address       @relation(fields: [addressId], references: [id])
+  status        String        @default("PENDING") // "PENDING", "CONFIRMED", "IN_EMBROIDERY", "IN_TAILORING", "READY", "OUT_FOR_DELIVERY", "DELIVERED", "COMPLETED", "CANCELLED"
+  totalAmount   Float
+  
+  // Payments
+  paymentMethod String        // "COD", "BANK_TRANSFER", "EASYPAISA", "JAZZCASH"
+  paymentStatus String        @default("PENDING")
+  paymentReceiptUrl String?   // Local filesystem path/url to uploaded screenshot
+  
+  // Dates
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  orderItems    OrderItem[]
+  rentals       RentalDetail[]
+}
+
+model OrderItem {
+  id             String       @id @default(uuid())
+  orderId        String
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product      @relation(fields: [productId], references: [id])
+  quantity       Int          @default(1)
+  priceAtPurchase Float
+  
+  customizations String?      // JSON string of selected options: '["Koreshi", "Pikko"]'
+  customSizing   String?      // JSON string of sizing: '{"height": 160, "chest": 92}'
+}
+
+model RentalDetail {
+  id             String       @id @default(uuid())
+  orderId        String
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  startDate      DateTime
+  endDate        DateTime
+  status         String       @default("AWAITING_DISPATCH") // "AWAITING_DISPATCH", "RENTED_OUT", "OVERDUE", "RETURNED_GOOD", "RETURNED_DAMAGED"
+  actualReturnDate DateTime?
+  lateFeeCharged Float?
+  damageFeeCharged Float?
+  notes          String?
+}
