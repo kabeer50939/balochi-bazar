@@ -55,7 +55,9 @@ export default function App() {
   
   // Developer setting: Backend LAN IP (Change to local Wi-Fi IP for real phones)
   const [backendIp, setBackendIp] = useState('10.0.2.2'); 
-  const apiBase = `http://${backendIp}:5000/api`;
+  
+  // Use EXPO_PUBLIC_API_URL if defined (for production builds on Play Store), otherwise use the local IP sync bar.
+  const apiBase = process.env.EXPO_PUBLIC_API_URL || `http://${backendIp}:5000/api`;
 
   // Core lists
   const [products, setProducts] = useState<Product[]>([]);
@@ -360,20 +362,22 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic Top IP Sync Bar */}
-      <View style={styles.ipBar}>
-        <Text style={styles.ipLabel}>IP Address:</Text>
-        <TextInput
-          style={styles.ipInput}
-          value={backendIp}
-          onChangeText={setBackendIp}
-          placeholder="e.g. 10.163.66.124"
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity style={styles.ipBtn} onPress={loadProducts}>
-          <Text style={styles.ipBtnText}>Connect API</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Dynamic Top IP Sync Bar (Only show in development/local testing mode) */}
+      {!process.env.EXPO_PUBLIC_API_URL && (
+        <View style={styles.ipBar}>
+          <Text style={styles.ipLabel}>IP Address:</Text>
+          <TextInput
+            style={styles.ipInput}
+            value={backendIp}
+            onChangeText={setBackendIp}
+            placeholder="e.g. 10.163.66.124"
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity style={styles.ipBtn} onPress={loadProducts}>
+            <Text style={styles.ipBtnText}>Connect API</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         
