@@ -49,8 +49,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
-// Start listening
-app.listen(PORT, () => {
-  console.log(`[Bazar Server] Running locally on: http://localhost:${PORT}`);
-  console.log(`[Bazar Server] Local uploads serving at: http://localhost:${PORT}/uploads`);
-});
+// Start listening conditionally (skip in serverless Vercel env)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[Bazar Server] Running locally on: http://localhost:${PORT}`);
+    console.log(`[Bazar Server] Local uploads serving at: http://localhost:${PORT}/uploads`);
+  });
+}
+
+export default app;
+
