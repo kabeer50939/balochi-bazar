@@ -6,6 +6,9 @@ import { Suspense } from 'react';
 export const metadata: Metadata = {
   title: 'Balochi Bazzar - Balochi Doch & Rentals in Gwadar',
   description: 'Premium e-commerce and renting of Balochi cultural suits, Sareeg, Chaddar, and customized hand embroidery in Gwadar city.',
+  verification: {
+    google: 'NbbYVaeccg52JYTqQAZhJMV4K7-mdCkkDd4oqAK-EsU',
+  },
 };
 
 export default function RootLayout({
