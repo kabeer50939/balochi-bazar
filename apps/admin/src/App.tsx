@@ -101,7 +101,10 @@ export default function App() {
       return `${import.meta.env.VITE_API_URL}${path}`;
     }
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    return `http://${host}:5000${path}`;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return `http://${host}:5000${path}`;
+    }
+    return `https://balochi-bazar-backend.vercel.app${path}`;
   };
 
   const [token, setToken] = useState<string | null>(null);
