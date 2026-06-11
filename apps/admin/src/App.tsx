@@ -727,11 +727,11 @@ export default function App() {
               {/* Daraz Seller Center Announcement notice banner */}
               <div style={{
                 backgroundColor: 'var(--primary-light)',
-                border: '1px solid rgba(248,86,6,0.2)',
+                border: '1px solid rgba(255, 153, 0, 0.2)',
                 padding: '8px 12px',
                 marginBottom: '1rem',
                 fontSize: '11px',
-                color: '#d04600',
+                color: 'var(--text-gold, #c45500)',
                 fontWeight: '500',
                 display: 'flex',
                 alignItems: 'center',
@@ -1295,7 +1295,7 @@ export default function App() {
               </div>
 
               {activeRentalReturn && (
-                <div className="daraz-card" style={{ border: '1px solid var(--primary)', backgroundColor: '#fff8f5' }}>
+                <div className="daraz-card" style={{ border: '1px solid var(--primary)', backgroundColor: 'var(--primary-light)' }}>
                   <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.75rem' }}>
                     ↩ Process Rental Return (ID: #{activeRentalReturn.id.slice(0, 8)})
                   </h3>
