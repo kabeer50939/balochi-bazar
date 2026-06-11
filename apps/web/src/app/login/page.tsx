@@ -30,7 +30,6 @@ function LoginPageContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [forgotHover, setForgotHover] = useState(false);
 
   useEffect(() => {
     // Read optional tab query param
@@ -139,59 +138,222 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="container" style={{ paddingTop: '5rem', paddingBottom: '7rem', display: 'flex', justifyContent: 'center' }}>
-      <div style={{
-        maxWidth: '850px',
-        width: '100%',
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1fr',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        background: 'var(--bg-secondary, #131a22)'
-      }}>
-        
-        {/* Left Panel: Auth Forms */}
-        <div style={{ padding: '3rem 2.5rem', background: '#17202a', color: '#fff' }}>
-          {/* Tabs header */}
-          <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '2rem', paddingBottom: '0.5rem' }}>
-            <span 
-              onClick={() => { setActiveTab('LOGIN'); setError(''); setSuccess(''); }} 
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                color: activeTab === 'LOGIN' ? '#f85606' : '#85929e',
-                borderBottom: activeTab === 'LOGIN' ? '3px solid #f85606' : 'none',
-                paddingBottom: '0.5rem'
-              }}
-            >
-              Sign In
-            </span>
-            <span 
-              onClick={() => { setActiveTab('REGISTER'); setError(''); setSuccess(''); }} 
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                color: activeTab === 'REGISTER' ? '#f85606' : '#85929e',
-                borderBottom: activeTab === 'REGISTER' ? '3px solid #f85606' : 'none',
-                paddingBottom: '0.5rem'
-              }}
-            >
-              Register Account
+    <div className="login-page-container">
+      {/* Dynamic styles injected directly */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .login-page-container {
+          background-color: #eff0f5;
+          min-height: 80vh;
+          padding: 40px 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-family: Inter, sans-serif;
+        }
+        .login-card {
+          background: #ffffff;
+          max-width: 850px;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1.6fr 1fr;
+          border-radius: 2px;
+          box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
+          overflow: hidden;
+        }
+        .login-left {
+          padding: 40px;
+        }
+        .login-right {
+          padding: 40px;
+          border-left: 1px solid #eff0f5;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+        }
+        .login-title {
+          font-size: 22px;
+          color: #424242;
+          margin-bottom: 25px;
+          font-weight: 400;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .daraz-input-group {
+          margin-bottom: 20px;
+        }
+        .daraz-label {
+          display: block;
+          font-size: 14px;
+          color: #424242;
+          margin-bottom: 8px;
+        }
+        .daraz-input {
+          width: 100%;
+          height: 44px;
+          border: 1px solid #d5d5d5;
+          background: #fff;
+          padding: 10px 12px;
+          font-size: 14px;
+          color: #212121;
+          border-radius: 2px;
+          transition: border-color 0.2s;
+          outline: none;
+        }
+        .daraz-input:focus {
+          border-color: #f85606;
+        }
+        .daraz-btn-primary {
+          width: 100%;
+          height: 48px;
+          background: #f85606;
+          color: #fff;
+          border: none;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          border-radius: 2px;
+          transition: background 0.2s;
+          margin-top: 20px;
+        }
+        .daraz-btn-primary:hover {
+          background: #d04505;
+        }
+        .daraz-btn-primary:disabled {
+          background: #fca880;
+          cursor: not-allowed;
+        }
+        .forgot-link {
+          display: block;
+          text-align: right;
+          font-size: 12px;
+          color: #1a73e8;
+          text-decoration: none;
+          margin-top: 6px;
+          cursor: pointer;
+        }
+        .forgot-link:hover {
+          color: #f85606;
+        }
+        .switch-link-container {
+          font-size: 13px;
+          color: #424242;
+          margin-bottom: 25px;
+        }
+        .switch-link {
+          color: #1a73e8;
+          text-decoration: none;
+          cursor: pointer;
+          margin-left: 4px;
+        }
+        .switch-link:hover {
+          color: #f85606;
+          text-decoration: underline;
+        }
+        .social-login-title {
+          font-size: 13px;
+          color: #757575;
+          margin-top: 15px;
+          margin-bottom: 15px;
+        }
+        .social-btn {
+          width: 100%;
+          height: 40px;
+          border: none;
+          border-radius: 2px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #fff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-bottom: 12px;
+          transition: opacity 0.2s;
+        }
+        .social-btn:hover {
+          opacity: 0.9;
+        }
+        .social-btn-facebook {
+          background: #3b5998;
+        }
+        .social-btn-google {
+          background: #d34836;
+        }
+        .daraz-otp-wrapper {
+          display: flex;
+          gap: 10px;
+        }
+        .daraz-btn-otp {
+          height: 44px;
+          background: #fff;
+          border: 1px solid #d5d5d5;
+          color: #f85606;
+          padding: 0 15px;
+          font-size: 14px;
+          cursor: pointer;
+          border-radius: 2px;
+          white-space: nowrap;
+          transition: all 0.2s;
+        }
+        .daraz-btn-otp:hover {
+          border-color: #f85606;
+          background: rgba(248, 86, 6, 0.02);
+        }
+        .daraz-btn-otp:disabled {
+          color: #999;
+          border-color: #d5d5d5;
+          cursor: not-allowed;
+        }
+        .alert-box {
+          padding: 12px 16px;
+          border-radius: 2px;
+          font-size: 13px;
+          margin-bottom: 20px;
+          border: 1px solid transparent;
+        }
+        .alert-box-error {
+          background: #fff3f3;
+          border-color: #fca;
+          color: #d32f2f;
+        }
+        .alert-box-success {
+          background: #f3fbf4;
+          border-color: #cfa;
+          color: #2e7d32;
+        }
+        @media (max-width: 768px) {
+          .login-card {
+            grid-template-columns: 1fr;
+          }
+          .login-right {
+            border-left: none;
+            border-top: 1px solid #eff0f5;
+            padding-top: 30px;
+          }
+        }
+      `}} />
+
+      <div className="login-card">
+        {/* Left Side: Forms */}
+        <div className="login-left">
+          <div className="login-title">
+            <span>
+              {activeTab === 'LOGIN' 
+                ? 'Welcome to Balochi Bazzar! Please login.' 
+                : 'Create your Balochi Bazzar Account'}
             </span>
           </div>
 
-          {/* Feedback alerts */}
+          {/* Error and Success notifications */}
           {error && (
-            <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+            <div className="alert-box alert-box-error">
               ⚠️ {error}
             </div>
           )}
           {success && (
-            <div style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#4ade80', padding: '0.75rem 1rem', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(34,197,94,0.2)' }}>
+            <div className="alert-box alert-box-success">
               {success}
             </div>
           )}
@@ -199,176 +361,157 @@ function LoginPageContent() {
           {activeTab === 'LOGIN' ? (
             /* Login Form */
             <form onSubmit={handleLoginSubmit}>
-              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.5rem' }}>Phone or Email</label>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Phone Number or Email*</label>
                 <input 
                   type="text" 
                   required 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '42px' }}
-                  placeholder="e.g. 03327579515 or kabeer@bazar.com" 
+                  className="daraz-input" 
+                  placeholder="Please enter your Phone Number or Email" 
                   value={phoneOrEmail} 
                   onChange={(e) => setPhoneOrEmail(e.target.value)} 
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: '1.75rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.5rem' }}>Password</label>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Password*</label>
                 <input 
                   type="password" 
                   required 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '42px' }}
-                  placeholder="••••••••" 
+                  className="daraz-input" 
+                  placeholder="Please enter your password" 
                   value={loginPassword} 
                   onChange={(e) => setLoginPassword(e.target.value)} 
                 />
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#85929e', marginBottom: '2rem' }}>
-                <span 
-                  style={{ cursor: 'pointer', color: forgotHover ? '#f85606' : '#85929e', transition: 'color 0.2s' }} 
-                  onMouseEnter={() => setForgotHover(true)}
-                  onMouseLeave={() => setForgotHover(false)}
-                  onClick={() => alert('For password resets, contact Atelier Gwadar Support.')}
-                >
+                <span className="forgot-link" onClick={() => alert('For password resets, contact Atelier Gwadar Support.')}>
                   Forgot Password?
                 </span>
-                <span style={{ cursor: 'pointer', color: '#f85606' }} onClick={() => { setActiveTab('REGISTER'); }}>New Member? Register</span>
               </div>
-
+              
               <button 
                 type="submit" 
-                className="btn btn-primary" 
-                style={{ width: '100%', background: '#f85606', borderColor: '#f85606', fontWeight: 'bold', fontSize: '1rem', height: '44px' }}
+                className="daraz-btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Logging in...' : 'LOGIN'}
+                {loading ? 'LOGGING IN...' : 'LOGIN'}
               </button>
             </form>
           ) : (
             /* Registration Form */
             <form onSubmit={handleRegisterSubmit}>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.4rem' }}>Full Name</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '40px' }}
-                  placeholder="e.g. Kabeer Ahmed" 
-                  value={regName} 
-                  onChange={(e) => setRegName(e.target.value)} 
-                />
-              </div>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.4rem' }}>Phone Number</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Phone Number*</label>
+                <div className="daraz-otp-wrapper">
                   <input 
                     type="tel" 
                     required 
-                    className="form-input" 
-                    style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '40px', flexGrow: 1 }}
-                    placeholder="e.g. 03327579515" 
+                    className="daraz-input" 
+                    placeholder="Please enter your phone number" 
                     value={regPhone} 
                     onChange={(e) => setRegPhone(e.target.value)} 
                   />
                   <button 
                     type="button" 
                     onClick={handleSendOtp} 
-                    className="btn btn-secondary" 
-                    style={{ height: '40px', fontSize: '0.8rem', padding: '0 1rem', whiteSpace: 'nowrap', borderColor: '#34495e', background: '#2c3e50', color: '#fff' }}
+                    className="daraz-btn-otp"
                     disabled={otpTimer > 0}
                   >
                     {otpTimer > 0 ? `Retry in ${otpTimer}s` : 'Send Code'}
                   </button>
                 </div>
               </div>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.4rem' }}>Verification Code (SMS OTP)</label>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Verification Code*</label>
                 <input 
                   type="text" 
                   required 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '40px' }}
-                  placeholder="Enter SMS verification code" 
+                  className="daraz-input" 
+                  placeholder="Verification Code" 
                   value={regOtp} 
                   onChange={(e) => setRegOtp(e.target.value)} 
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.4rem' }}>Email Address (Optional)</label>
-                <input 
-                  type="email" 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '40px' }}
-                  placeholder="e.g. client@bazar.com" 
-                  value={regEmail} 
-                  onChange={(e) => setRegEmail(e.target.value)} 
-                />
-              </div>
-              <div className="form-group" style={{ marginBottom: '1.75rem' }}>
-                <label className="form-label" style={{ color: '#abb2b9', fontSize: '0.85rem', display: 'block', marginBottom: '0.4rem' }}>Password</label>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Password*</label>
                 <input 
                   type="password" 
                   required 
-                  className="form-input" 
-                  style={{ background: '#2c3e50', border: '1px solid #34495e', color: '#fff', padding: '10px 12px', height: '40px' }}
+                  className="daraz-input" 
                   placeholder="Minimum 6 characters" 
                   value={regPassword} 
                   onChange={(e) => setRegPassword(e.target.value)} 
                 />
               </div>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Full Name*</label>
+                <input 
+                  type="text" 
+                  required 
+                  className="daraz-input" 
+                  placeholder="Enter your first and last name" 
+                  value={regName} 
+                  onChange={(e) => setRegName(e.target.value)} 
+                />
+              </div>
+              <div className="daraz-input-group">
+                <label className="daraz-label">Email Address (Optional)</label>
+                <input 
+                  type="email" 
+                  className="daraz-input" 
+                  placeholder="Please enter your email" 
+                  value={regEmail} 
+                  onChange={(e) => setRegEmail(e.target.value)} 
+                />
+              </div>
 
               <button 
                 type="submit" 
-                className="btn btn-primary" 
-                style={{ width: '100%', background: '#f85606', borderColor: '#f85606', fontWeight: 'bold', fontSize: '1rem', height: '44px' }}
+                className="daraz-btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Creating account...' : 'SIGN UP'}
+                {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
               </button>
             </form>
           )}
         </div>
 
-        {/* Right Panel: Call to Action / Banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, #131a22 0%, #1f2a38 100%)',
-          padding: '3rem 2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          color: '#fff',
-          borderLeft: '1px solid rgba(255,255,255,0.05)'
-        }}>
-          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(248, 86, 6, 0.1)', color: '#f85606', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', marginBottom: '1.5rem' }}>
-            🛒
-          </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: '#f85606' }}>
-            Balochi Bazzar
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: '#a6acaf', lineHeight: '1.6', maxWidth: '280px', margin: '0 auto 1.5rem auto' }}>
-            Join Gwadar's premium platform for hand-embroidered Balochi Doch garments, dress styling, and costume rentals.
-          </p>
+        {/* Right Side: Switch Link & Social Login */}
+        <div className="login-right">
+          {activeTab === 'LOGIN' ? (
+            <div className="switch-link-container">
+              <span>New member?</span>
+              <span className="switch-link" onClick={() => { setActiveTab('REGISTER'); setError(''); setSuccess(''); }}>
+                Register
+              </span>
+              <span> here.</span>
+            </div>
+          ) : (
+            <div className="switch-link-container">
+              <span>Already member?</span>
+              <span className="switch-link" onClick={() => { setActiveTab('LOGIN'); setError(''); setSuccess(''); }}>
+                Login
+              </span>
+              <span> here.</span>
+            </div>
+          )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: '240px', fontSize: '0.8rem', textAlign: 'left', color: '#d5dbdb' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span>✨</span>
-              <span>100% Authentic Hand-embroidery</span>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span>📐</span>
-              <span>Custom Sizing & Tailoring Specs</span>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span>🚚</span>
-              <span>Free Delivery in Gwadar City</span>
-            </div>
+          <div className="social-login-title">
+            {activeTab === 'LOGIN' ? 'Or, login with' : 'Or, sign up with'}
           </div>
+
+          <button className="social-btn social-btn-facebook" onClick={() => alert('Facebook Login is a placeholder demo.')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            Facebook
+          </button>
+
+          <button className="social-btn social-btn-google" onClick={() => alert('Google Login is a placeholder demo.')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.51 0-6.357-2.829-6.357-6.315 0-3.485 2.847-6.315 6.357-6.315 1.6 0 3.03.593 4.137 1.573l3.076-3.076C19.333 2.222 15.937 1 12.24 1 5.94 1 1 5.93 1 12.2s4.94 11.2 11.24 11.2c6.1 0 11.24-4.38 11.24-11.2 0-.74-.065-1.415-.205-1.915H12.24z"/>
+            </svg>
+            Google
+          </button>
         </div>
-
       </div>
     </div>
   );
@@ -381,9 +524,10 @@ export default function LoginPage() {
         paddingTop: '8rem', 
         paddingBottom: '8rem', 
         textAlign: 'center', 
-        color: '#fff', 
-        background: '#131a22', 
-        minHeight: '100vh' 
+        color: '#333', 
+        background: '#eff0f5', 
+        minHeight: '100vh',
+        fontFamily: 'sans-serif'
       }}>
         <div style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#f85606' }}>Loading Balochi Bazzar Auth...</div>
       </div>
