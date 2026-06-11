@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ProductImage {
   url: string;
@@ -46,6 +47,7 @@ interface Order {
 }
 
 export default function MyOrdersPage() {
+  const router = useRouter();
   // Direct backend URL — hardcoded for production reliability
   const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
@@ -64,7 +66,7 @@ export default function MyOrdersPage() {
       setToken(activeToken);
       fetchOrders(activeToken);
     } else {
-      setLoading(false);
+      router.push('/login');
     }
   }, []);
 

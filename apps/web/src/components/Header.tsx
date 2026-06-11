@@ -116,7 +116,7 @@ export default function Header() {
             {token ? (
               <li><span onClick={handleLogout} className="top-bar-link" style={{ cursor: 'pointer', fontWeight: 'bold', color: 'var(--primary)' }}>LOGOUT</span></li>
             ) : (
-              <li><a href="/orders" className="top-bar-link">SIGNUP / LOGIN</a></li>
+              <li><a href="/login" className="top-bar-link">SIGNUP / LOGIN</a></li>
             )}
           </ul>
         </div>
@@ -159,7 +159,7 @@ export default function Header() {
                 👤 {user?.name || 'Account'}
               </a>
             ) : (
-              <a href="/orders" className="btn btn-primary" style={{ height: '40px' }}>
+              <a href="/login" className="btn btn-primary" style={{ height: '40px' }}>
                 Sign In
               </a>
             )}
