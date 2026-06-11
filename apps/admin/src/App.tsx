@@ -206,8 +206,8 @@ export default function App() {
   const [allowsEmbroidery, setAllowsEmbroidery] = useState(true);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('bazar_admin_token');
-    const savedRole = localStorage.getItem('bazar_admin_role');
+    const savedToken = sessionStorage.getItem('bazar_admin_token');
+    const savedRole = sessionStorage.getItem('bazar_admin_role');
     if (savedToken && savedRole) {
       setToken(savedToken);
       setUserRole(savedRole);
@@ -217,8 +217,8 @@ export default function App() {
 
   const fetchDashboardData = (activeToken: string) => {
     const handleAuthError = () => {
-      localStorage.removeItem('bazar_admin_token');
-      localStorage.removeItem('bazar_admin_role');
+      sessionStorage.removeItem('bazar_admin_token');
+      sessionStorage.removeItem('bazar_admin_role');
       setToken(null);
       setUserRole('');
     };
@@ -303,8 +303,8 @@ export default function App() {
         throw new Error('Access denied: You must be an admin or staff member.');
       }
 
-      localStorage.setItem('bazar_admin_token', data.token);
-      localStorage.setItem('bazar_admin_role', data.user.role);
+      sessionStorage.setItem('bazar_admin_token', data.token);
+      sessionStorage.setItem('bazar_admin_role', data.user.role);
       setToken(data.token);
       setUserRole(data.user.role);
       fetchDashboardData(data.token);
@@ -314,8 +314,8 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('bazar_admin_token');
-    localStorage.removeItem('bazar_admin_role');
+    sessionStorage.removeItem('bazar_admin_token');
+    sessionStorage.removeItem('bazar_admin_role');
     setToken(null);
     setUserRole('');
   };
