@@ -44,6 +44,27 @@ export default function Header() {
     };
   }, []);
 
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const activeToken = localStorage.getItem('bazar_token');
+    const activeUser = JSON.parse(localStorage.getItem('bazar_user') || 'null');
+    setToken(activeToken);
+    setUser(activeUser);
+  }, [pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('bazar_token');
+    localStorage.removeItem('bazar_user');
+    setToken(null);
+    setUser(null);
+    router.push('/orders');
+    if (pathname === '/orders') {
+      window.location.reload();
+    }
+  };
+
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
     if (value === 'ALL' || value === 'DEFAULT' || value === '') {
@@ -92,7 +113,11 @@ export default function Header() {
             <li><a href="/admin-link" className="top-bar-link" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>SELL ON BALOCHI BAZZAR (ADMIN)</a></li>
             <li><a href="#" className="top-bar-link">CUSTOMER CARE</a></li>
             <li><a href="/orders" className="top-bar-link">TRACK MY ORDER</a></li>
-            <li><a href="/orders" className="top-bar-link">SIGNUP / LOGIN</a></li>
+            {token ? (
+              <li><span onClick={handleLogout} className="top-bar-link" style={{ cursor: 'pointer', fontWeight: 'bold', color: 'var(--primary)' }}>LOGOUT</span></li>
+            ) : (
+              <li><a href="/orders" className="top-bar-link">SIGNUP / LOGIN</a></li>
+            )}
           </ul>
         </div>
       </div>
@@ -129,9 +154,15 @@ export default function Header() {
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </a>
 
-            <a href="/orders" className="btn btn-primary" style={{ height: '40px' }}>
-              Sign In
-            </a>
+            {token ? (
+              <a href="/orders" className="btn btn-primary" style={{ height: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                👤 {user?.name || 'Account'}
+              </a>
+            ) : (
+              <a href="/orders" className="btn btn-primary" style={{ height: '40px' }}>
+                Sign In
+              </a>
+            )}
           </div>
         </div>
 
