@@ -216,34 +216,72 @@ export default function App() {
   }, []);
 
   const fetchDashboardData = (activeToken: string) => {
+    const handleAuthError = () => {
+      localStorage.removeItem('bazar_admin_token');
+      localStorage.removeItem('bazar_admin_role');
+      setToken(null);
+      setUserRole('');
+    };
+
     // Stats
     fetch(getApiUrl('/api/admin/stats'), { headers: { Authorization: `Bearer ${activeToken}` } })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) handleAuthError();
+          throw new Error('Stats request failed');
+        }
+        return res.json();
+      })
       .then(setStats)
       .catch(console.error);
 
     // Orders
     fetch(getApiUrl('/api/admin/orders'), { headers: { Authorization: `Bearer ${activeToken}` } })
-      .then((res) => res.json())
-      .then(setOrders)
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) handleAuthError();
+          throw new Error('Orders request failed');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setOrders(data);
+        }
+      })
       .catch(console.error);
 
     // Rentals
     fetch(getApiUrl('/api/admin/rentals'), { headers: { Authorization: `Bearer ${activeToken}` } })
-      .then((res) => res.json())
-      .then(setRentals)
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) handleAuthError();
+          throw new Error('Rentals request failed');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRentals(data);
+        }
+      })
       .catch(console.error);
 
     // Products Catalog
     fetch(getApiUrl('/api/products'))
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Products request failed');
+        return res.json();
+      })
       .then((data) => {
-        setProducts(data);
-        const map: Record<string, boolean> = {};
-        data.forEach((p: Product) => {
-          map[p.id] = p.stockQuantity > 0;
-        });
-        setOnlineProducts((prev) => ({ ...map, ...prev }));
+        if (Array.isArray(data)) {
+          setProducts(data);
+          const map: Record<string, boolean> = {};
+          data.forEach((p: Product) => {
+            map[p.id] = p.stockQuantity > 0;
+          });
+          setOnlineProducts((prev) => ({ ...map, ...prev }));
+        }
       })
       .catch(console.error);
   };
