@@ -7,6 +7,7 @@
     "userInterfaceStyle": "dark",
     "web": {
       "bundler": "metro"
+    },
     "android": {
       "package": "com.kabeer50939.bazarmonorepo"
     }
