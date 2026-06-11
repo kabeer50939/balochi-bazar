@@ -20,7 +20,11 @@ router.get('/orders', async (req, res) => {
         address: true,
         orderItems: {
           include: {
-            product: true
+            product: {
+              include: {
+                images: true
+              }
+            }
           }
         },
         rentals: true

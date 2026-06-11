@@ -11,6 +11,7 @@ interface Product {
   isRentable: boolean;
   rentPerDay?: number | null;
   depositFee?: number | null;
+  images?: ProductImage[];
 }
 interface OrderItem {
   id: string;
@@ -105,6 +106,25 @@ export default function App() {
       return `http://${host}:5000${path}`;
     }
     return `https://balochi-bazar-backend.vercel.app${path}`;
+  };
+
+  const getProductImageUrl = (product: any) => {
+    const imgUrl = product?.images?.[0]?.url;
+    if (!imgUrl) {
+      return product?.isRentable 
+        ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=150&q=80" 
+        : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=150&q=80";
+    }
+    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
+      try {
+        const urlObj = new URL(imgUrl);
+        if (urlObj.pathname.startsWith('/uploads')) {
+          return getApiUrl(urlObj.pathname);
+        }
+      } catch (e) {}
+      return imgUrl;
+    }
+    return getApiUrl(imgUrl);
   };
 
   const [token, setToken] = useState<string | null>(null);
@@ -1099,10 +1119,7 @@ export default function App() {
                               <div key={itm.id} className="order-item-row">
                                 <img
                                   className="order-item-img"
-                                  src={itm.product.isRentable 
-                                    ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=150&q=80" 
-                                    : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=150&q=80"
-                                  }
+                                  src={getProductImageUrl(itm.product)}
                                   alt={itm.product.name}
                                 />
                                 <div className="order-item-details">
@@ -1541,10 +1558,7 @@ export default function App() {
                     <div key={prod.id} className="inventory-grid">
                       <div>
                         <img
-                          src={prod.isRentable 
-                            ? "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=50&q=50" 
-                            : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=50&q=50"
-                          }
+                          src={getProductImageUrl(prod)}
                           alt={prod.name}
                           style={{ width: '36px', height: '36px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
                         />
