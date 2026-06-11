@@ -2,7 +2,7 @@
 
 :root {
   --bg-primary: #eaeded;       /* Amazon cool light gray backdrop */
-  --bg-sidebar: #ffffff;       /* Pure White Sidebar */
+  --bg-sidebar: #232f3e;       /* Amazon Ebony Clay Sidebar */
   --bg-card: #ffffff;          /* Pure White Cards */
   --border-color: #d5d9d9;     /* Amazon standard light border */
   
@@ -53,19 +53,19 @@ body {
   min-height: calc(100vh - 56px);
 }
 
-/* Sidebar Styling (Daraz Seller Center clean look) */
+/* Sidebar Styling (Cohesive Dark Navy theme matching Customer Site footer/accent) */
 .sidebar {
   width: 230px;
-  background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-color);
+  background-color: var(--bg-sidebar); /* #232f3e */
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-menu-group {
-  border-bottom: 1px solid #f1f2f6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0;
 }
 
@@ -76,7 +76,7 @@ body {
   padding: 0.65rem 0.85rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #a2a6a6;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: pointer;
@@ -84,12 +84,12 @@ body {
 }
 
 .sidebar-group-header:hover {
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .sidebar-group-header .arrow-icon {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #767676;
   transition: transform 0.2s ease;
 }
 
@@ -108,7 +108,7 @@ body {
   padding: 0.55rem 0.85rem 0.55rem 1.5rem;
   background: none;
   border: none;
-  color: var(--text-primary);
+  color: #dddddd;
   font-family: inherit;
   font-size: 0.8rem;
   text-align: left;
@@ -125,14 +125,14 @@ body {
   width: 14px;
   height: 14px;
   fill: none;
-  stroke: var(--text-secondary);
+  stroke: #cccccc;
   stroke-width: 1.5;
   transition: stroke 0.1s ease;
 }
 
 .menu-item:hover {
   color: var(--primary);
-  background-color: #f8f9fa;
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .menu-item:hover svg {
@@ -141,8 +141,8 @@ body {
 
 .menu-item.active {
   color: var(--primary);
-  background-color: var(--primary-light);
-  font-weight: 500;
+  background-color: rgba(255, 153, 0, 0.12);
+  font-weight: 700;
 }
 
 .menu-item.active svg {

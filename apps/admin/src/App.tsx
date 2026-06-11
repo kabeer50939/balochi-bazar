@@ -561,11 +561,11 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
-      {/* 100% Identical Daraz Seller Center Header Bar */}
+      {/* 100% Cohesive Customer Web Style Header Bar */}
       <header style={{
         height: '56px',
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid var(--border-color)',
+        backgroundColor: '#131a22',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -574,21 +574,21 @@ export default function App() {
         position: 'sticky',
         top: 0,
         flexShrink: 0,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           {/* Balochi Bazar Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => setActiveTab('DASHBOARD')}>
             <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', fontStyle: 'italic' }}>B</div>
-            <span style={{ fontSize: '18px', fontWeight: 900, color: '#212121', letterSpacing: '-0.5px' }}>
+            <span style={{ fontSize: '18px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>
               Balochi Bazar <span style={{ color: 'var(--primary)', fontWeight: '400' }}>Seller Center</span>
             </span>
           </div>
           
-          <span style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }}></span>
+          <span style={{ height: '16px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.15)' }}></span>
           
           {/* Header Search Input */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: '#f5f6f9', padding: '4px 10px', borderRadius: '2px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: '#ffffff', padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
             <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>🔍</span>
             <input 
               type="text" 
@@ -603,24 +603,24 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '11px', color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '11px', color: '#cccccc' }}>
           {/* Support links */}
-          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Academy</span>
-          <span style={{ color: '#cbd5e1' }}>|</span>
-          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Help Center</span>
-          <span style={{ color: '#cbd5e1' }}>|</span>
-          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Support</span>
+          <span style={{ color: '#cccccc', fontWeight: 500 }}>Bazar Academy</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>|</span>
+          <span style={{ color: '#cccccc', fontWeight: 500 }}>Bazar Help Center</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>|</span>
+          <span style={{ color: '#cccccc', fontWeight: 500 }}>Bazar Support</span>
           
-          <span style={{ color: '#cbd5e1' }}>|</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>|</span>
 
           {/* Pakistan Location & Flag */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#f8f9fa', padding: '3px 8px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'rgba(255, 255, 255, 0.08)', padding: '3px 8px', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: 'var(--radius-sm)' }}>
             <span style={{ fontSize: '12px' }}>🇵🇰</span>
-            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Gwadar (PK)</span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '9px' }}>▼</span>
+            <span style={{ fontWeight: 700, color: '#ffffff' }}>Gwadar (PK)</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: 9 }}>▼</span>
           </div>
           
-          <span style={{ color: '#cbd5e1' }}>|</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>|</span>
 
           {/* Notification bell */}
           <div style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px' }} onClick={() => alert('All Gwadar delivery lines operating normally.')}>
@@ -630,12 +630,12 @@ export default function App() {
             </span>
           </div>
 
-          <span style={{ color: '#cbd5e1' }}>|</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>|</span>
 
           {/* User ID */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--primary)' }}>A</div>
-            <strong style={{ color: 'var(--text-primary)' }}>Atelier Gwadar</strong>
+            <strong style={{ color: '#ffffff' }}>Atelier Gwadar</strong>
           </div>
         </div>
       </header>
