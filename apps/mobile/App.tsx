@@ -476,7 +476,7 @@ export default function App() {
                   </View>
                 </View>
                 <TouchableOpacity onPress={() => Alert.alert('Flash Sale', 'Exclusive Gwadar traditional Balochi doch items on discount.')}>
-                  <Text style={styles.shopMoreText}>SHOP MORE ></Text>
+                  <Text style={styles.shopMoreText}>SHOP MORE &gt;</Text>
                 </TouchableOpacity>
               </View>
 
@@ -992,7 +992,7 @@ export default function App() {
                     <Text style={[styles.priceItemVal, { color: 'var(--danger)' }]}>- Rs. {voucherDiscount.toLocaleString()}</Text>
                   </View>
                 )}
-                <View style={styles.priceRowItem} style={{ borderTopWidth: 1, borderColor: '#eee', paddingTop: 8, marginTop: 8 }}>
+                <View style={[styles.priceRowItem, { borderTopWidth: 1, borderColor: '#eee', paddingTop: 8, marginTop: 8 }]}>
                   <Text style={[styles.priceItemLabel, { fontWeight: 'bold', color: '#212121' }]}>Final Total:</Text>
                   <Text style={[styles.priceItemVal, { fontWeight: 'bold', color: 'var(--primary)', fontSize: 16 }]}>
                     Rs. {calculateTotal().toLocaleString()}
