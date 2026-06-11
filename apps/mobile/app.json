@@ -7,6 +7,14 @@
     "userInterfaceStyle": "dark",
     "web": {
       "bundler": "metro"
+    },
+    "android": {
+      "package": "com.kabeer50939.bazarmonorepo"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5fcaa9fc-3740-47b4-a3cc-a2fa326ca920"
+      }
     }
   }
 }
