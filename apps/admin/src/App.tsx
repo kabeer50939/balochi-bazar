@@ -421,7 +421,7 @@ export default function App() {
   const toggleProductOnline = (productId: string) => {
     setOnlineProducts((prev) => {
       const nextVal = !prev[productId];
-      alert(`Product ${productId.slice(0, 8)} is now marked ${nextVal ? 'ONLINE' : 'OFFLINE'} on Daraz customer catalog.`);
+      alert(`Product ${productId.slice(0, 8)} is now marked ${nextVal ? 'ONLINE' : 'OFFLINE'} on Balochi Bazar customer catalog.`);
       return { ...prev, [productId]: nextVal };
     });
   };
@@ -522,9 +522,9 @@ export default function App() {
         <div className="daraz-card" style={{ width: '420px', padding: '2.5rem', boxShadow: 'var(--shadow-lg)' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <div style={{ width: '36px', height: '36px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'black', fontSize: '24px', fontStyle: 'italic' }}>d</div>
+              <div style={{ width: '36px', height: '36px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'black', fontSize: '24px', fontStyle: 'italic' }}>B</div>
               <span style={{ fontSize: '24px', fontWeight: 900, color: '#212121', letterSpacing: '-0.5px' }}>
-                daraz <span style={{ color: 'var(--primary)', fontWeight: '400' }}>seller center</span>
+                Balochi Bazar <span style={{ color: 'var(--primary)', fontWeight: '400' }}>Seller Center</span>
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Gwadar Atelier Operations Dashboard</p>
@@ -546,7 +546,7 @@ export default function App() {
               <input type="password" required className="daraz-input" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
             <button type="submit" className="btn-daraz btn-daraz-primary" style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem', fontWeight: 'bold' }}>
-              Login to Seller Center
+              Login to Balochi Bazar Seller Center
             </button>
           </form>
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', border: '1px dashed #dcdcdc', borderRadius: '2px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
@@ -577,11 +577,11 @@ export default function App() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          {/* Daraz Logo */}
+          {/* Balochi Bazar Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => setActiveTab('DASHBOARD')}>
-            <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', fontStyle: 'italic' }}>d</div>
+            <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', fontStyle: 'italic' }}>B</div>
             <span style={{ fontSize: '18px', fontWeight: 900, color: '#212121', letterSpacing: '-0.5px' }}>
-              daraz <span style={{ color: 'var(--primary)', fontWeight: '400' }}>seller center</span>
+              Balochi Bazar <span style={{ color: 'var(--primary)', fontWeight: '400' }}>Seller Center</span>
             </span>
           </div>
           
@@ -604,12 +604,12 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '11px', color: 'var(--text-secondary)' }}>
-          {/* Corporate Support links */}
-          <a href="https://university.daraz.pk" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'var(--text-secondary)', fontWeight: 500 }}>Daraz University</a>
+          {/* Support links */}
+          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Academy</span>
           <span style={{ color: '#cbd5e1' }}>|</span>
-          <a href="https://sellercenter.daraz.pk/help" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'var(--text-secondary)', fontWeight: 500 }}>Help Center</a>
+          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Help Center</span>
           <span style={{ color: '#cbd5e1' }}>|</span>
-          <a href="https://sellercenter.daraz.pk/support" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'var(--text-secondary)', fontWeight: 500 }}>Seller Support</a>
+          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Bazar Support</span>
           
           <span style={{ color: '#cbd5e1' }}>|</span>
 
@@ -713,7 +713,7 @@ export default function App() {
           {/* Exit Link */}
           <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
             <button onClick={handleLogout} className="btn-daraz btn-daraz-secondary" style={{ width: '100%', fontSize: '11px', fontWeight: 'bold' }}>
-              Exit Seller Center
+              Exit Balochi Bazar Admin
             </button>
           </div>
         </aside>
@@ -738,7 +738,7 @@ export default function App() {
                 justifyContent: 'space-between',
                 borderRadius: '2px'
               }}>
-                <span>📢 <strong>Seller Announcement:</strong> Welcome to Daraz Seller Center Atelier Gwadar! Ensure all custom tailoring sizes and rentals are audited. Next shipping carrier package pickup is scheduled for 18:00 PKT.</span>
+                <span>📢 <strong>Seller Announcement:</strong> Welcome to Balochi Bazar Seller Center Atelier Gwadar! Ensure all custom tailoring sizes and rentals are audited. Next shipping carrier package pickup is scheduled for 18:00 PKT.</span>
                 <span style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginLeft: '10px' }} onClick={(e) => {
                   const parent = e.currentTarget.parentElement;
                   if (parent) parent.style.display = 'none';
