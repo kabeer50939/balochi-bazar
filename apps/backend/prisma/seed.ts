@@ -18,14 +18,14 @@ async function main() {
 
   // Create Users
   const salt = await bcrypt.genSalt(10);
-  const adminPasswordHash = await bcrypt.hash('admin123', salt);
+  const adminPasswordHash = await bcrypt.hash('2762', salt);
   const staffPasswordHash = await bcrypt.hash('staff123', salt);
   const customerPasswordHash = await bcrypt.hash('customer123', salt);
 
   const admin = await prisma.user.create({
     data: {
-      name: 'Admin Owner',
-      phoneNumber: '03001234567',
+      name: 'Kabeer',
+      phoneNumber: '03327579515',
       email: 'admin@bazar.com',
       passwordHash: adminPasswordHash,
       role: 'ADMIN',

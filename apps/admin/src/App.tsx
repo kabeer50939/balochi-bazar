@@ -131,8 +131,8 @@ export default function App() {
   const [userRole, setUserRole] = useState<string>('');
 
   // Login form state
-  const [phoneNumber, setPhoneNumber] = useState('03001234567');
-  const [password, setPassword] = useState('admin123');
+  const [phoneNumber, setPhoneNumber] = useState('03327579515');
+  const [password, setPassword] = useState('2762');
   const [loginError, setLoginError] = useState('');
 
   // Active panel state
@@ -596,8 +596,8 @@ export default function App() {
 
           <form onSubmit={handleAdminLogin}>
             <div className="form-group">
-              <label className="form-label">Phone Number</label>
-              <input type="tel" required className="daraz-input" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="e.g. 03001234567" />
+              <label className="form-label">Phone or Email</label>
+              <input type="text" required className="daraz-input" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="e.g. 03327579515 or kabeer@bazar.com" />
             </div>
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label className="form-label">Password</label>
@@ -608,8 +608,8 @@ export default function App() {
             </button>
           </form>
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', border: '1px dashed #dcdcdc', borderRadius: '2px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            <strong>Demo Accounts (Pre-seeded):</strong><br />
-            🔑 Admin: 03001234567 / admin123<br />
+            <strong>Admin Accounts:</strong><br />
+            🔑 Admin (Kabeer): 03327579515 / 2762<br />
             🔑 Staff: 03007654321 / staff123
           </div>
         </div>

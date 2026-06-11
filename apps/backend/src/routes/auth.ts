@@ -86,24 +86,29 @@ router.post('/register', async (req, res) => {
 
 // Login User
 router.post('/login', async (req, res) => {
-  const { phoneNumber, password } = req.body;
+  const { phoneNumber, password } = req.body; // phoneNumber is treated as a generic identifier (phone or email)
 
   if (!phoneNumber || !password) {
-    return res.status(400).json({ error: 'Phone number and password are required' });
+    return res.status(400).json({ error: 'Username (phone or email) and password are required' });
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { phoneNumber }
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { phoneNumber: phoneNumber },
+          { email: phoneNumber }
+        ]
+      }
     });
 
     if (!user) {
-      return res.status(400).json({ error: 'Invalid phone number or password' });
+      return res.status(400).json({ error: 'Invalid username (phone or email) or password' });
     }
 
     const validPassword = await bcrypt.compare(password, user.passwordHash);
     if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid phone number or password' });
+      return res.status(400).json({ error: 'Invalid username (phone or email) or password' });
     }
 
     // Generate JWT
