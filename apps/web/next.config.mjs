@@ -1,11 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  /* Proxy all /api/* requests to the backend — eliminates CORS completely */
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://balochi-bazar-backend.vercel.app/api/:path*',
+      },
+    ];
+  },
   /* Bake the production API URL into the build */
   env: {
-    NEXT_PUBLIC_API_URL: 'https://balochi-bazar-backend.vercel.app',
+    NEXT_PUBLIC_API_URL: '',
   },
-  /* Allows referencing external image URLs in CSS or raw tags easily */
+  /* Allows referencing external image URLs */
   images: {
     remotePatterns: [
       {

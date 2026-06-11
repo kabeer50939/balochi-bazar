@@ -21,16 +21,8 @@ function CatalogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const getApiUrl = (path: string = '') => {
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
-    }
-    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return `http://${host}:5000${path}`;
-    }
-    return `https://balochi-bazar-backend.vercel.app${path}`;
-  };
+  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
+  const getApiUrl = (path: string = '') => path;
   
   const initialCategory = searchParams.get('category') || 'ALL';
   const initialSearch = searchParams.get('search') || '';
