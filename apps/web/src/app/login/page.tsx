@@ -3,68 +3,54 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-function LoginPageContent() {
+/* ─────────────────────────────────────────────────────────
+   Inner component that uses useSearchParams()
+   Must be wrapped in <Suspense> by the default export.
+───────────────────────────────────────────────────────── */
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
-  // Tabs: 'LOGIN' | 'REGISTER'
-  const [activeTab, setActiveTab] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
+  const API_BASE = 'https://balochi-bazar-backend.vercel.app';
+  const getApiUrl = (path: string) => `${API_BASE}${path}`;
 
-  // Input states
-  const [phoneOrEmail, setPhoneOrEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  /* ── Mode ── */
+  const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
 
-  const [regName, setRegName] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regEmail, setRegEmail] = useState('');
+  /* ── Login inputs ── */
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword]     = useState('');
+  const [showLoginPwd, setShowLoginPwd]       = useState(false);
+
+  /* ── Register inputs ── */
+  const [regName,     setRegName]     = useState('');
+  const [regPhone,    setRegPhone]    = useState('');
+  const [regEmail,    setRegEmail]    = useState('');
   const [regPassword, setRegPassword] = useState('');
-  const [regOtp, setRegOtp] = useState('');
+  const [showRegPwd,  setShowRegPwd]  = useState(false);
+  const [regSector,   setRegSector]   = useState('Mulla Band');
+  const [regStreet,   setRegStreet]   = useState('');
+  const [regLandmark, setRegLandmark] = useState('');
 
-  // OTP mock states
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpTimer, setOtpTimer] = useState(0);
-  const [generatedOtp, setGeneratedOtp] = useState('');
+  /* ── OTP modal ── */
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpInput,     setOtpInput]     = useState(['', '', '', '']);
+  const [otpError,     setOtpError]     = useState('');
 
-  // Status states
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  /* ── UI ── */
+  const [loading,   setLoading]   = useState(false);
+  const [error,     setError]     = useState('');
+  const [success,   setSuccess]   = useState('');
+  const [activeTab, setActiveTab] = useState<'EMAIL' | 'PHONE'>('PHONE');
+
+  const redirectPath = searchParams.get('redirect') || '/orders';
 
   useEffect(() => {
-    // Read optional tab query param
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'register') {
-      setActiveTab('REGISTER');
-    }
-  }, [searchParams]);
+    const token = localStorage.getItem('bazar_token');
+    if (token) router.push(redirectPath);
+  }, [router, redirectPath]);
 
-  // Countdown timer for mock OTP
-  useEffect(() => {
-    if (otpTimer > 0) {
-      const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [otpTimer]);
-
-  const handleSendOtp = () => {
-    if (!regPhone || regPhone.length < 10) {
-      setError('Please enter a valid phone number first.');
-      return;
-    }
-    setError('');
-    
-    // Generate a random 4-digit code
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setGeneratedOtp(code);
-    setOtpSent(true);
-    setOtpTimer(60); // 60 seconds cooldown
-
-    // Trigger visual mock OTP toast alert
-    setSuccess(`✉️ Verification SMS Sent! Code is ${code}. Please enter this code to verify.`);
-    setTimeout(() => setSuccess(''), 8000);
-  };
-
+  /* ─── Login Submit ─── */
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -75,38 +61,62 @@ function LoginPageContent() {
       const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: phoneOrEmail, password: loginPassword })
+        body: JSON.stringify({ phoneNumber: loginIdentifier, password: loginPassword }),
       });
       const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Invalid username or password');
+      if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
       localStorage.setItem('bazar_token', data.token);
       localStorage.setItem('bazar_user', JSON.stringify(data.user));
-      
-      setSuccess('Logged in successfully! Redirecting...');
-      setTimeout(() => {
-        router.push('/orders');
-        // Force header update
-        window.location.reload();
-      }, 1000);
+      setSuccess('Login successful! Redirecting…');
+      setTimeout(() => { window.location.href = redirectPath; }, 900);
     } catch (err: any) {
-      setError(err.message || 'Authentication failed.');
+      setError(err.message || 'Login failed. Please check your credentials.');
       setLoading(false);
     }
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+  /* ─── Start Registration → show OTP modal ─── */
+  const handleRegisterClick = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    if (!otpSent || regOtp !== generatedOtp) {
-      setError('Verification Code (OTP) is invalid or has not been requested.');
-      setLoading(false);
+    if (!regName || !regPhone || !regPassword) {
+      setError('Full Name, Mobile Number and Password are required.');
       return;
     }
+    if (regPassword.length < 4) {
+      setError('Password must be at least 4 characters.');
+      return;
+    }
+    setError('');
+    setOtpInput(['', '', '', '']);
+    setOtpError('');
+    setShowOtpModal(true);
+  };
+
+  /* ─── OTP digit change ─── */
+  const handleOtpDigit = (idx: number, val: string) => {
+    if (!/^\d?$/.test(val)) return;
+    const next = [...otpInput];
+    next[idx] = val;
+    setOtpInput(next);
+    if (val && idx < 3) {
+      const el = document.getElementById(`otp-digit-${idx + 1}`);
+      if (el) (el as HTMLInputElement).focus();
+    }
+  };
+
+  /* ─── Verify OTP + complete registration ─── */
+  const handleOtpVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otpInput.join('');
+    if (code !== '8899') {
+      setOtpError('Incorrect code. For testing, enter: 8899');
+      return;
+    }
+
+    setLoading(true);
+    setShowOtpModal(false);
+    setError('');
 
     try {
       const res = await fetch(getApiUrl('/api/auth/register'), {
@@ -114,425 +124,781 @@ function LoginPageContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phoneNumber: regPhone,
-          password: regPassword,
-          name: regName,
-          email: regEmail || undefined
-        })
+          password:    regPassword,
+          name:        regName,
+          email:       regEmail || undefined,
+          sectorName:  regSector,
+          streetAddress: regStreet || undefined,
+          landmark:    regLandmark || undefined,
+        }),
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+      if (regStreet) {
+        await fetch(getApiUrl('/api/auth/address'), {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${data.token}`,
+          },
+          body: JSON.stringify({
+            sectorName:    regSector,
+            streetAddress: regStreet,
+            landmark:      regLandmark || undefined,
+            isDefault:     true,
+          }),
+        });
+      }
 
       localStorage.setItem('bazar_token', data.token);
       localStorage.setItem('bazar_user', JSON.stringify(data.user));
-
-      setSuccess('Account registered and logged in successfully!');
-      setTimeout(() => {
-        router.push('/orders');
-        window.location.reload();
-      }, 1000);
+      setSuccess('Account created! Redirecting…');
+      setTimeout(() => { window.location.href = redirectPath; }, 900);
     } catch (err: any) {
-      setError(err.message || 'Failed to create user account.');
+      setError(err.message || 'Registration error. Please try again.');
       setLoading(false);
     }
   };
 
+  const gwadarSectors = [
+    'Mulla Band','Sabiya','Shahi Chaman','Pishukan',
+    'Old Town','New Town Phase 1','New Town Phase 2','Singhar','Kohan',
+  ];
+
+  /* ─────────────────────────────────────────────────────────
+     Styles (Daraz-exact — F85606 orange)
+  ───────────────────────────────────────────────────────── */
+  const ORANGE  = '#F85606';
+  const ORANGE2 = '#e04d00';
+  const DARK    = '#1D1D1D';
+  const GRAY    = '#f5f5f5';
+  const BORDER  = '#e0e0e0';
+
+  const inputStyle: React.CSSProperties = {
+    width:        '100%',
+    height:       '44px',
+    padding:      '0 14px',
+    border:       `1px solid ${BORDER}`,
+    borderRadius: '4px',
+    fontSize:     '14px',
+    outline:      'none',
+    color:        DARK,
+    background:   '#fff',
+    transition:   'border-color 0.2s',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display:      'block',
+    fontSize:     '13px',
+    fontWeight:   600,
+    color:        '#333',
+    marginBottom: '6px',
+  };
+
+  const btnOrange: React.CSSProperties = {
+    width:           '100%',
+    height:          '44px',
+    background:      ORANGE,
+    color:           '#fff',
+    border:          'none',
+    borderRadius:    '4px',
+    fontSize:        '14px',
+    fontWeight:      700,
+    letterSpacing:   '0.5px',
+    cursor:          'pointer',
+    transition:      'background 0.2s',
+    display:         'flex',
+    alignItems:      'center',
+    justifyContent:  'center',
+    gap:             '8px',
+  };
+
   return (
-    <div className="login-page-container">
-      {/* Dynamic styles injected directly */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .login-page-container {
-          background-color: #eff0f5;
-          min-height: 80vh;
-          padding: 40px 20px;
+    <>
+      {/* ══════════════════════════════════════════
+          Page-level inline CSS (Daraz-exact)
+      ══════════════════════════════════════════ */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        .bb-login-page * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        /* ── Header bar ── */
+        .bb-auth-header {
+          background: #fff;
+          border-bottom: 1px solid #e8e8e8;
+          padding: 0 20px;
           display: flex;
-          justify-content: center;
           align-items: center;
-          font-family: Inter, sans-serif;
+          justify-content: space-between;
+          height: 64px;
         }
-        .login-card {
-          background: #ffffff;
-          max-width: 850px;
-          width: 100%;
-          display: grid;
-          grid-template-columns: 1.6fr 1fr;
-          border-radius: 2px;
-          box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
-          overflow: hidden;
+        .bb-auth-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .bb-auth-logo-icon {
+          width: 40px; height: 40px;
+          background: ${ORANGE};
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 20px;
         }
-        .login-left {
-          padding: 40px;
-        }
-        .login-right {
-          padding: 40px;
-          border-left: 1px solid #eff0f5;
+        .bb-auth-logo-text { font-size: 22px; font-weight: 800; color: ${DARK}; }
+        .bb-auth-logo-text span { color: ${ORANGE}; }
+        .bb-auth-header-help { font-size: 13px; color: #888; }
+        .bb-auth-header-help a { color: ${ORANGE}; text-decoration: none; font-weight: 600; }
+
+        /* ── Page body ── */
+        .bb-login-page {
+          min-height: calc(100vh - 64px);
+          background: ${GRAY};
           display: flex;
           flex-direction: column;
-          justify-content: flex-start;
-        }
-        .login-title {
-          font-size: 22px;
-          color: #424242;
-          margin-bottom: 25px;
-          font-weight: 400;
-          display: flex;
-          justify-content: space-between;
           align-items: center;
+          padding: 30px 16px 60px;
         }
-        .daraz-input-group {
-          margin-bottom: 20px;
-        }
-        .daraz-label {
-          display: block;
-          font-size: 14px;
-          color: #424242;
-          margin-bottom: 8px;
-        }
-        .daraz-input {
+
+        /* ── Card ── */
+        .bb-auth-card {
           width: 100%;
-          height: 44px;
-          border: 1px solid #d5d5d5;
+          max-width: 800px;
           background: #fff;
-          padding: 10px 12px;
-          font-size: 14px;
-          color: #212121;
-          border-radius: 2px;
-          transition: border-color 0.2s;
-          outline: none;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+          overflow: hidden;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
         }
-        .daraz-input:focus {
-          border-color: #f85606;
+        @media (max-width: 640px) {
+          .bb-auth-card { grid-template-columns: 1fr; }
+          .bb-auth-right { display: none !important; }
         }
-        .daraz-btn-primary {
-          width: 100%;
-          height: 48px;
-          background: #f85606;
-          color: #fff;
-          border: none;
-          font-size: 16px;
-          font-weight: 500;
-          cursor: pointer;
-          border-radius: 2px;
-          transition: background 0.2s;
-          margin-top: 20px;
-        }
-        .daraz-btn-primary:hover {
-          background: #d04505;
-        }
-        .daraz-btn-primary:disabled {
-          background: #fca880;
-          cursor: not-allowed;
-        }
-        .forgot-link {
-          display: block;
-          text-align: right;
-          font-size: 12px;
-          color: #1a73e8;
-          text-decoration: none;
-          margin-top: 6px;
-          cursor: pointer;
-        }
-        .forgot-link:hover {
-          color: #f85606;
-        }
-        .switch-link-container {
-          font-size: 13px;
-          color: #424242;
-          margin-bottom: 25px;
-        }
-        .switch-link {
-          color: #1a73e8;
-          text-decoration: none;
-          cursor: pointer;
-          margin-left: 4px;
-        }
-        .switch-link:hover {
-          color: #f85606;
-          text-decoration: underline;
-        }
-        .social-login-title {
-          font-size: 13px;
-          color: #757575;
-          margin-top: 15px;
-          margin-bottom: 15px;
-        }
-        .social-btn {
-          width: 100%;
-          height: 40px;
-          border: none;
-          border-radius: 2px;
-          font-size: 13px;
-          font-weight: 500;
-          color: #fff;
-          cursor: pointer;
+
+        /* ── Left / Form panel ── */
+        .bb-auth-left { padding: 32px 28px; }
+
+        /* ── Tabs ── */
+        .bb-tabs {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 12px;
-          transition: opacity 0.2s;
+          border-bottom: 1px solid ${BORDER};
+          margin-bottom: 22px;
         }
-        .social-btn:hover {
-          opacity: 0.9;
-        }
-        .social-btn-facebook {
-          background: #3b5998;
-        }
-        .social-btn-google {
-          background: #d34836;
-        }
-        .daraz-otp-wrapper {
-          display: flex;
-          gap: 10px;
-        }
-        .daraz-btn-otp {
-          height: 44px;
-          background: #fff;
-          border: 1px solid #d5d5d5;
-          color: #f85606;
-          padding: 0 15px;
-          font-size: 14px;
-          cursor: pointer;
-          border-radius: 2px;
-          white-space: nowrap;
+        .bb-tab {
+          flex: 1; padding: 11px 0;
+          background: none; border: none;
+          font-size: 13px; font-weight: 600;
+          color: #888; cursor: pointer;
+          border-bottom: 2px solid transparent;
+          margin-bottom: -1px;
           transition: all 0.2s;
         }
-        .daraz-btn-otp:hover {
-          border-color: #f85606;
-          background: rgba(248, 86, 6, 0.02);
+        .bb-tab.active { color: ${ORANGE}; border-bottom-color: ${ORANGE}; }
+
+        /* ── Input group ── */
+        .bb-form-group { margin-bottom: 16px; position: relative; }
+        .bb-form-group input:focus { border-color: ${ORANGE}; box-shadow: 0 0 0 2px rgba(248,86,6,0.12); }
+
+        /* ── Divider ── */
+        .bb-or-divider {
+          display: flex; align-items: center; gap: 10px;
+          margin: 18px 0;
+          font-size: 12px; color: #aaa;
         }
-        .daraz-btn-otp:disabled {
-          color: #999;
-          border-color: #d5d5d5;
-          cursor: not-allowed;
+        .bb-or-divider::before, .bb-or-divider::after {
+          content: ''; flex: 1; height: 1px; background: ${BORDER};
         }
-        .alert-box {
-          padding: 12px 16px;
-          border-radius: 2px;
-          font-size: 13px;
-          margin-bottom: 20px;
-          border: 1px solid transparent;
+
+        /* ── Social btn ── */
+        .bb-social-btn {
+          width: 100%; height: 40px;
+          border: 1px solid ${BORDER}; border-radius: 4px;
+          background: #fff; font-size: 13px; font-weight: 600;
+          cursor: pointer; display: flex;
+          align-items: center; justify-content: center; gap: 8px;
+          transition: background 0.2s, border-color 0.2s;
+          margin-bottom: 10px;
         }
-        .alert-box-error {
-          background: #fff3f3;
-          border-color: #fca;
-          color: #d32f2f;
+        .bb-social-btn:hover { background: #f9f9f9; border-color: #ccc; }
+
+        /* ── Right info panel ── */
+        .bb-auth-right {
+          background: linear-gradient(145deg, #fff5f0 0%, #fff 60%);
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 36px 28px;
+          border-left: 1px solid #fce8dc;
         }
-        .alert-box-success {
-          background: #f3fbf4;
-          border-color: #cfa;
-          color: #2e7d32;
+        .bb-promo-badge {
+          background: ${ORANGE}; color: #fff;
+          font-size: 10px; font-weight: 700;
+          padding: 3px 9px; border-radius: 20px;
+          letter-spacing: 1px; margin-bottom: 16px;
         }
-        @media (max-width: 768px) {
-          .login-card {
-            grid-template-columns: 1fr;
-          }
-          .login-right {
-            border-left: none;
-            border-top: 1px solid #eff0f5;
-            padding-top: 30px;
-          }
+        .bb-promo-title {
+          font-size: 22px; font-weight: 800;
+          color: ${DARK}; text-align: center;
+          line-height: 1.35; margin-bottom: 12px;
         }
-      `}} />
+        .bb-promo-title span { color: ${ORANGE}; }
+        .bb-promo-sub {
+          font-size: 12.5px; color: #666;
+          text-align: center; line-height: 1.6;
+          margin-bottom: 24px;
+        }
+        .bb-perks { list-style: none; padding: 0; width: 100%; }
+        .bb-perks li {
+          display: flex; align-items: center; gap: 10px;
+          font-size: 13px; color: #444;
+          padding: 7px 0; border-bottom: 1px solid #f0e8e2;
+        }
+        .bb-perks li:last-child { border-bottom: none; }
+        .bb-perks-icon {
+          width: 28px; height: 28px;
+          background: rgba(248,86,6,0.10);
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 14px; flex-shrink: 0;
+        }
+        .bb-switch-link {
+          display: block; margin-top: 20px;
+          padding: 9px 20px;
+          border: 1.5px solid ${ORANGE};
+          border-radius: 4px;
+          color: ${ORANGE}; font-size: 13px; font-weight: 700;
+          text-align: center; cursor: pointer;
+          background: #fff; transition: all 0.2s;
+        }
+        .bb-switch-link:hover { background: ${ORANGE}; color: #fff; }
 
-      <div className="login-card">
-        {/* Left Side: Forms */}
-        <div className="login-left">
-          <div className="login-title">
-            <span>
-              {activeTab === 'LOGIN' 
-                ? 'Welcome to Balochi Bazzar! Please login.' 
-                : 'Create your Balochi Bazzar Account'}
-            </span>
-          </div>
+        /* ── Trust bar ── */
+        .bb-trust-bar {
+          display: flex; gap: 24px; margin-top: 24px;
+          flex-wrap: wrap; justify-content: center;
+        }
+        .bb-trust-item {
+          display: flex; align-items: center; gap: 6px;
+          font-size: 11.5px; color: #777;
+        }
 
-          {/* Error and Success notifications */}
-          {error && (
-            <div className="alert-box alert-box-error">
-              ⚠️ {error}
-            </div>
-          )}
-          {success && (
-            <div className="alert-box alert-box-success">
-              {success}
-            </div>
-          )}
+        /* ── OTP Modal ── */
+        .bb-otp-overlay {
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,0.52);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 9999;
+        }
+        .bb-otp-modal {
+          background: #fff; border-radius: 8px;
+          padding: 32px 28px; max-width: 380px; width: 92%;
+          text-align: center;
+          box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+        }
+        .bb-otp-icon { font-size: 42px; margin-bottom: 12px; }
+        .bb-otp-title { font-size: 17px; font-weight: 700; color: ${DARK}; margin-bottom: 6px; }
+        .bb-otp-sub {
+          font-size: 12.5px; color: #666; line-height: 1.6; margin-bottom: 20px;
+        }
+        .bb-otp-boxes {
+          display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;
+        }
+        .bb-otp-digit {
+          width: 52px; height: 52px;
+          border: 2px solid ${BORDER}; border-radius: 6px;
+          text-align: center; font-size: 22px; font-weight: 700;
+          color: ${DARK}; outline: none;
+          transition: border-color 0.2s;
+        }
+        .bb-otp-digit:focus { border-color: ${ORANGE}; box-shadow: 0 0 0 2px rgba(248,86,6,0.15); }
+        .bb-otp-error { font-size: 12px; color: #d32f2f; margin-bottom: 12px; font-weight: 600; }
+        .bb-otp-actions { display: flex; gap: 10px; }
 
-          {activeTab === 'LOGIN' ? (
-            /* Login Form */
-            <form onSubmit={handleLoginSubmit}>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Phone Number or Email*</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="daraz-input" 
-                  placeholder="Please enter your Phone Number or Email" 
-                  value={phoneOrEmail} 
-                  onChange={(e) => setPhoneOrEmail(e.target.value)} 
-                />
-              </div>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Password*</label>
-                <input 
-                  type="password" 
-                  required 
-                  className="daraz-input" 
-                  placeholder="Please enter your password" 
-                  value={loginPassword} 
-                  onChange={(e) => setLoginPassword(e.target.value)} 
-                />
-                <span className="forgot-link" onClick={() => alert('For password resets, contact Atelier Gwadar Support.')}>
-                  Forgot Password?
-                </span>
-              </div>
-              
-              <button 
-                type="submit" 
-                className="daraz-btn-primary"
-                disabled={loading}
-              >
-                {loading ? 'LOGGING IN...' : 'LOGIN'}
-              </button>
-            </form>
-          ) : (
-            /* Registration Form */
-            <form onSubmit={handleRegisterSubmit}>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Phone Number*</label>
-                <div className="daraz-otp-wrapper">
-                  <input 
-                    type="tel" 
-                    required 
-                    className="daraz-input" 
-                    placeholder="Please enter your phone number" 
-                    value={regPhone} 
-                    onChange={(e) => setRegPhone(e.target.value)} 
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleSendOtp} 
-                    className="daraz-btn-otp"
-                    disabled={otpTimer > 0}
-                  >
-                    {otpTimer > 0 ? `Retry in ${otpTimer}s` : 'Send Code'}
-                  </button>
-                </div>
-              </div>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Verification Code*</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="daraz-input" 
-                  placeholder="Verification Code" 
-                  value={regOtp} 
-                  onChange={(e) => setRegOtp(e.target.value)} 
-                />
-              </div>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Password*</label>
-                <input 
-                  type="password" 
-                  required 
-                  className="daraz-input" 
-                  placeholder="Minimum 6 characters" 
-                  value={regPassword} 
-                  onChange={(e) => setRegPassword(e.target.value)} 
-                />
-              </div>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Full Name*</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="daraz-input" 
-                  placeholder="Enter your first and last name" 
-                  value={regName} 
-                  onChange={(e) => setRegName(e.target.value)} 
-                />
-              </div>
-              <div className="daraz-input-group">
-                <label className="daraz-label">Email Address (Optional)</label>
-                <input 
-                  type="email" 
-                  className="daraz-input" 
-                  placeholder="Please enter your email" 
-                  value={regEmail} 
-                  onChange={(e) => setRegEmail(e.target.value)} 
-                />
-              </div>
+        /* ── Alert banners ── */
+        .bb-alert-success {
+          background: #f0fff4; border: 1px solid #38a169;
+          color: #276749; padding: 11px 14px;
+          border-radius: 4px; font-size: 13px; font-weight: 600;
+          margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+        }
+        .bb-alert-error {
+          background: #fff5f5; border: 1px solid #e53e3e;
+          color: #c53030; padding: 11px 14px;
+          border-radius: 4px; font-size: 13px; font-weight: 600;
+          margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+        }
 
-              <button 
-                type="submit" 
-                className="daraz-btn-primary"
-                disabled={loading}
-              >
-                {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
-              </button>
-            </form>
-          )}
-        </div>
+        /* ── Testing hint box ── */
+        .bb-hint-box {
+          background: #fff8f0; border: 1px dashed ${ORANGE};
+          border-radius: 4px; padding: 11px 14px;
+          font-size: 12px; color: #666;
+          margin-top: 14px; text-align: left;
+        }
+        .bb-hint-box code {
+          background: rgba(248,86,6,0.10);
+          color: ${ORANGE}; padding: 1px 6px;
+          border-radius: 3px; font-weight: 700;
+        }
+      `}</style>
 
-        {/* Right Side: Switch Link & Social Login */}
-        <div className="login-right">
-          {activeTab === 'LOGIN' ? (
-            <div className="switch-link-container">
-              <span>New member?</span>
-              <span className="switch-link" onClick={() => { setActiveTab('REGISTER'); setError(''); setSuccess(''); }}>
-                Register
-              </span>
-              <span> here.</span>
-            </div>
-          ) : (
-            <div className="switch-link-container">
-              <span>Already member?</span>
-              <span className="switch-link" onClick={() => { setActiveTab('LOGIN'); setError(''); setSuccess(''); }}>
-                Login
-              </span>
-              <span> here.</span>
-            </div>
-          )}
-
-          <div className="social-login-title">
-            {activeTab === 'LOGIN' ? 'Or, login with' : 'Or, sign up with'}
-          </div>
-
-          <button className="social-btn social-btn-facebook" onClick={() => alert('Facebook Login is a placeholder demo.')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            Facebook
-          </button>
-
-          <button className="social-btn social-btn-google" onClick={() => alert('Google Login is a placeholder demo.')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114-3.51 0-6.357-2.829-6.357-6.315 0-3.485 2.847-6.315 6.357-6.315 1.6 0 3.03.593 4.137 1.573l3.076-3.076C19.333 2.222 15.937 1 12.24 1 5.94 1 1 5.93 1 12.2s4.94 11.2 11.24 11.2c6.1 0 11.24-4.38 11.24-11.2 0-.74-.065-1.415-.205-1.915H12.24z"/>
-            </svg>
-            Google
-          </button>
+      {/* ═══ AUTH HEADER ═══ */}
+      <div className="bb-auth-header">
+        <a href="/" className="bb-auth-logo" style={{ textDecoration: 'none' }}>
+          <div className="bb-auth-logo-icon">🧣</div>
+          <span className="bb-auth-logo-text">
+            Balochi<span>Bazzar</span>
+          </span>
+        </a>
+        <div className="bb-auth-header-help">
+          Need help? <a href="#">Customer Care</a>
         </div>
       </div>
-    </div>
+
+      {/* ═══ PAGE BODY ═══ */}
+      <div className="bb-login-page">
+
+        {/* ─── Alert messages ─── */}
+        {error && (
+          <div className="bb-alert-error" style={{ width: '100%', maxWidth: '800px', marginBottom: '16px' }}>
+            ⚠️ {error}
+          </div>
+        )}
+        {success && (
+          <div className="bb-alert-success" style={{ width: '100%', maxWidth: '800px', marginBottom: '16px' }}>
+            ✓ {success}
+          </div>
+        )}
+
+        {/* ─── Main card ─── */}
+        <div className="bb-auth-card">
+
+          {/* ════ LEFT: Forms ════ */}
+          <div className="bb-auth-left">
+
+            {/* Section title */}
+            <div style={{ marginBottom: '20px' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: 800, color: DARK, marginBottom: '4px' }}>
+                {mode === 'LOGIN' ? 'Login to Balochi Bazzar' : 'Create your Account'}
+              </h1>
+              <p style={{ fontSize: '12.5px', color: '#888' }}>
+                {mode === 'LOGIN'
+                  ? 'Access your orders, profile and exclusive deals.'
+                  : 'Join thousands of shoppers from Gwadar and beyond.'}
+              </p>
+            </div>
+
+            {/* ── LOGIN MODE ── */}
+            {mode === 'LOGIN' && (
+              <>
+                {/* Input toggle tabs */}
+                <div className="bb-tabs">
+                  <button
+                    className={`bb-tab ${activeTab === 'PHONE' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('PHONE')}
+                    type="button"
+                  >
+                    📞 Phone / Email
+                  </button>
+                  <button
+                    className={`bb-tab ${activeTab === 'EMAIL' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('EMAIL')}
+                    type="button"
+                  >
+                    🔑 Quick PIN
+                  </button>
+                </div>
+
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>
+                      {activeTab === 'PHONE' ? 'Phone Number or Email' : 'Phone / Email'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={
+                        activeTab === 'PHONE'
+                          ? 'Enter your phone number or email'
+                          : 'Enter phone number or email'
+                      }
+                      style={inputStyle}
+                      value={loginIdentifier}
+                      onChange={(e) => setLoginIdentifier(e.target.value)}
+                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                    />
+                  </div>
+
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Password</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showLoginPwd ? 'text' : 'password'}
+                        required
+                        placeholder="Enter your password"
+                        style={{ ...inputStyle, paddingRight: '44px' }}
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                        onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPwd(!showLoginPwd)}
+                        style={{
+                          position: 'absolute', right: '12px', top: '50%',
+                          transform: 'translateY(-50%)', background: 'none',
+                          border: 'none', cursor: 'pointer', fontSize: '16px', color: '#888',
+                        }}
+                      >
+                        {showLoginPwd ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                    <div style={{ textAlign: 'right', marginTop: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => alert('Password reset is handled by admin. Contact Customer Care.')}
+                        style={{ background: 'none', border: 'none', color: ORANGE, fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Forgot Password?
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      ...btnOrange,
+                      opacity: loading ? 0.75 : 1,
+                      background: loading ? '#ccc' : ORANGE,
+                    }}
+                    onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = ORANGE2; }}
+                    onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = ORANGE; }}
+                  >
+                    {loading ? '⏳ Logging in…' : 'LOG IN'}
+                  </button>
+                </form>
+
+                {/* OR divider + social */}
+                <div className="bb-or-divider">OR</div>
+                <button className="bb-social-btn" type="button" onClick={() => alert('Social login is a display mock.')}>
+                  <span style={{ fontSize: '16px' }}>📘</span> Continue with Facebook
+                </button>
+                <button className="bb-social-btn" type="button" onClick={() => alert('Social login is a display mock.')}>
+                  <span style={{ fontSize: '16px' }}>🔴</span> Continue with Google
+                </button>
+
+                {/* Testing hint */}
+                <div className="bb-hint-box">
+                  <strong>🔑 Testing Credentials:</strong><br />
+                  Phone: <code>03327579515</code> (Admin)<br />
+                  Password: <code>2762</code>
+                </div>
+              </>
+            )}
+
+            {/* ── SIGNUP MODE ── */}
+            {mode === 'SIGNUP' && (
+              <form onSubmit={handleRegisterClick}>
+                {/* Name + Phone */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Full Name *</label>
+                    <input
+                      type="text" required
+                      placeholder="e.g. Sana Baluch"
+                      style={inputStyle} value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                    />
+                  </div>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Mobile Number *</label>
+                    <input
+                      type="tel" required
+                      placeholder="e.g. 03321234567"
+                      style={inputStyle} value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                    />
+                  </div>
+                </div>
+
+                {/* Email + Password */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Email (Optional)</label>
+                    <input
+                      type="email"
+                      placeholder="e.g. sana@email.com"
+                      style={inputStyle} value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                    />
+                  </div>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Password *</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showRegPwd ? 'text' : 'password'} required
+                        placeholder="Min. 4 characters"
+                        style={{ ...inputStyle, paddingRight: '44px' }}
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                        onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                      />
+                      <button
+                        type="button" onClick={() => setShowRegPwd(!showRegPwd)}
+                        style={{
+                          position: 'absolute', right: '12px', top: '50%',
+                          transform: 'translateY(-50%)', background: 'none',
+                          border: 'none', cursor: 'pointer', fontSize: '16px', color: '#888',
+                        }}
+                      >
+                        {showRegPwd ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sector + Street */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '12px' }}>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Area / Sector *</label>
+                    <select
+                      style={{ ...inputStyle, appearance: 'none', paddingRight: '28px', background: `#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 12px center` }}
+                      value={regSector} onChange={(e) => setRegSector(e.target.value)}
+                    >
+                      {gwadarSectors.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="bb-form-group">
+                    <label style={labelStyle}>Street / House # (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. House #45, Street 3"
+                      style={inputStyle} value={regStreet}
+                      onChange={(e) => setRegStreet(e.target.value)}
+                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                    />
+                  </div>
+                </div>
+
+                {/* Landmark */}
+                <div className="bb-form-group">
+                  <label style={labelStyle}>Landmark (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Near West Bay School"
+                    style={inputStyle} value={regLandmark}
+                    onChange={(e) => setRegLandmark(e.target.value)}
+                    onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                    onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                  />
+                </div>
+
+                {/* Terms */}
+                <p style={{ fontSize: '11px', color: '#888', marginBottom: '14px', lineHeight: 1.6 }}>
+                  By clicking "Sign Up", you agree to Balochi Bazzar's{' '}
+                  <a href="#" style={{ color: ORANGE }}>Terms of Use</a> and{' '}
+                  <a href="#" style={{ color: ORANGE }}>Privacy Policy</a>.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    ...btnOrange,
+                    opacity: loading ? 0.75 : 1,
+                    background: loading ? '#ccc' : ORANGE,
+                  }}
+                  onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = ORANGE2; }}
+                  onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = ORANGE; }}
+                >
+                  {loading ? '⏳ Creating Account…' : 'SIGN UP →'}
+                </button>
+              </form>
+            )}
+
+            {/* Mode toggle link (bottom) */}
+            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#666' }}>
+              {mode === 'LOGIN' ? (
+                <>Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('SIGNUP'); setError(''); }}
+                    style={{ background: 'none', border: 'none', color: ORANGE, fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}
+                  >
+                    Sign Up Free
+                  </button>
+                </>
+              ) : (
+                <>Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('LOGIN'); setError(''); }}
+                    style={{ background: 'none', border: 'none', color: ORANGE, fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}
+                  >
+                    Login here
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ════ RIGHT: Promo panel ════ */}
+          <div className="bb-auth-right">
+            <div className="bb-promo-badge">✦ EXCLUSIVE BENEFITS</div>
+            <p className="bb-promo-title">
+              Shop Authentic<br />
+              <span>Balochi Craftsmanship</span><br />
+              Online
+            </p>
+            <p className="bb-promo-sub">
+              Gwadar's #1 destination for handcrafted Balochi garments.
+              Join thousands of happy shoppers and get exclusive offers.
+            </p>
+
+            <ul className="bb-perks">
+              <li>
+                <div className="bb-perks-icon">🎁</div>
+                <span>Exclusive member-only discounts & early sales</span>
+              </li>
+              <li>
+                <div className="bb-perks-icon">📦</div>
+                <span>Real-time order tracking to your doorstep</span>
+              </li>
+              <li>
+                <div className="bb-perks-icon">🧣</div>
+                <span>Authentic handcrafted Balochi attire guaranteed</span>
+              </li>
+              <li>
+                <div className="bb-perks-icon">🔒</div>
+                <span>Secure payments with buyer protection</span>
+              </li>
+              <li>
+                <div className="bb-perks-icon">↩️</div>
+                <span>Easy returns within 7 days</span>
+              </li>
+            </ul>
+
+            <button
+              className="bb-switch-link"
+              type="button"
+              onClick={() => { setMode(mode === 'LOGIN' ? 'SIGNUP' : 'LOGIN'); setError(''); }}
+            >
+              {mode === 'LOGIN' ? '→ Create a Free Account' : '← Back to Login'}
+            </button>
+          </div>
+
+        </div>{/* /bb-auth-card */}
+
+        {/* ─── Trust bar ─── */}
+        <div className="bb-trust-bar">
+          <div className="bb-trust-item">🔒 Secure Login</div>
+          <div className="bb-trust-item">🇵🇰 100% Pakistani</div>
+          <div className="bb-trust-item">📞 24/7 Support</div>
+          <div className="bb-trust-item">✔️ Verified Sellers</div>
+        </div>
+
+      </div>{/* /bb-login-page */}
+
+      {/* ═══ OTP MODAL ═══ */}
+      {showOtpModal && (
+        <div className="bb-otp-overlay">
+          <div className="bb-otp-modal">
+            <div className="bb-otp-icon">📱</div>
+            <h2 className="bb-otp-title">Verify Your Number</h2>
+            <p className="bb-otp-sub">
+              A 4-digit OTP has been sent to <strong>{regPhone}</strong> via SMS.
+              <br />
+              <span style={{ color: ORANGE, fontWeight: 700 }}>For testing, enter: 8899</span>
+            </p>
+
+            {otpError && <div className="bb-otp-error">⚠️ {otpError}</div>}
+
+            <form onSubmit={handleOtpVerify}>
+              <div className="bb-otp-boxes">
+                {otpInput.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    id={`otp-digit-${idx}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    className="bb-otp-digit"
+                    value={digit}
+                    onChange={(e) => handleOtpDigit(idx, e.target.value)}
+                  />
+                ))}
+              </div>
+
+              <div className="bb-otp-actions">
+                <button
+                  type="submit"
+                  style={{
+                    ...btnOrange, flex: 2,
+                  }}
+                >
+                  Verify & Create Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowOtpModal(false)}
+                  style={{
+                    flex: 1, height: '44px', border: `1px solid ${BORDER}`,
+                    borderRadius: '4px', background: '#fff',
+                    color: '#444', fontWeight: 700, fontSize: '13px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+
+            <p style={{ marginTop: '14px', fontSize: '12px', color: '#888' }}>
+              Didn't receive?{' '}
+              <button
+                type="button"
+                onClick={() => alert('OTP resend is a mock feature.')}
+                style={{ background: 'none', border: 'none', color: ORANGE, fontWeight: 700, cursor: 'pointer', fontSize: '12px' }}
+              >
+                Resend OTP
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
+/* ─────────────────────────────────────────────────────────
+   Default export: wraps LoginContent in Suspense boundary
+   Required by Next.js for useSearchParams() in static pages
+───────────────────────────────────────────────────────── */
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div style={{ 
-        paddingTop: '8rem', 
-        paddingBottom: '8rem', 
-        textAlign: 'center', 
-        color: '#333', 
-        background: '#eff0f5', 
-        minHeight: '100vh',
-        fontFamily: 'sans-serif'
-      }}>
-        <div style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#f85606' }}>Loading Balochi Bazzar Auth...</div>
-      </div>
-    }>
-      <LoginPageContent />
+    <Suspense
+      fallback={
+        <div style={{
+          minHeight: '100vh', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', background: '#f5f5f5',
+          flexDirection: 'column', gap: '12px',
+        }}>
+          <div style={{ fontSize: '36px' }}>🧣</div>
+          <div style={{ fontSize: '15px', color: '#888', fontWeight: 600 }}>
+            Loading Balochi Bazzar…
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
     </Suspense>
   );
 }

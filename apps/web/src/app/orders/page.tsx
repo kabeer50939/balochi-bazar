@@ -48,6 +48,7 @@ interface Order {
 
 export default function MyOrdersPage() {
   const router = useRouter();
+  
   // Direct backend URL — hardcoded for production reliability
   const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
@@ -57,8 +58,6 @@ export default function MyOrdersPage() {
   
   // Authentication states
   const [token, setToken] = useState<string | null>(null);
-  const [phoneInput, setPhoneInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('localpassword123'); // Standard testing password
 
   useEffect(() => {
     const activeToken = localStorage.getItem('bazar_token');
@@ -66,9 +65,9 @@ export default function MyOrdersPage() {
       setToken(activeToken);
       fetchOrders(activeToken);
     } else {
-      router.push('/login');
+      router.push('/login?redirect=/orders');
     }
-  }, []);
+  }, [router]);
 
   const fetchOrders = (activeToken: string) => {
     setLoading(true);
@@ -92,30 +91,7 @@ export default function MyOrdersPage() {
       });
   };
 
-  const handleTestLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch(getApiUrl('/api/auth/login'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: phoneInput, password: passwordInput })
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Failed to login');
-
-      localStorage.setItem('bazar_token', data.token);
-      localStorage.setItem('bazar_user', JSON.stringify(data.user));
-      setToken(data.token);
-      fetchOrders(data.token);
-    } catch (err: any) {
-      setError(err.message || 'Login failed.');
-      setLoading(false);
-    }
-  };
+  // Removed unused handleTestLogin handler
 
   const logout = () => {
     localStorage.removeItem('bazar_token');
@@ -200,37 +176,11 @@ export default function MyOrdersPage() {
 
       {/* If not logged in, show a simple login portal */}
       {!token ? (
-        <div style={{ maxWidth: '450px', margin: '0 auto' }} className="glass">
-          <div style={{ padding: '2.5rem' }}>
-            <h3 style={{ textAlign: 'center', fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-gold)' }}>Enter Phone to View Orders</h3>
-            <form onSubmit={handleTestLogin}>
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="e.g. 03219998887"
-                  className="form-input"
-                  value={phoneInput}
-                  onChange={(e) => setPhoneInput(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Testing password (default: localpassword123)"
-                  className="form-input"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
-                {loading ? 'Retrieving Account...' : 'Sign In'}
-              </button>
-            </form>
-          </div>
+        <div style={{ textAlign: 'center', padding: '5rem' }} className="glass">
+          <h3 style={{ color: 'var(--text-gold)', fontWeight: 'bold' }}>Redirecting to Login Portal...</h3>
+          <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+            If you are not automatically redirected, please click <a href="/login?redirect=/orders" style={{ color: 'var(--primary)', fontWeight: 'bold', textDecoration: 'underline' }}>here</a>.
+          </p>
         </div>
       ) : loading ? (
         <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>Loading your order history...</div>
