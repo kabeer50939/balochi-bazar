@@ -478,7 +478,7 @@ export default function App() {
                   </View>
                 </View>
                 <TouchableOpacity onPress={() => Alert.alert('Flash Sale', 'Exclusive Gwadar traditional Balochi doch items on discount.')}>
-                  <Text style={styles.shopMoreText}>SHOP MORE ></Text>
+                  <Text style={styles.shopMoreText}>SHOP MORE &gt;</Text>
                 </TouchableOpacity>
               </View>
 
