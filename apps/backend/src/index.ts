@@ -10,8 +10,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// Middleware - Explicit CORS for production Vercel deployment
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: false,
+}));
+app.options('*', cors()); // Enable pre-flight for all routes
 app.use(express.json());
 
 // Ensure local uploads directory exists

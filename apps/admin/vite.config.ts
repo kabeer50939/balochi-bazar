@@ -8,4 +8,8 @@ export default defineConfig({
     port: 5173,
     host: true
   },
+  define: {
+    // Bake production API URL into build — used by getApiUrl() in App.tsx
+    'import.meta.env.VITE_API_URL': JSON.stringify('https://balochi-bazar-backend.vercel.app'),
+  },
 });
