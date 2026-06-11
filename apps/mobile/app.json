@@ -5,20 +5,8 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "jsEngine": "jsc",
     "web": {
       "bundler": "metro"
-    },
-    "android": {
-      "package": "com.kabeer50939.bazarmonorepo"
-    },
-    "splash": {
-      "backgroundColor": "#023c69"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "6d793b95-5b51-4c94-924c-6c285a5e6174"
-      }
     }
   }
 }

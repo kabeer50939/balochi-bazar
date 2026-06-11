@@ -39,8 +39,3 @@ apps/backend/prisma/dev.db
 # OS Files
 .DS_Store
 Thumbs.db
-
-# Native mobile folders
-apps/mobile/android/
-apps/mobile/ios/
-
