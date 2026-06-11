@@ -1698,7 +1698,7 @@ export default function App() {
           }} onClick={(e) => e.stopPropagation()}>
             {/* Modal Actions */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', backgroundColor: '#ffffff', margin: '-1.5rem -1.5rem 1rem -1.5rem', padding: '1rem 1.5rem', position: 'sticky', top: '-1.5rem', zIndex: 10 }}>
-              <h3 style={{ margin: 0, fontWeight: 700, fontSize: '13px' }}>🖨️ Daraz document print layout</h3>
+              <h3 style={{ margin: 0, fontWeight: 700, fontSize: '13px' }}>🖨️ Balochi Bazzar document print layout</h3>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <button onClick={() => window.print()} className="btn-daraz btn-daraz-primary">Print Document</button>
                 <button onClick={() => setPrintModalData(null)} className="btn-daraz btn-daraz-secondary">Close Preview</button>
@@ -1714,7 +1714,7 @@ export default function App() {
                   /* 100% Identical Shipping Label */
                   <div key={ord.id} className="print-layout" style={{ border: '2px dashed #000', padding: '1rem', backgroundColor: '#fff', fontSize: '10px', color: '#000', marginBottom: index < printModalData.orderIds.length - 1 ? '1rem' : '0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #000', paddingBottom: '4px', fontWeight: 'bold' }}>
-                      <span style={{ fontSize: '12px' }}>DARAZ STANDARD SHIPPING</span>
+                      <span style={{ fontSize: '12px' }}>BALOCHI BAZZAR STANDARD SHIPPING</span>
                       <span>PORT: GWADAR</span>
                     </div>
 
@@ -1761,7 +1761,7 @@ export default function App() {
                   <div key={ord.id} className="print-layout" style={{ border: '1px solid #ddd', padding: '1.25rem', backgroundColor: '#fff', fontSize: '10px', color: '#333', marginBottom: index < printModalData.orderIds.length - 1 ? '1rem' : '0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px', marginBottom: '8px' }}>
                       <div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary)' }}>DARAZ SELLER HUB</div>
+                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary)' }}>BALOCHI BAZZAR SELLER HUB</div>
                         <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>Atelier Gwadar Store (PK_GW_001)</span>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -1833,7 +1833,7 @@ export default function App() {
                     </div>
 
                     <div style={{ marginTop: '1.5rem', borderTop: '1px dashed #eee', paddingTop: '8px', textAlign: 'center', fontSize: '8px', color: 'var(--text-muted)' }}>
-                      Thank you for shopping at Balochi Bazzar via Daraz Seller Center. For customization support, contact Atelier Gwadar.
+                      Thank you for shopping at Balochi Bazzar. For customization support, contact Atelier Gwadar.
                     </div>
                   </div>
                 );
