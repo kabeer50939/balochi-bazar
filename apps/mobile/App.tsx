@@ -56,8 +56,10 @@ export default function App() {
   // Developer setting: Backend LAN IP (Change to local Wi-Fi IP for real phones)
   const [backendIp, setBackendIp] = useState('10.0.2.2'); 
   
+  const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+  
   // Connect to production server by default when built/run in production mode, otherwise use local IP sync bar.
-  const apiBase = __DEV__ 
+  const apiBase = isDev 
     ? (process.env.EXPO_PUBLIC_API_URL || `http://${backendIp}:5000/api`)
     : (process.env.EXPO_PUBLIC_API_URL || 'https://balochi-bazar-backend.vercel.app/api');
 
@@ -365,7 +367,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Dynamic Top IP Sync Bar (Only show in development mode and when API URL is not hardcoded) */}
-      {__DEV__ && !process.env.EXPO_PUBLIC_API_URL && (
+      {isDev && !process.env.EXPO_PUBLIC_API_URL && (
         <View style={styles.ipBar}>
           <Text style={styles.ipLabel}>IP Address:</Text>
           <TextInput
@@ -611,7 +613,7 @@ export default function App() {
                       setIsRental(val);
                       setSelectedEmbroidery([]);
                     }} 
-                    trackColor={{ true: 'var(--primary)', false: '#ccc' }}
+                    trackColor={{ true: '#f85606', false: '#ccc' }}
                   />
                 </View>
               )}
@@ -988,13 +990,13 @@ export default function App() {
                 </View>
                 {voucherDiscount > 0 && (
                   <View style={styles.priceRowItem}>
-                    <Text style={[styles.priceItemLabel, { color: 'var(--danger)' }]}>Voucher Discount:</Text>
-                    <Text style={[styles.priceItemVal, { color: 'var(--danger)' }]}>- Rs. {voucherDiscount.toLocaleString()}</Text>
+                    <Text style={[styles.priceItemLabel, { color: '#ff3b30' }]}>Voucher Discount:</Text>
+                    <Text style={[styles.priceItemVal, { color: '#ff3b30' }]}>- Rs. {voucherDiscount.toLocaleString()}</Text>
                   </View>
                 )}
                 <View style={[styles.priceRowItem, { borderTopWidth: 1, borderColor: '#eee', paddingTop: 8, marginTop: 8 }]}>
                   <Text style={[styles.priceItemLabel, { fontWeight: 'bold', color: '#212121' }]}>Final Total:</Text>
-                  <Text style={[styles.priceItemVal, { fontWeight: 'bold', color: 'var(--primary)', fontSize: 16 }]}>
+                  <Text style={[styles.priceItemVal, { fontWeight: 'bold', color: '#f85606', fontSize: 16 }]}>
                     Rs. {calculateTotal().toLocaleString()}
                   </Text>
                 </View>
