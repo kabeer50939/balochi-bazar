@@ -26,8 +26,8 @@ export default function HomePage() {
   // Active Hero Slide index
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
-  const getApiUrl = (path: string = '') => path;
+  // Direct backend URL — hardcoded for production reliability
+  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
   const heroSlides = [
     {

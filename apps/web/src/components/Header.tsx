@@ -64,8 +64,8 @@ export default function Header() {
     handleFilterChange('search', searchInput);
   };
 
-  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
-  const getApiUrl = (path: string = '') => path;
+  // Direct backend URL — hardcoded for production reliability
+  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
   const categories = [
     { label: '👗 Complete Balochi Sets', id: 'Complete Balochi Sets' },

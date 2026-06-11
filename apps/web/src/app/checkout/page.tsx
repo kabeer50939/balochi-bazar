@@ -17,8 +17,8 @@ interface CartItem {
 export default function CheckoutPage() {
   const router = useRouter();
   
-  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
-  const getApiUrl = (path: string = '') => path;
+  // Direct backend URL — hardcoded for production reliability
+  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
   
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [authToken, setAuthToken] = useState<string | null>(null);

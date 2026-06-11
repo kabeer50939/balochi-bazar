@@ -21,8 +21,8 @@ function CatalogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
-  const getApiUrl = (path: string = '') => path;
+  // Direct backend URL — hardcoded for production reliability
+  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
   
   const initialCategory = searchParams.get('category') || 'ALL';
   const initialSearch = searchParams.get('search') || '';

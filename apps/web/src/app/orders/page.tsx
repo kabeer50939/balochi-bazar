@@ -46,8 +46,8 @@ interface Order {
 }
 
 export default function MyOrdersPage() {
-  // Relative path — Next.js rewrites proxy /api/* to the backend (no CORS)
-  const getApiUrl = (path: string = '') => path;
+  // Direct backend URL — hardcoded for production reliability
+  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
