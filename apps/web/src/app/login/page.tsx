@@ -40,6 +40,17 @@ function LoginContent() {
   const [regCodeLoading, setRegCodeLoading]     = useState(false);
   const [regPassword, setRegPassword]           = useState('');
   const [showRegPwd, setShowRegPwd]             = useState(false);
+
+  const handlePhoneChange = (val: string) => {
+    const cleaned = val.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 11)}`;
+    } else {
+      formatted = cleaned;
+    }
+    setRegPhone(formatted);
+  };
   
   // Birthday
   const [regBirthMonth, setRegBirthMonth] = useState('Month');
@@ -96,9 +107,16 @@ function LoginContent() {
   /* ─── Submit Email OTP Login ─── */
   const handleEmailOtpLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccess('');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailOtpEmail)) {
+      setError('Please enter a valid email address (e.g. user@example.com).');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch(getApiUrl('/api/auth/email-otp-login'), {
@@ -125,6 +143,12 @@ function LoginContent() {
       setError('Please enter your email address first.');
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailOtpEmail)) {
+      setError('Please enter a valid email address (e.g. user@example.com).');
+      return;
+    }
+
     setEmailOtpLoading(true);
     setError('');
     setSuccess('');
@@ -153,6 +177,12 @@ function LoginContent() {
       setError('Please enter your email address first.');
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(regEmail)) {
+      setError('Please enter a valid email address (e.g. user@example.com).');
+      return;
+    }
+
     setRegCodeLoading(true);
     setError('');
     setSuccess('');
@@ -182,6 +212,21 @@ function LoginContent() {
       setError('Please fill in all required fields marked with *');
       return;
     }
+    
+    // Format validation: Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(regEmail)) {
+      setError('Please enter a valid email address (e.g. customer@example.com).');
+      return;
+    }
+
+    // Format validation: Phone (XXXX-XXXXXXX)
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(regPhone)) {
+      setError('Please enter a valid Gwadar phone number in XXXX-XXXXXXX format (e.g. 0332-7579515).');
+      return;
+    }
+
     if (regPassword.length < 4) {
       setError('Password must be at least 4 characters.');
       return;
@@ -741,10 +786,10 @@ function LoginContent() {
                     <input
                       type="tel"
                       required
-                      placeholder="Please enter your Phone Number (for delivery contact)"
+                      placeholder="e.g. 0332-7579515 (format: XXXX-XXXXXXX)"
                       className="bb-input-field"
                       value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
                     />
                   </div>
 

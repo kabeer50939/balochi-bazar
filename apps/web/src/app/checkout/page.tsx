@@ -36,6 +36,17 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const handlePhoneChange = (val: string) => {
+    const cleaned = val.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 11)}`;
+    } else {
+      formatted = cleaned;
+    }
+    setPhoneNumber(formatted);
+  };
+
   useEffect(() => {
     // Load cart
     const items = JSON.parse(localStorage.getItem('bazar_cart') || '[]');
@@ -48,6 +59,9 @@ export default function CheckoutPage() {
       setAuthToken(token);
       setName(user.name);
       setPhoneNumber(user.phoneNumber);
+    } else {
+      // Enforce email OTP verification by redirecting guests to register/login first
+      window.location.href = '/login?redirect=/checkout';
     }
   }, []);
 
@@ -224,10 +238,10 @@ export default function CheckoutPage() {
             <input
               type="tel"
               required
-              placeholder="e.g. 03001234567"
+              placeholder="e.g. 0332-7579515 (format: XXXX-XXXXXXX)"
               className="form-input"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => handlePhoneChange(e.target.value)}
               disabled={!!authToken}
             />
             {!authToken && (

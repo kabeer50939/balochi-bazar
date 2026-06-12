@@ -99,6 +99,18 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Phone number, password, and name are required' });
   }
 
+  // Format validation: Email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (email && !emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address (e.g. customer@example.com)' });
+  }
+
+  // Format validation: Phone Number (XXXX-XXXXXXX)
+  const phoneRegex = /^\d{4}-\d{7}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    return res.status(400).json({ error: 'Please enter a valid phone number in the format XXXX-XXXXXXX (e.g. 0332-7579515)' });
+  }
+
   // Verification code check: If email is provided, check EmailOtp table. Else fallback to mobile mock code.
   if (email) {
     try {
@@ -350,8 +362,9 @@ router.post('/otp-login', async (req, res) => {
 router.post('/send-otp', async (req, res) => {
   const { email, type } = req.body; // type: 'REGISTER' or 'LOGIN'
 
-  if (!email) {
-    return res.status(400).json({ error: 'Email address is required' });
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address (e.g. customer@example.com).' });
   }
 
   try {
