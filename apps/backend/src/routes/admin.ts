@@ -344,6 +344,140 @@ router.patch('/products/:productId/stock', async (req, res) => {
     console.error('Update stock error:', err);
     res.status(500).json({ error: 'Failed to update stock quantity' });
   }
+// Get All Customers / Users List with order metadata
+router.get('/customers', async (req, res) => {
+  try {
+    const customers = await prisma.user.findMany({
+      where: { role: 'CUSTOMER' },
+      select: {
+        id: true,
+        name: true,
+        phoneNumber: true,
+        email: true,
+        isBlacklisted: true,
+        isOtpVerified: true,
+        ipAddress: true,
+        deviceFingerprint: true,
+        createdAt: true,
+        orders: {
+          select: {
+            id: true,
+            status: true,
+            totalAmount: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Format metadata (cancelled order count, etc.)
+    const formatted = customers.map(u => {
+      const cancelledCount = u.orders.filter(o => o.status === 'CANCELLED').length;
+      const totalCount = u.orders.length;
+      return {
+        id: u.id,
+        name: u.name,
+        phoneNumber: u.phoneNumber,
+        email: u.email,
+        isBlacklisted: u.isBlacklisted,
+        isOtpVerified: u.isOtpVerified,
+        ipAddress: u.ipAddress,
+        deviceFingerprint: u.deviceFingerprint,
+        createdAt: u.createdAt,
+        cancelledOrdersCount: cancelledCount,
+        totalOrdersCount: totalCount
+      };
+    });
+
+    res.json(formatted);
+  } catch (err: any) {
+    console.error('Fetch customers error:', err);
+    res.status(500).json({ error: 'Failed to retrieve customers list' });
+  }
+});
+
+// Blacklist/Whitelist User toggle
+router.patch('/customers/:userId/blacklist', async (req, res) => {
+  const { userId } = req.params;
+  const { isBlacklisted } = req.body;
+
+  if (isBlacklisted === undefined) {
+    return res.status(400).json({ error: 'isBlacklisted status is required' });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { isBlacklisted: !!isBlacklisted }
+    });
+
+    res.json({
+      success: true,
+      message: `User ${updatedUser.name} has been successfully ${updatedUser.isBlacklisted ? 'blacklisted' : 'whitelisted'}.`,
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        isBlacklisted: updatedUser.isBlacklisted
+      }
+    });
+  } catch (err: any) {
+    console.error('Blacklist user error:', err);
+    res.status(500).json({ error: 'Failed to update user blacklist status' });
+  }
+});
+
+// Update suspicious Order confirmation Call Status
+router.patch('/orders/:orderId/confirmation', async (req, res) => {
+  const { orderId } = req.params;
+  const { confirmationStatus } = req.body; // "CONFIRMED", "REJECTED_FAKE"
+
+  if (!confirmationStatus || !['CONFIRMED', 'REJECTED_FAKE'].includes(confirmationStatus)) {
+    return res.status(400).json({ error: 'Invalid confirmation status. Must be CONFIRMED or REJECTED_FAKE.' });
+  }
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        confirmationStatus,
+        status: confirmationStatus === 'REJECTED_FAKE' ? 'CANCELLED' : order.status
+      },
+      include: { orderItems: true }
+    });
+
+    // If marked as fake/cancelled, restore stock
+    if (confirmationStatus === 'REJECTED_FAKE' && order.status !== 'CANCELLED') {
+      for (const item of updatedOrder.orderItems) {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stockQuantity: {
+              increment: item.quantity
+            }
+          }
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Order confirmation status set to: ${confirmationStatus}.`,
+      order: updatedOrder
+    });
+  } catch (err: any) {
+    console.error('Update order confirmation status error:', err);
+    res.status(500).json({ error: 'Failed to update order confirmation status' });
+  }
 });
 
 export default router;

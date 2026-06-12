@@ -182,6 +182,7 @@ function LoginContent() {
           sectorName:  regSector,
           streetAddress: regStreet || undefined,
           landmark:    regLandmark || undefined,
+          otpCode:     regCode,
         }),
       });
       const data = await res.json();

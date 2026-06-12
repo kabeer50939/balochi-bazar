@@ -48,6 +48,51 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
   }
 
   try {
+    // Fetch user details for security checks
+    const dbUser = await prisma.user.findUnique({
+      where: { id: req.user!.id }
+    });
+
+    if (!dbUser) {
+      return res.status(401).json({ error: 'User session not found' });
+    }
+
+    if (dbUser.isBlacklisted) {
+      return res.status(403).json({ error: 'Access denied. This account has been blacklisted due to multiple fake orders or delivery refusals.' });
+    }
+
+    // Enforce OTP verification before allowing orders
+    if (!dbUser.isOtpVerified) {
+      return res.status(403).json({ error: 'Mobile number OTP verification is required before placing an order. Please verify your phone number in your account settings.' });
+    }
+
+    // Limit New Accounts: Check if account is < 7 days old
+    const isNewAccount = (Date.now() - new Date(dbUser.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
+    if (isNewAccount) {
+      const activeOrdersCount = await prisma.order.count({
+        where: {
+          userId: dbUser.id,
+          status: { in: ['PENDING', 'CONFIRMED', 'IN_EMBROIDERY', 'IN_TAILORING', 'READY', 'OUT_FOR_DELIVERY'] }
+        }
+      });
+      if (activeOrdersCount >= 3) {
+        return res.status(400).json({ error: 'New accounts are restricted to a maximum of 3 pending orders at a time to prevent duplicate fake orders.' });
+      }
+    }
+
+    // Cash on Delivery (COD) Rules
+    if (paymentMethod === 'COD') {
+      const cancelledOrdersCount = await prisma.order.count({
+        where: {
+          userId: dbUser.id,
+          status: 'CANCELLED'
+        }
+      });
+      if (cancelledOrdersCount >= 2) {
+        return res.status(400).json({ error: 'Cash on Delivery (COD) is disabled for this account due to a history of cancelled/refused orders. Please select an advance payment method (EasyPaisa, JazzCash, or Bank Transfer).' });
+      }
+    }
+
     // Verify address exists
     const address = await prisma.address.findUnique({
       where: { id: addressId, userId: req.user!.id }
@@ -55,6 +100,11 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
 
     if (!address) {
       return res.status(400).json({ error: 'Valid delivery address not found' });
+    }
+
+    // Complete address check (min 8 characters for street address)
+    if (!address.streetAddress || address.streetAddress.trim().length < 8) {
+      return res.status(400).json({ error: 'Delivery address is incomplete. Please specify a valid street number and house address (at least 8 characters) for shipping verification.' });
     }
 
     let calculatedTotal = 0;
@@ -134,6 +184,21 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
     const orderCount = await prisma.order.count();
     const orderNumber = `BZR-${10001 + orderCount}`;
 
+    // Decide if confirmation call is required
+    let requiresConfirmation = false;
+    let confirmationStatus = 'NOT_REQUIRED';
+
+    let hasCustomizations = false;
+    for (const itemToCreate of itemsToCreate) {
+      if (itemToCreate.customizations) hasCustomizations = true;
+      if (itemToCreate.customSizing) hasCustomizations = true;
+    }
+
+    if (calculatedTotal > 10000 || hasCustomizations || isNewAccount) {
+      requiresConfirmation = true;
+      confirmationStatus = 'AWAITING_CALL';
+    }
+
     // Execute database transaction
     const newOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
@@ -143,7 +208,11 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
           addressId,
           totalAmount: calculatedTotal,
           paymentMethod,
-          paymentStatus: 'PENDING'
+          paymentStatus: 'PENDING',
+          requiresConfirmation,
+          confirmationStatus,
+          ipAddress: req.ip || 'unknown',
+          deviceFingerprint: req.headers['user-agent'] || 'unknown'
         }
       });
 

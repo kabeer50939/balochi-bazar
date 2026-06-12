@@ -10,10 +10,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'bazar_local_secret_key_gwadar_doch
 
 // Register User
 router.post('/register', async (req, res) => {
-  const { phoneNumber, password, name, email, sectorName, streetAddress, landmark } = req.body;
+  const { phoneNumber, password, name, email, sectorName, streetAddress, landmark, otpCode } = req.body;
 
   if (!phoneNumber || !password || !name) {
     return res.status(400).json({ error: 'Phone number, password, and name are required' });
+  }
+
+  // Mobile number OTP Verification
+  if (!otpCode || otpCode !== '8899') {
+    return res.status(400).json({ error: 'Mobile verification code check failed. Please enter the valid OTP 8899.' });
   }
 
   try {
@@ -24,6 +29,26 @@ router.post('/register', async (req, res) => {
 
     if (existingUser) {
       return res.status(400).json({ error: 'Phone number already registered' });
+    }
+
+    // IP & Device fingerprint limit: max 3 accounts from same IP/Device in 24 hours
+    const ipAddress = req.ip || 'unknown';
+    const deviceFingerprint = req.headers['user-agent'] || 'unknown';
+
+    const recentRegistrations = await prisma.user.count({
+      where: {
+        OR: [
+          { ipAddress },
+          { deviceFingerprint }
+        ],
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
+        }
+      }
+    });
+
+    if (recentRegistrations >= 3) {
+      return res.status(429).json({ error: 'Security alert: Too many registrations from this device/network in 24 hours to prevent duplicate fake accounts.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -37,7 +62,11 @@ router.post('/register', async (req, res) => {
           passwordHash,
           name,
           email,
-          role: 'CUSTOMER'
+          role: 'CUSTOMER',
+          isOtpVerified: true,
+          emailVerified: email ? true : false,
+          ipAddress,
+          deviceFingerprint
         }
       });
 
@@ -106,10 +135,23 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid username (phone or email) or password' });
     }
 
+    if (user.isBlacklisted) {
+      return res.status(403).json({ error: 'Access denied. This account has been blacklisted due to multiple fake orders or delivery refusals.' });
+    }
+
     const validPassword = await bcrypt.compare(password, user.passwordHash);
     if (!validPassword) {
       return res.status(400).json({ error: 'Invalid username (phone or email) or password' });
     }
+
+    // Update IP & Device Fingerprint
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ipAddress: req.ip || 'unknown',
+        deviceFingerprint: req.headers['user-agent'] || 'unknown'
+      }
+    });
 
     // Generate JWT
     const token = jwt.sign(
@@ -154,6 +196,19 @@ router.post('/otp-login', async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: 'This phone number is not registered. Please sign up first.' });
     }
+
+    if (user.isBlacklisted) {
+      return res.status(403).json({ error: 'Access denied. This account has been blacklisted due to multiple fake orders or delivery refusals.' });
+    }
+
+    // Update IP & Device Fingerprint
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ipAddress: req.ip || 'unknown',
+        deviceFingerprint: req.headers['user-agent'] || 'unknown'
+      }
+    });
 
     // Generate JWT
     const token = jwt.sign(

@@ -10,16 +10,21 @@ generator client {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String?       @unique
-  phoneNumber  String        @unique
-  passwordHash String
-  name         String
-  role         String        @default("CUSTOMER") // "CUSTOMER", "STAFF", "ADMIN"
-  addresses    Address[]
-  orders       Order[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  email             String?       @unique
+  emailVerified     Boolean       @default(false)
+  phoneNumber       String        @unique
+  passwordHash      String
+  name              String
+  role              String        @default("CUSTOMER") // "CUSTOMER", "STAFF", "ADMIN"
+  isBlacklisted     Boolean       @default(false)
+  isOtpVerified     Boolean       @default(false)
+  ipAddress         String?
+  deviceFingerprint String?
+  addresses         Address[]
+  orders            Order[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model Address {
@@ -85,6 +90,12 @@ model Order {
   status        String        @default("PENDING") // "PENDING", "CONFIRMED", "IN_EMBROIDERY", "IN_TAILORING", "READY", "OUT_FOR_DELIVERY", "DELIVERED", "COMPLETED", "CANCELLED"
   totalAmount   Float
   
+  // Anti-fake checks
+  requiresConfirmation Boolean  @default(false)
+  confirmationStatus   String   @default("NOT_REQUIRED") // "NOT_REQUIRED", "AWAITING_CALL", "CONFIRMED", "REJECTED_FAKE"
+  ipAddress            String?
+  deviceFingerprint    String?
+
   // Payments
   paymentMethod String        // "COD", "BANK_TRANSFER", "EASYPAISA", "JAZZCASH"
   paymentStatus String        @default("PENDING")
