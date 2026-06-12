@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { getApiUrl } from '../../lib/api';
 
 interface Product {
   id: string;
@@ -21,8 +22,7 @@ function CatalogPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
   
   const initialCategory = searchParams.get('category') || 'ALL';
   const initialSearch = searchParams.get('search') || '';

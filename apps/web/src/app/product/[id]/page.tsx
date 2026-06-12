@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { getApiUrl } from '../../../lib/api';
 
 interface ProductImage {
   id: string;
@@ -34,8 +35,7 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth } from '../../lib/firebase';
+import { getApiUrl } from '../../lib/api';
 import { 
   signInWithPopup, 
   GoogleAuthProvider, 
@@ -17,8 +18,7 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const API_BASE = 'https://balochi-bazar-backend.vercel.app';
-  const getApiUrl = (path: string) => `${API_BASE}${path}`;
+
 
   /* ── Mode: 'LOGIN' or 'SIGNUP' ── */
   const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');

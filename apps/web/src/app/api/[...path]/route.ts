@@ -12,7 +12,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_BASE = 'https://balochi-bazar-backend.vercel.app';
+const isLocal = process.env.NODE_ENV === 'development';
+const BACKEND_BASE = isLocal
+  ? 'http://localhost:5000'
+  : 'https://balochi-bazar-backend.vercel.app';
 
 async function proxyRequest(
   req: NextRequest,

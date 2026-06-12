@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { getApiUrl } from '../lib/api';
 
 export default function Header() {
   const router = useRouter();
@@ -86,8 +87,7 @@ export default function Header() {
     handleFilterChange('search', searchInput);
   };
 
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
 
   const categories = [
     { label: '👗 Complete Balochi Sets', id: 'Complete Balochi Sets' },

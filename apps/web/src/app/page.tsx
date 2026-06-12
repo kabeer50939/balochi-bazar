@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../lib/api';
 
 interface Product {
   id: string;
@@ -26,8 +27,7 @@ export default function HomePage() {
   // Active Hero Slide index
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
 
   const heroSlides = [
     {

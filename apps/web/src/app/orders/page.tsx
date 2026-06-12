@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getApiUrl } from '../../lib/api';
 
 interface ProductImage {
   url: string;
@@ -49,8 +50,7 @@ interface Order {
 export default function MyOrdersPage() {
   const router = useRouter();
   
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getApiUrl } from '../../lib/api';
 
 interface CartItem {
   productId: string;
@@ -17,8 +18,7 @@ interface CartItem {
 export default function CheckoutPage() {
   const router = useRouter();
   
-  // Direct backend URL — hardcoded for production reliability
-  const getApiUrl = (path: string = '') => `https://balochi-bazar-backend.vercel.app${path}`;
+
   
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [authToken, setAuthToken] = useState<string | null>(null);
