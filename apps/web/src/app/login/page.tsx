@@ -587,12 +587,6 @@ function LoginContent() {
                   <span style={{ fontSize: '16px' }}>🔴</span> Continue with Google
                 </button>
 
-                {/* Testing hint */}
-                <div className="bb-hint-box">
-                  <strong>🔑 Testing Credentials:</strong><br />
-                  Phone: <code>03327579515</code> (Admin)<br />
-                  Password: <code>2762</code>
-                </div>
               </>
             )}
 

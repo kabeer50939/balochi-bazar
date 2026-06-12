@@ -131,8 +131,8 @@ export default function App() {
   const [userRole, setUserRole] = useState<string>('');
 
   // Login form state
-  const [phoneNumber, setPhoneNumber] = useState('03327579515');
-  const [password, setPassword] = useState('2762');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
   // Active panel state
@@ -607,11 +607,6 @@ export default function App() {
               Login to Balochi Bazar Seller Center
             </button>
           </form>
-          <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', border: '1px dashed #dcdcdc', borderRadius: '2px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            <strong>Admin Accounts:</strong><br />
-            🔑 Admin (Kabeer): 03327579515 / 2762<br />
-            🔑 Staff: 03007654321 / staff123
-          </div>
         </div>
       </div>
     );
