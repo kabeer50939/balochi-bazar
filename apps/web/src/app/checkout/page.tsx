@@ -78,6 +78,13 @@ export default function CheckoutPage() {
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) return;
+
+    // Format validation: Phone (XXXX-XXXXXXX)
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      setError('Please enter a valid Gwadar phone number in XXXX-XXXXXXX format (e.g. 0332-7579515).');
+      return;
+    }
     
     setLoading(true);
     setError('');

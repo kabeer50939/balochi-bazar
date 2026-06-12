@@ -93,6 +93,17 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authToken, setAuthToken] = useState('');
 
+  const handlePhoneChange = (val: string, setter: (v: string) => void) => {
+    const cleaned = val.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 11)}`;
+    } else {
+      formatted = cleaned;
+    }
+    setter(formatted);
+  };
+
   // Dynamic Ticking Flash Sale Timer
   const [secondsLeft, setSecondsLeft] = useState(6523);
   useEffect(() => {
@@ -194,6 +205,12 @@ export default function App() {
       return;
     }
 
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(userPhone)) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid phone number in the format XXXX-XXXXXXX (e.g. 0332-7579515).');
+      return;
+    }
+
     try {
       // 1. Auto-login or register customer
       const authRes = await fetch(`${apiBase}/auth/register`, {
@@ -279,6 +296,12 @@ export default function App() {
 
   // Load orders for phone number
   const handleOrderLookup = async () => {
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(orderPhone)) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid phone number in the format XXXX-XXXXXXX (e.g. 0332-7579515).');
+      return;
+    }
+
     try {
       const res = await fetch(`${apiBase}/auth/login`, {
         method: 'POST',
@@ -765,11 +788,11 @@ export default function App() {
                   <Text style={styles.ordersLoginDesc}>Enter your Gwadar phone number to sync and view your orders tracking details.</Text>
                   <TextInput
                     style={styles.detailInput}
-                    placeholder="e.g. 03001234567"
+                    placeholder="e.g. 0332-7579515"
                     placeholderTextColor="#999"
                     keyboardType="phone-pad"
                     value={orderPhone}
-                    onChangeText={setOrderPhone}
+                    onChangeText={(val) => handlePhoneChange(val, setOrderPhone)}
                   />
                   <TouchableOpacity style={styles.ordersLoginBtn} onPress={handleOrderLookup}>
                     <Text style={styles.ordersLoginBtnText}>Retrieve Order List</Text>
@@ -936,7 +959,7 @@ export default function App() {
 
               <View style={styles.formGroup}>
                 <Text style={styles.sheetLabel}>Gwadar Phone Number</Text>
-                <TextInput style={styles.detailInput} placeholder="e.g. 03001234567" placeholderTextColor="#aaa" keyboardType="phone-pad" value={userPhone} onChangeText={setUserPhone} />
+                <TextInput style={styles.detailInput} placeholder="e.g. 0332-7579515" placeholderTextColor="#aaa" keyboardType="phone-pad" value={userPhone} onChangeText={(val) => handlePhoneChange(val, setUserPhone)} />
               </View>
 
               <View style={styles.formGroup}>

@@ -110,7 +110,7 @@ function LoginContent() {
     setError('');
     setSuccess('');
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(emailOtpEmail)) {
       setError('Please enter a valid email address (e.g. user@example.com).');
       return;
@@ -143,7 +143,7 @@ function LoginContent() {
       setError('Please enter your email address first.');
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(emailOtpEmail)) {
       setError('Please enter a valid email address (e.g. user@example.com).');
       return;
@@ -177,7 +177,7 @@ function LoginContent() {
       setError('Please enter your email address first.');
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(regEmail)) {
       setError('Please enter a valid email address (e.g. user@example.com).');
       return;
@@ -214,7 +214,7 @@ function LoginContent() {
     }
     
     // Format validation: Email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(regEmail)) {
       setError('Please enter a valid email address (e.g. customer@example.com).');
       return;

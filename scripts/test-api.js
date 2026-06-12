@@ -37,8 +37,7 @@ async function runTests() {
     console.log(`✅ Success: Loaded details. Allows customization: ${productDetail.allowsCustomEmbroidery}`);
     console.log('--------------------------------------------------');
 
-    // 4. Test User Authentication (Register)
-    const testPhone = '03998765432';
+    const testPhone = '0399-8765432';
     const testName = 'Test Client Gwadar';
     console.log(`📋 Test 4: Testing user registration for phone: ${testPhone}...`);
     const registerRes = await fetch(`${API_BASE}/auth/register`, {
@@ -50,7 +49,8 @@ async function runTests() {
         name: testName,
         sectorName: 'Sabiya',
         streetAddress: 'House 42, Street 3',
-        landmark: 'Near Sabiya Mosque'
+        landmark: 'Near Sabiya Mosque',
+        otpCode: '8899'
       })
     });
     

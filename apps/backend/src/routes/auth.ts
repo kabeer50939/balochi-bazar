@@ -100,7 +100,7 @@ router.post('/register', async (req, res) => {
   }
 
   // Format validation: Email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (email && !emailRegex.test(email)) {
     return res.status(400).json({ error: 'Please enter a valid email address (e.g. customer@example.com)' });
   }
@@ -362,7 +362,7 @@ router.post('/otp-login', async (req, res) => {
 router.post('/send-otp', async (req, res) => {
   const { email, type } = req.body; // type: 'REGISTER' or 'LOGIN'
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email || !emailRegex.test(email)) {
     return res.status(400).json({ error: 'Please enter a valid email address (e.g. customer@example.com).' });
   }
@@ -394,9 +394,22 @@ router.post('/send-otp', async (req, res) => {
     // Send email
     const sentReal = await sendOtpEmail(email, otpCode);
 
+    if (!sentReal) {
+      if (process.env.VERCEL) {
+        return res.status(500).json({
+          error: 'Email delivery failed. SMTP credentials are not configured on Vercel. Please set SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS in Vercel project environment variables.'
+        });
+      } else {
+        return res.json({
+          success: true,
+          message: 'Local fallback: SMTP is not configured. The verification code has been written to your console and local logs.'
+        });
+      }
+    }
+
     res.json({
       success: true,
-      message: 'Verification code sent successfully. Please check your email inbox (or check logs if using console fallback).'
+      message: 'Verification code sent successfully. Please check your email inbox.'
     });
 
   } catch (err: any) {
@@ -411,6 +424,11 @@ router.post('/email-otp-login', async (req, res) => {
 
   if (!email || !otpCode) {
     return res.status(400).json({ error: 'Email and verification code are required' });
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
   }
 
   try {

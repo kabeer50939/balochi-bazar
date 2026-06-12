@@ -1431,7 +1431,7 @@
         <div class="custom-section">
           <div class="custom-section-title">📦 Delivery Details (Gwadar sectors)</div>
           <input class="form-input" type="text" placeholder="Recipient Full Name" id="inp-name" />
-          <input class="form-input" type="tel" placeholder="Gwadar Phone Number" id="inp-phone" />
+          <input class="form-input" type="tel" placeholder="e.g. 0332-7579515" id="inp-phone" oninput="formatPhoneInput(event)" />
           <input class="form-input" type="text" placeholder="Sector Area (e.g. Mulla Band, West Bay)" id="inp-sector" />
           <input class="form-input" type="text" placeholder="Street Address & House Details" id="inp-address" />
         </div>
@@ -1515,6 +1515,12 @@
       return;
     }
 
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast('❌ Enter a valid phone number (e.g. 0332-7579515)', true);
+      return;
+    }
+
     showToast('⏳ Placing order…');
 
     try {
@@ -1591,7 +1597,7 @@
           <div class="grid-header">📦 Track Orders</div>
           <div class="login-card">
             <div class="login-title">Enter your Gwadar phone number<br>to track tailoring & shipments</div>
-            <input class="form-input" type="tel" id="order-phone-inp" placeholder="e.g. 03001234567" />
+            <input class="form-input" type="tel" id="order-phone-inp" placeholder="e.g. 0332-7579515" oninput="formatPhoneInput(event)" />
             <button class="checkout-btn" onclick="lookupOrders()" style="margin-bottom:0">View My Orders</button>
           </div>
         </div>`;
@@ -1693,6 +1699,12 @@
   async function lookupOrders() {
     const phone = document.getElementById('order-phone-inp')?.value.trim();
     if (!phone) { showToast('❌ Enter phone number', true); return; }
+
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast('❌ Enter a valid phone number (e.g. 0332-7579515)', true);
+      return;
+    }
     showToast('⏳ Syncing orders…');
     try {
       const api = getApiBase();
@@ -1713,6 +1725,18 @@
     } catch(e) {
       showToast('❌ Lookup failed', true);
     }
+  }
+
+  function formatPhoneInput(event) {
+    const input = event.target;
+    const cleaned = input.value.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = cleaned.slice(0, 4) + '-' + cleaned.slice(4, 11);
+    } else {
+      formatted = cleaned;
+    }
+    input.value = formatted;
   }
 
   function logoutOrders() {
