@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import '../lib/firebase'; // Initialize Firebase Client SDK client-side
+import '../../lib/firebase'; // Initialize Firebase Client SDK client-side
 
 /* ─────────────────────────────────────────────────────────
    Inner component that uses useSearchParams()
