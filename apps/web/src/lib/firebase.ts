@@ -11,10 +11,14 @@ const firebaseConfig = {
   measurementId: "G-JSZVY3G9TS"
 };
 
+import { getAuth } from "firebase/auth";
+
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Analytics is only initialized on client-side (window undefined check)
 export const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
+
+export const auth = getAuth(app);
 
 export default app;

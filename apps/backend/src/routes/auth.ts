@@ -551,5 +551,143 @@ router.post('/address', authenticateToken, async (req: AuthenticatedRequest, res
   }
 });
 
+// Social Login (Google/Facebook)
+router.post('/social-login', async (req, res) => {
+  const { email, name } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email address is required for social login.' });
+  }
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: { email }
+    });
+
+    if (!user) {
+      // User is not registered yet, frontend needs to ask for their phone number
+      return res.json({ needsPhoneNumber: true, email, name });
+    }
+
+    if (user.isBlacklisted) {
+      return res.status(403).json({ error: 'Access denied. This account has been blacklisted.' });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, phoneNumber: user.phoneNumber, role: user.role, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        name: user.name,
+        role: user.role,
+        email: user.email
+      }
+    });
+
+  } catch (err: any) {
+    console.error('Social Login error:', err);
+    res.status(500).json({ error: 'Failed to authenticate via social login' });
+  }
+});
+
+// Social Register (Complete Profile)
+router.post('/social-register', async (req, res) => {
+  const { email, name, phoneNumber, sectorName, streetAddress, landmark } = req.body;
+
+  if (!email || !name || !phoneNumber) {
+    return res.status(400).json({ error: 'Email, Name, and Phone Number are required.' });
+  }
+
+  // Format validation: Phone Number (XXXX-XXXXXXX)
+  const phoneRegex = /^\d{4}-\d{7}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    return res.status(400).json({ error: 'Please enter a valid phone number in the format XXXX-XXXXXXX (e.g. 0332-7579515)' });
+  }
+
+  try {
+    // Check if phone number is already registered
+    const existingUser = await prisma.user.findUnique({
+      where: { phoneNumber }
+    });
+    if (existingUser) {
+      return res.status(400).json({ error: 'This phone number is already registered with another account.' });
+    }
+
+    // Check if email is already registered
+    const existingEmail = await prisma.user.findUnique({
+      where: { email }
+    });
+    if (existingEmail) {
+      return res.status(400).json({ error: 'This email is already registered with another account.' });
+    }
+
+    // Create password hash (fake password since they login via social provider)
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(Math.random().toString(36), salt);
+
+    const ipAddress = req.ip || 'unknown';
+    const deviceFingerprint = req.headers['user-agent'] || 'unknown';
+
+    // Create user and initial address
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          phoneNumber,
+          passwordHash,
+          name,
+          email,
+          role: 'CUSTOMER',
+          isOtpVerified: true,
+          emailVerified: true,
+          ipAddress,
+          deviceFingerprint
+        }
+      });
+
+      if (sectorName && streetAddress) {
+        await tx.address.create({
+          data: {
+            userId: newUser.id,
+            sectorName,
+            streetAddress,
+            landmark,
+            isDefault: true
+          }
+        });
+      }
+
+      return newUser;
+    });
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, phoneNumber: user.phoneNumber, role: user.role, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        name: user.name,
+        role: user.role,
+        email: user.email
+      }
+    });
+
+  } catch (err: any) {
+    console.error('Social Register error:', err);
+    res.status(500).json({ error: 'Failed to create account via social login' });
+  }
+});
+
 export default router;
-// Trigger Vercel rebuild for SMTP_FROM display name update

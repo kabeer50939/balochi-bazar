@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import '../../lib/firebase'; // Initialize Firebase Client SDK client-side
+import { auth } from '../../lib/firebase';
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  FacebookAuthProvider 
+} from "firebase/auth";
 
 /* ─────────────────────────────────────────────────────────
    Inner component that uses useSearchParams()
@@ -50,6 +55,165 @@ function LoginContent() {
       formatted = cleaned;
     }
     setRegPhone(formatted);
+  };
+
+  /* ── Social Sign-in profile completion state ── */
+  const [needsCompleteProfile, setNeedsCompleteProfile] = useState(false);
+  const [socialEmail, setSocialEmail] = useState('');
+  const [socialName, setSocialName]   = useState('');
+  const [socialPhone, setSocialPhone] = useState('');
+  const [socialSector, setSocialSector] = useState('Mulla Band');
+  const [socialStreet, setSocialStreet] = useState('');
+  const [socialLandmark, setSocialLandmark] = useState('');
+
+  const handleSocialPhoneChange = (val: string) => {
+    const cleaned = val.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 4) {
+      formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 11)}`;
+    } else {
+      formatted = cleaned;
+    }
+    setSocialPhone(formatted);
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      if (!user.email) throw new Error('Could not retrieve email from Google Account.');
+
+      // Try logging in via social backend
+      const res = await fetch(getApiUrl('/api/auth/social-login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, name: user.displayName || '' })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Social authentication failed');
+
+      if (data.needsPhoneNumber) {
+        setSocialEmail(data.email);
+        setSocialName(data.name || '');
+        setNeedsCompleteProfile(true);
+        setLoading(false);
+        setSuccess('Google verified! Please complete your delivery profile details.');
+      } else {
+        localStorage.setItem('bazar_token', data.token);
+        localStorage.setItem('bazar_user', JSON.stringify(data.user));
+        setSuccess('Google Login successful! Redirecting…');
+        setTimeout(() => { window.location.href = redirectPath; }, 900);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Google Sign-in failed.');
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const provider = new FacebookAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const emailVal = user.email || `${user.uid}@facebook.com`;
+
+      // Try logging in via social backend
+      const res = await fetch(getApiUrl('/api/auth/social-login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailVal, name: user.displayName || '' })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Social authentication failed');
+
+      if (data.needsPhoneNumber) {
+        setSocialEmail(data.email);
+        setSocialName(data.name || '');
+        setNeedsCompleteProfile(true);
+        setLoading(false);
+        setSuccess('Facebook verified! Please complete your delivery profile details.');
+      } else {
+        localStorage.setItem('bazar_token', data.token);
+        localStorage.setItem('bazar_user', JSON.stringify(data.user));
+        setSuccess('Facebook Login successful! Redirecting…');
+        setTimeout(() => { window.location.href = redirectPath; }, 900);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Facebook Sign-in failed.');
+      setLoading(false);
+    }
+  };
+
+  const handleSocialRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!socialEmail || !socialName || !socialPhone) {
+      setError('Please fill in all required fields marked with *');
+      return;
+    }
+
+    const phoneRegex = /^\d{4}-\d{7}$/;
+    if (!phoneRegex.test(socialPhone)) {
+      setError('Please enter a valid phone number in XXXX-XXXXXXX format (e.g. 0332-7579515).');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await fetch(getApiUrl('/api/auth/social-register'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: socialEmail,
+          name: socialName,
+          phoneNumber: socialPhone,
+          sectorName: socialSector,
+          streetAddress: socialStreet || undefined,
+          landmark: socialLandmark || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Profile completion failed');
+
+      if (socialStreet) {
+        await fetch(getApiUrl('/api/auth/address'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.token}`,
+          },
+          body: JSON.stringify({
+            sectorName: socialSector,
+            streetAddress: socialStreet,
+            landmark: socialLandmark || undefined,
+            isDefault: true,
+          }),
+        });
+      }
+
+      localStorage.setItem('bazar_token', data.token);
+      localStorage.setItem('bazar_user', JSON.stringify(data.user));
+      setSuccess('Account created successfully! Redirecting…');
+      setTimeout(() => { window.location.href = redirectPath; }, 900);
+    } catch (err: any) {
+      setError(err.message || 'Error completing registration. Please try again.');
+      setLoading(false);
+    }
   };
   
   // Birthday
@@ -512,18 +676,17 @@ function LoginContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
           cursor: pointer;
           margin-bottom: 12px;
           border: none;
           transition: all 0.2s;
         }
         .bb-social-facebook {
-          background: #3b5998;
+          background: #1877F2;
           color: #ffffff;
         }
         .bb-social-facebook:hover {
-          background: #2d4373;
+          background: #166fe5;
         }
         .bb-social-google {
           background: #ffffff;
@@ -531,7 +694,7 @@ function LoginContent() {
           border: 1px solid ${BORDER};
         }
         .bb-social-google:hover {
-          background: #f5f5f5;
+          background: #f8f9fa;
         }
 
         /* ── Multi select birthday inputs ── */
@@ -619,11 +782,83 @@ function LoginContent() {
               </div>
 
               {/* ─── LOGIN VIEW ─── */}
-              {mode === 'LOGIN' && (
+              {needsCompleteProfile ? (
+                /* SOCIAL REGISTER PROFILE COMPLETION FORM */
+                <form onSubmit={handleSocialRegisterSubmit}>
+                  <div style={{ marginBottom: '20px', padding: '12px', background: '#f8f9fa', borderLeft: '4px solid #1a9cb7', fontSize: '13px', color: '#555' }}>
+                    <strong>Verify Successful:</strong> {socialEmail} ({socialName}). Please enter your phone number and address details below to complete your Balochi Bazar profile.
+                  </div>
+                  
+                  <div className="bb-field-group">
+                    <label className="bb-field-label">Phone Number<span>*</span></label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. 0332-7579515 (format: XXXX-XXXXXXX)"
+                      className="bb-input-field"
+                      value={socialPhone}
+                      onChange={(e) => handleSocialPhoneChange(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="bb-field-group">
+                    <label className="bb-field-label">Gwadar Sector Address (Required for Delivery)</label>
+                    <select
+                      className="bb-input-field"
+                      value={socialSector}
+                      onChange={(e) => setSocialSector(e.target.value)}
+                    >
+                      {gwadarSectors.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="bb-field-group">
+                    <label className="bb-field-label">Street / House Address</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. House #45, Lane 3"
+                      className="bb-input-field"
+                      value={socialStreet}
+                      onChange={(e) => setSocialStreet(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="bb-field-group">
+                    <label className="bb-field-label">Landmark</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Near Gwadar Port"
+                      className="bb-input-field"
+                      value={socialLandmark}
+                      onChange={(e) => setSocialLandmark(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                    <button 
+                      type="button" 
+                      className="bb-inline-action-btn"
+                      style={{ flex: 1, height: '44px' }}
+                      onClick={() => setNeedsCompleteProfile(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      disabled={loading} 
+                      className="bb-cta-btn" 
+                      style={{ flex: 2, marginTop: 0 }}
+                    >
+                      {loading ? 'Completing…' : 'Complete Setup'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
                 <>
-                  {loginMethod === 'PASSWORD' ? (
-                    /* PASSWORD FORM */
-                    <form onSubmit={handlePasswordLoginSubmit}>
+                  {mode === 'LOGIN' && (
+                    loginMethod === 'PASSWORD' ? (
+                      /* PASSWORD FORM */
+                      <form onSubmit={handlePasswordLoginSubmit}>
                       <div className="bb-field-group">
                         <label className="bb-field-label">Phone Number or Email<span>*</span></label>
                         <input
@@ -736,9 +971,8 @@ function LoginContent() {
                         {loading ? 'Logging in…' : 'LOGIN'}
                       </button>
                     </form>
+                    )
                   )}
-                </>
-              )}
 
               {/* ─── SIGNUP VIEW ─── */}
               {mode === 'SIGNUP' && (
@@ -908,6 +1142,8 @@ function LoginContent() {
                   </button>
                 </form>
               )}
+                </>
+              )}
 
             </div>
 
@@ -936,17 +1172,26 @@ function LoginContent() {
               <button 
                 type="button" 
                 className="bb-social-login-btn bb-social-facebook"
-                onClick={() => alert('Facebook social authentication is a visual mock.')}
+                onClick={handleFacebookLogin}
               >
-                <span>📘</span> Facebook
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFFFFF" style={{ marginRight: '8px' }}>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Facebook
               </button>
 
               <button 
                 type="button" 
                 className="bb-social-login-btn bb-social-google"
-                onClick={() => alert('Google social authentication is a visual mock.')}
+                onClick={handleGoogleLogin}
               >
-                <span>🔴</span> Google
+                <svg width="18" height="18" viewBox="0 0 18 18" style={{ marginRight: '8px' }}>
+                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+                  <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.173 0 7.55 0 9s.347 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+                  <path d="M9 3.58c1.32 0 2.507.454 3.44 1.347l2.58-2.58C13.463.892 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961l3.007 2.332c.708-2.127 2.692-3.713 5.036-3.713z" fill="#EA4335"/>
+                </svg>
+                Google
               </button>
 
             </div>
