@@ -42,13 +42,19 @@ const sendOtpEmail = async (email: string, otpCode: string): Promise<boolean> =>
     </div>
   `;
 
-  // Write OTP to persistent scratch logs
-  const logMessage = `[EMAIL OTP LOG] Time: ${new Date().toISOString()} | To: ${email} | Code: ${otpCode}\n`;
-  const scratchDir = 'C:\\Users\\kabee\\.gemini\\antigravity\\brain\\66c63025-46bd-488b-bccd-469db135ddf3\\scratch';
-  if (!fs.existsSync(scratchDir)) {
-    fs.mkdirSync(scratchDir, { recursive: true });
+  // Write OTP to persistent scratch logs (local environment only)
+  if (!process.env.VERCEL) {
+    try {
+      const logMessage = `[EMAIL OTP LOG] Time: ${new Date().toISOString()} | To: ${email} | Code: ${otpCode}\n`;
+      const scratchDir = 'C:\\Users\\kabee\\.gemini\\antigravity\\brain\\66c63025-46bd-488b-bccd-469db135ddf3\\scratch';
+      if (!fs.existsSync(scratchDir)) {
+        fs.mkdirSync(scratchDir, { recursive: true });
+      }
+      fs.appendFileSync(path.join(scratchDir, 'email_otp_log.txt'), logMessage);
+    } catch (fsErr) {
+      console.error('Failed to write local OTP scratch log:', fsErr);
+    }
   }
-  fs.appendFileSync(path.join(scratchDir, 'email_otp_log.txt'), logMessage);
 
   console.log(`\n-----------------------------------------`);
   console.log(`[EMAIL SENT TO CONSOLE]`);
