@@ -552,3 +552,4 @@ router.post('/address', authenticateToken, async (req: AuthenticatedRequest, res
 });
 
 export default router;
+// Trigger Vercel rebuild for SMTP environment variables update
