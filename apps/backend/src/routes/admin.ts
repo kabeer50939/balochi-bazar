@@ -344,6 +344,8 @@ router.patch('/products/:productId/stock', async (req, res) => {
     console.error('Update stock error:', err);
     res.status(500).json({ error: 'Failed to update stock quantity' });
   }
+});
+
 // Get All Customers / Users List with order metadata
 router.get('/customers', async (req, res) => {
   try {
