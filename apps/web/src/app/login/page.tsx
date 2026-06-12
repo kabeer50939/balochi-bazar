@@ -41,7 +41,13 @@ function LoginContent() {
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
   const [success,   setSuccess]   = useState('');
-  const [activeTab, setActiveTab] = useState<'EMAIL' | 'PHONE'>('PHONE');
+  const [activeTab, setActiveTab] = useState<'PASSWORD' | 'SMS_OTP'>('PASSWORD');
+
+  /* ── SMS OTP Login inputs ── */
+  const [smsPhone, setSmsPhone]           = useState('');
+  const [smsCode, setSmsCode]             = useState('');
+  const [smsOtpSent, setSmsOtpSent]       = useState(false);
+  const [smsOtpLoading, setSmsOtpLoading] = useState(false);
 
   const redirectPath = searchParams.get('redirect') || '/orders';
 
@@ -74,6 +80,49 @@ function LoginContent() {
       setError(err.message || 'Login failed. Please check your credentials.');
       setLoading(false);
     }
+  };
+
+  /* ─── SMS Login Submit ─── */
+  const handleSmsLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await fetch(getApiUrl('/api/auth/otp-login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber: smsPhone, otpCode: smsCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Authentication failed');
+
+      localStorage.setItem('bazar_token', data.token);
+      localStorage.setItem('bazar_user', JSON.stringify(data.user));
+      setSuccess('Login successful! Redirecting…');
+      setTimeout(() => { window.location.href = redirectPath; }, 900);
+    } catch (err: any) {
+      setError(err.message || 'OTP Login failed.');
+      setLoading(false);
+    }
+  };
+
+  /* ─── Send SMS OTP ─── */
+  const handleSendSmsOtp = () => {
+    if (!smsPhone) {
+      setError('Please enter your mobile number first.');
+      return;
+    }
+    setSmsOtpLoading(true);
+    setError('');
+    setSuccess('');
+
+    setTimeout(() => {
+      setSmsOtpSent(true);
+      setSmsOtpLoading(false);
+      setSuccess('SMS verification code sent! Enter code: 8899');
+    }, 800);
   };
 
   /* ─── Start Registration → show OTP modal ─── */
@@ -491,92 +540,154 @@ function LoginContent() {
                 {/* Input toggle tabs */}
                 <div className="bb-tabs">
                   <button
-                    className={`bb-tab ${activeTab === 'PHONE' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('PHONE')}
+                    className={`bb-tab ${activeTab === 'PASSWORD' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('PASSWORD'); setError(''); setSuccess(''); }}
                     type="button"
                   >
-                    📞 Phone / Email
+                    🔑 Password Login
                   </button>
                   <button
-                    className={`bb-tab ${activeTab === 'EMAIL' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('EMAIL')}
+                    className={`bb-tab ${activeTab === 'SMS_OTP' ? 'active' : ''}`}
+                    onClick={() => { setActiveTab('SMS_OTP'); setError(''); setSuccess(''); }}
                     type="button"
                   >
-                    🔑 Quick PIN
+                    📱 SMS Code Login
                   </button>
                 </div>
 
-                <form onSubmit={handleLoginSubmit}>
-                  <div className="bb-form-group">
-                    <label style={labelStyle}>
-                      {activeTab === 'PHONE' ? 'Phone Number or Email' : 'Phone / Email'}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={
-                        activeTab === 'PHONE'
-                          ? 'Enter your phone number or email'
-                          : 'Enter phone number or email'
-                      }
-                      style={inputStyle}
-                      value={loginIdentifier}
-                      onChange={(e) => setLoginIdentifier(e.target.value)}
-                      onFocus={(e) => (e.target.style.borderColor = ORANGE)}
-                      onBlur={(e) => (e.target.style.borderColor = BORDER)}
-                    />
-                  </div>
-
-                  <div className="bb-form-group">
-                    <label style={labelStyle}>Password</label>
-                    <div style={{ position: 'relative' }}>
+                {activeTab === 'PASSWORD' ? (
+                  <form onSubmit={handleLoginSubmit}>
+                    <div className="bb-form-group">
+                      <label style={labelStyle}>Phone Number or Email</label>
                       <input
-                        type={showLoginPwd ? 'text' : 'password'}
+                        type="text"
                         required
-                        placeholder="Enter your password"
-                        style={{ ...inputStyle, paddingRight: '44px' }}
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="Enter your phone number or email"
+                        style={inputStyle}
+                        value={loginIdentifier}
+                        onChange={(e) => setLoginIdentifier(e.target.value)}
                         onFocus={(e) => (e.target.style.borderColor = ORANGE)}
                         onBlur={(e) => (e.target.style.borderColor = BORDER)}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowLoginPwd(!showLoginPwd)}
-                        style={{
-                          position: 'absolute', right: '12px', top: '50%',
-                          transform: 'translateY(-50%)', background: 'none',
-                          border: 'none', cursor: 'pointer', fontSize: '16px', color: '#888',
-                        }}
-                      >
-                        {showLoginPwd ? '🙈' : '👁️'}
-                      </button>
                     </div>
-                    <div style={{ textAlign: 'right', marginTop: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => alert('Password reset is handled by admin. Contact Customer Care.')}
-                        style={{ background: 'none', border: 'none', color: ORANGE, fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
-                      >
-                        Forgot Password?
-                      </button>
-                    </div>
-                  </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      ...btnOrange,
-                      opacity: loading ? 0.75 : 1,
-                      background: loading ? '#ccc' : ORANGE,
-                    }}
-                    onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = ORANGE2; }}
-                    onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = ORANGE; }}
-                  >
-                    {loading ? '⏳ Logging in…' : 'LOG IN'}
-                  </button>
-                </form>
+                    <div className="bb-form-group">
+                      <label style={labelStyle}>Password</label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={showLoginPwd ? 'text' : 'password'}
+                          required
+                          placeholder="Enter your password"
+                          style={{ ...inputStyle, paddingRight: '44px' }}
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                          onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginPwd(!showLoginPwd)}
+                          style={{
+                            position: 'absolute', right: '12px', top: '50%',
+                            transform: 'translateY(-50%)', background: 'none',
+                            border: 'none', cursor: 'pointer', fontSize: '16px', color: '#888',
+                          }}
+                        >
+                          {showLoginPwd ? '🙈' : '👁️'}
+                        </button>
+                      </div>
+                      <div style={{ textAlign: 'right', marginTop: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => alert('Password reset is handled by admin. Contact Customer Care.')}
+                          style={{ background: 'none', border: 'none', color: ORANGE, fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      style={{
+                        ...btnOrange,
+                        opacity: loading ? 0.75 : 1,
+                        background: loading ? '#ccc' : ORANGE,
+                      }}
+                      onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = ORANGE2; }}
+                      onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = ORANGE; }}
+                    >
+                      {loading ? '⏳ Logging in…' : 'LOG IN'}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleSmsLoginSubmit}>
+                    <div className="bb-form-group">
+                      <label style={labelStyle}>Mobile Number</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="Enter your phone number (e.g. 03327579515)"
+                        style={inputStyle}
+                        value={smsPhone}
+                        onChange={(e) => setSmsPhone(e.target.value)}
+                        onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                        onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                      />
+                    </div>
+
+                    <div className="bb-form-group">
+                      <label style={labelStyle}>SMS Verification Code</label>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Enter 4-digit code"
+                          style={{ ...inputStyle, flex: 1 }}
+                          value={smsCode}
+                          onChange={(e) => setSmsCode(e.target.value)}
+                          onFocus={(e) => (e.target.style.borderColor = ORANGE)}
+                          onBlur={(e) => (e.target.style.borderColor = BORDER)}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSendSmsOtp}
+                          disabled={smsOtpLoading}
+                          style={{
+                            padding: '0 16px',
+                            background: '#fff',
+                            border: `1.5px solid ${ORANGE}`,
+                            borderRadius: '4px',
+                            color: ORANGE,
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.background = ORANGE; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = ORANGE; }}
+                        >
+                          {smsOtpLoading ? 'Sending…' : smsOtpSent ? 'Resend' : 'Send Code'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      style={{
+                        ...btnOrange,
+                        opacity: loading ? 0.75 : 1,
+                        background: loading ? '#ccc' : ORANGE,
+                      }}
+                      onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = ORANGE2; }}
+                      onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = ORANGE; }}
+                    >
+                      {loading ? '⏳ Logging in…' : 'LOG IN'}
+                    </button>
+                  </form>
+                )}
 
                 {/* OR divider + social */}
                 <div className="bb-or-divider">OR</div>
@@ -586,7 +697,6 @@ function LoginContent() {
                 <button className="bb-social-btn" type="button" onClick={() => alert('Social login is a display mock.')}>
                   <span style={{ fontSize: '16px' }}>🔴</span> Continue with Google
                 </button>
-
               </>
             )}
 

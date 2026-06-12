@@ -134,6 +134,50 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Login via SMS OTP
+router.post('/otp-login', async (req, res) => {
+  const { phoneNumber, otpCode } = req.body;
+
+  if (!phoneNumber || !otpCode) {
+    return res.status(400).json({ error: 'Phone number and OTP code are required' });
+  }
+
+  if (otpCode !== '8899') {
+    return res.status(400).json({ error: 'Invalid verification OTP code. For testing, use 8899.' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'This phone number is not registered. Please sign up first.' });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, phoneNumber: user.phoneNumber, role: user.role, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        name: user.name,
+        role: user.role,
+        email: user.email
+      }
+    });
+  } catch (err: any) {
+    console.error('OTP Login error:', err);
+    res.status(500).json({ error: err.message || 'Error authenticating user via OTP' });
+  }
+});
+
 // Get Current User Profile
 router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
