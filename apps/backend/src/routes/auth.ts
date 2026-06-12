@@ -383,9 +383,7 @@ router.post('/send-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: sentReal 
-        ? 'Verification code sent to your email.' 
-        : `[Local Mode] Verification code generated: ${otpCode} (Logged to console & scratch/email_otp_log.txt)`
+      message: 'Verification code sent successfully. Please check your email inbox (or check logs if using console fallback).'
     });
 
   } catch (err: any) {
