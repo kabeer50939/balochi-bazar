@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import '../lib/firebase'; // Initialize Firebase Client SDK client-side
 
 /* ─────────────────────────────────────────────────────────
    Inner component that uses useSearchParams()
    Must be wrapped in <Suspense> by the default export.
-───────────────────────────────────────────────────────── */
+ ───────────────────────────────────────────────────────── */
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,19 +26,20 @@ function LoginContent() {
   const [loginPassword, setLoginPassword]     = useState('');
   const [showLoginPwd, setShowLoginPwd]       = useState(false);
 
-  /* ── SMS OTP Login Inputs ── */
-  const [smsPhone, setSmsPhone]           = useState('');
-  const [smsCode, setSmsCode]             = useState('');
-  const [smsOtpSent, setSmsOtpSent]       = useState(false);
-  const [smsOtpLoading, setSmsOtpLoading] = useState(false);
+  /* ── Email OTP Login Inputs ── */
+  const [emailOtpEmail, setEmailOtpEmail]       = useState('');
+  const [emailOtpCode, setEmailOtpCode]         = useState('');
+  const [emailOtpSent, setEmailOtpSent]         = useState(false);
+  const [emailOtpLoading, setEmailOtpLoading]   = useState(false);
 
   /* ── Register (Signup) Inputs ── */
-  const [regPhone, setRegPhone]         = useState('');
-  const [regCode, setRegCode]           = useState('');
-  const [regCodeSent, setRegCodeSent]   = useState(false);
-  const [regCodeLoading, setRegCodeLoading] = useState(false);
-  const [regPassword, setRegPassword]   = useState('');
-  const [showRegPwd, setShowRegPwd]     = useState(false);
+  const [regEmail, setRegEmail]                 = useState('');
+  const [regPhone, setRegPhone]                 = useState('');
+  const [regCode, setRegCode]                   = useState('');
+  const [regCodeSent, setRegCodeSent]           = useState(false);
+  const [regCodeLoading, setRegCodeLoading]     = useState(false);
+  const [regPassword, setRegPassword]           = useState('');
+  const [showRegPwd, setShowRegPwd]             = useState(false);
   
   // Birthday
   const [regBirthMonth, setRegBirthMonth] = useState('Month');
@@ -91,18 +93,18 @@ function LoginContent() {
     }
   };
 
-  /* ─── Submit SMS OTP Login ─── */
-  const handleSmsLoginSubmit = async (e: React.FormEvent) => {
+  /* ─── Submit Email OTP Login ─── */
+  const handleEmailOtpLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      const res = await fetch(getApiUrl('/api/auth/otp-login'), {
+      const res = await fetch(getApiUrl('/api/auth/email-otp-login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: smsPhone, otpCode: smsCode }),
+        body: JSON.stringify({ email: emailOtpEmail, otpCode: emailOtpCode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
@@ -118,48 +120,66 @@ function LoginContent() {
   };
 
   /* ─── Request Login OTP ─── */
-  const handleSendLoginOtp = () => {
-    if (!smsPhone) {
-      setError('Please enter your mobile number first.');
+  const handleSendLoginOtp = async () => {
+    if (!emailOtpEmail) {
+      setError('Please enter your email address first.');
       return;
     }
-    setSmsOtpLoading(true);
+    setEmailOtpLoading(true);
     setError('');
     setSuccess('');
 
-    setTimeout(() => {
-      setSmsOtpSent(true);
-      setSmsOtpLoading(false);
-      setSuccess('SMS verification code sent! Enter code: 8899');
-    }, 700);
+    try {
+      const res = await fetch(getApiUrl('/api/auth/send-otp'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailOtpEmail, type: 'LOGIN' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
+
+      setEmailOtpSent(true);
+      setEmailOtpLoading(false);
+      setSuccess(data.message || 'Verification code sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send verification code.');
+      setEmailOtpLoading(false);
+    }
   };
 
   /* ─── Request Register OTP ─── */
-  const handleSendRegisterOtp = () => {
-    if (!regPhone) {
-      setError('Please enter your mobile number first.');
+  const handleSendRegisterOtp = async () => {
+    if (!regEmail) {
+      setError('Please enter your email address first.');
       return;
     }
     setRegCodeLoading(true);
     setError('');
     setSuccess('');
 
-    setTimeout(() => {
+    try {
+      const res = await fetch(getApiUrl('/api/auth/send-otp'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: regEmail, type: 'REGISTER' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
+
       setRegCodeSent(true);
       setRegCodeLoading(false);
-      setSuccess('Verification code sent! Enter code: 8899');
-    }, 700);
+      setSuccess(data.message || 'Verification code sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send verification code.');
+      setRegCodeLoading(false);
+    }
   };
 
   /* ─── Submit Registration (Signup) ─── */
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regPhone || !regCode || !regPassword || !regName) {
+    if (!regEmail || !regPhone || !regCode || !regPassword || !regName) {
       setError('Please fill in all required fields marked with *');
-      return;
-    }
-    if (regCode !== '8899') {
-      setError('Incorrect verification code. For testing, use code: 8899');
       return;
     }
     if (regPassword.length < 4) {
@@ -176,6 +196,7 @@ function LoginContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email:        regEmail,
           phoneNumber: regPhone,
           password:    regPassword,
           name:        regName,
@@ -611,7 +632,7 @@ function LoginContent() {
                           className="bb-blue-link"
                           onClick={() => { setLoginMethod('SMS_OTP'); setError(''); setSuccess(''); }}
                         >
-                          Login with SMS Code
+                          Login with Email OTP
                         </button>
                       </div>
 
@@ -620,17 +641,17 @@ function LoginContent() {
                       </button>
                     </form>
                   ) : (
-                    /* SMS OTP FORM */
-                    <form onSubmit={handleSmsLoginSubmit}>
+                    /* EMAIL OTP FORM */
+                    <form onSubmit={handleEmailOtpLoginSubmit}>
                       <div className="bb-field-group">
-                        <label className="bb-field-label">Phone Number<span>*</span></label>
+                        <label className="bb-field-label">Email Address<span>*</span></label>
                         <input
-                          type="tel"
+                          type="email"
                           required
-                          placeholder="Please enter your Phone Number (e.g. 03327579515)"
+                          placeholder="Please enter your Email Address (e.g. customer@example.com)"
                           className="bb-input-field"
-                          value={smsPhone}
-                          onChange={(e) => setSmsPhone(e.target.value)}
+                          value={emailOtpEmail}
+                          onChange={(e) => setEmailOtpEmail(e.target.value)}
                         />
                       </div>
 
@@ -642,16 +663,16 @@ function LoginContent() {
                             required
                             placeholder="Please enter the verification code"
                             className="bb-input-field"
-                            value={smsCode}
-                            onChange={(e) => setSmsCode(e.target.value)}
+                            value={emailOtpCode}
+                            onChange={(e) => setEmailOtpCode(e.target.value)}
                           />
                           <button
                             type="button"
                             className="bb-inline-action-btn"
-                            disabled={smsOtpLoading}
+                            disabled={emailOtpLoading}
                             onClick={handleSendLoginOtp}
                           >
-                            {smsOtpLoading ? 'Sending…' : smsOtpSent ? 'Resend' : 'Send'}
+                            {emailOtpLoading ? 'Sending…' : emailOtpSent ? 'Resend' : 'Send'}
                           </button>
                         </div>
                       </div>
@@ -678,20 +699,20 @@ function LoginContent() {
               {mode === 'SIGNUP' && (
                 <form onSubmit={handleRegisterSubmit}>
                   
-                  {/* Phone number */}
+                  {/* Email Address */}
                   <div className="bb-field-group">
-                    <label className="bb-field-label">Phone Number<span>*</span></label>
+                    <label className="bb-field-label">Email Address<span>*</span></label>
                     <input
-                      type="tel"
+                      type="email"
                       required
-                      placeholder="Please enter your Phone Number"
+                      placeholder="Please enter your Email Address"
                       className="bb-input-field"
-                      value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
                     />
                   </div>
 
-                  {/* SMS Verification code */}
+                  {/* Email Verification code */}
                   <div className="bb-field-group">
                     <label className="bb-field-label">Verification Code<span>*</span></label>
                     <div className="bb-inline-input-wrapper">
@@ -712,6 +733,19 @@ function LoginContent() {
                         {regCodeLoading ? 'Sending…' : regCodeSent ? 'Resend' : 'Send'}
                       </button>
                     </div>
+                  </div>
+
+                  {/* Phone Number */}
+                  <div className="bb-field-group">
+                    <label className="bb-field-label">Phone Number<span>*</span></label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="Please enter your Phone Number (for delivery contact)"
+                      className="bb-input-field"
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                    />
                   </div>
 
                   {/* Password */}

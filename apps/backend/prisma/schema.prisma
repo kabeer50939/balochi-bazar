@@ -134,3 +134,11 @@ model RentalDetail {
   damageFeeCharged Float?
   notes          String?
 }
+
+model EmailOtp {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
