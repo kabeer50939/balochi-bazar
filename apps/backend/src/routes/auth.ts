@@ -301,6 +301,28 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Check if user exists (phone or email)
+router.post('/check-user', async (req, res) => {
+  const { identifier } = req.body;
+  if (!identifier) {
+    return res.status(400).json({ error: 'Identifier is required' });
+  }
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { phoneNumber: identifier },
+          { email: identifier }
+        ]
+      }
+    });
+    res.json({ exists: !!user });
+  } catch (err: any) {
+    console.error('Check user error:', err);
+    res.status(500).json({ error: 'Database check error' });
+  }
+});
+
 // Login via SMS OTP
 router.post('/otp-login', async (req, res) => {
   const { phoneNumber, otpCode } = req.body;

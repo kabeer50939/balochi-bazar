@@ -21,8 +21,11 @@ function LoginContent() {
   /* ── Mode: 'LOGIN' or 'SIGNUP' ── */
   const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
 
-  /* ── Step: 1 (Identifier/Email or Phone), 2 (Password/OTP input) ── */
-  const [loginStep, setLoginStep] = useState<1 | 2>(1);
+  /* ── Step: 1 (Identifier/Email or Phone), 2 (Password/OTP), 'NEW_USER' (Intermediate screen) ── */
+  const [loginStep, setLoginStep] = useState<1 | 2 | 'NEW_USER'>(1);
+
+  /* ── Signup Step: 1 (Form), 2 (OTP + Delivery Profile) ── */
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
 
   /* ── Login Method: 'PASSWORD' or 'SMS_OTP' ── */
   const [loginMethod, setLoginMethod] = useState<'PASSWORD' | 'SMS_OTP'>('PASSWORD');
@@ -45,6 +48,7 @@ function LoginContent() {
   const [regCodeSent, setRegCodeSent]     = useState(false);
   const [regCodeLoading, setRegCodeLoading] = useState(false);
   const [regPassword, setRegPassword]     = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPwd, setShowRegPwd]       = useState(false);
   const [regBirthMonth, setRegBirthMonth] = useState('Month');
   const [regBirthDay, setRegBirthDay]     = useState('Day');
@@ -281,18 +285,80 @@ function LoginContent() {
   const days   = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const years  = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 12 - i));
 
-  /* ── Step 1 Validation ── */
-  const handleContinueToStep2 = (e: React.FormEvent) => {
+  /* ── Step 1: Check if user exists on backend ── */
+  const handleContinueToStep2 = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginIdentifier.trim()) {
+    const identifier = loginIdentifier.trim();
+    if (!identifier) {
       setError('Enter your email or mobile phone number');
       return;
     }
     setError('');
-    setLoginStep(2);
-    // Auto-populate the Email OTP email if they entered an email address
-    if (loginIdentifier.includes('@')) {
-      setEmailOtpEmail(loginIdentifier);
+    setLoading(true);
+    try {
+      const res = await fetch(getApiUrl('/api/auth/check-user'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) throw new Error(data.error || 'Checking user status failed.');
+
+      if (data.exists) {
+        // User exists -> show password screen
+        setLoginStep(2);
+        if (identifier.includes('@')) {
+          setEmailOtpEmail(identifier);
+        }
+      } else {
+        // User does not exist -> show intermediate screen
+        setLoginStep('NEW_USER');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Checking user status failed.');
+      setLoading(false);
+    }
+  };
+
+  /* ── Signup Step 1 Submit: Validate and Send OTP ── */
+  const handleSignupStep1Submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(''); setSuccess('');
+    if (!regEmail || !regName || !regPassword || !regConfirmPassword) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(regEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (regPassword !== regConfirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setRegCodeLoading(true);
+    try {
+      const res = await fetch(getApiUrl('/api/auth/send-otp'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: regEmail, type: 'REGISTER' })
+      });
+      const data = await res.json();
+      setRegCodeLoading(false);
+      if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
+      setRegCodeSent(true);
+      setSuccess(data.message || 'Verification code sent to your email.');
+      setSignupStep(2);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send verification code.');
+      setRegCodeLoading(false);
     }
   };
 
@@ -312,8 +378,8 @@ function LoginContent() {
           flex-direction: column;
           align-items: center;
           font-family: "Amazon Ember", Arial, sans-serif;
-          color: #111111;
-          padding: 14px 18px 40px;
+          color: #0f1111;
+          padding: 18px 18px 40px;
         }
 
         /* ═══════════ LOGO ═══════════ */
@@ -330,8 +396,8 @@ function LoginContent() {
         .a-box {
           width: 350px;
           background-color: #ffffff;
-          border: 1px solid #dddddd;
-          border-radius: 4px;
+          border: 1px solid #d5d9d9;
+          border-radius: 8px;
           padding: 20px 26px;
           margin-bottom: 22px;
           box-sizing: border-box;
@@ -354,13 +420,21 @@ function LoginContent() {
           font-weight: 400;
           line-height: 1.2;
           margin-bottom: 14px;
+          color: #0f1111;
+        }
+
+        .a-subtitle {
+          font-size: 13px;
+          line-height: 1.5;
+          margin-bottom: 14px;
+          color: #0f1111;
         }
 
         .a-label {
           display: block;
           font-size: 13px;
           font-weight: 700;
-          color: #111111;
+          color: #0f1111;
           margin-bottom: 4px;
           padding-left: 2px;
         }
@@ -390,7 +464,7 @@ function LoginContent() {
           border-radius: 3px;
           outline: none;
           background-color: #ffffff;
-          color: #111111;
+          color: #0f1111;
           box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.07) inset;
           transition: border-color 0.1s, box-shadow 0.1s;
         }
@@ -400,36 +474,51 @@ function LoginContent() {
           box-shadow: 0 0 3px 2px rgba(228, 121, 17, 0.5);
         }
 
+        /* Info Message box under inputs */
+        .a-info-message {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          color: #2b6cb0;
+          margin-top: 6px;
+          margin-bottom: 12px;
+        }
+
+        .a-info-icon {
+          color: #0066c0;
+          font-size: 14px;
+          font-weight: bold;
+        }
+
         /* ═══════════ BUTTONS ═══════════ */
         .a-button-primary {
           display: block;
           width: 100%;
-          height: 31px;
-          border: 1px solid;
-          border-color: #a88734 #9c7e31 #846a29;
-          border-radius: 3px;
-          background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
-          box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
-          color: #111111;
+          height: 35px;
+          border: 1px solid #FCD200;
+          border-radius: 100px;
+          background: #FFD814;
+          box-shadow: 0 2px 5px 0 rgba(213,217,217,.5);
+          color: #0f1111;
           font-size: 13px;
           font-family: inherit;
           cursor: pointer;
           font-weight: 400;
           transition: all 0.1s;
           text-align: center;
-          line-height: 29px;
+          line-height: 33px;
           outline: none;
         }
 
         .a-button-primary:hover {
-          background: linear-gradient(to bottom, #f5d78e, #eeb933);
-          border-color: #a28230 #96792f #7c6326;
+          background: #F7CA00;
+          border-color: #e2ba00;
         }
 
         .a-button-primary:active {
           background: #f0c14b;
-          border-color: #846a29;
-          box-shadow: 0 1px 3px rgba(0,0,0,.2) inset;
+          border-color: #a88734;
         }
 
         .a-button-primary:disabled {
@@ -442,13 +531,13 @@ function LoginContent() {
           display: block;
           width: 100%;
           text-align: center;
-          height: 31px;
-          line-height: 29px;
+          height: 35px;
+          line-height: 33px;
           border: 1px solid #adb1b8;
-          border-radius: 3px;
+          border-radius: 100px;
           background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
           box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset;
-          color: #111111;
+          color: #0f1111;
           font-size: 13px;
           font-family: inherit;
           font-weight: 400;
@@ -487,6 +576,7 @@ function LoginContent() {
           padding: 0 12px;
           height: 31px;
           line-height: 29px;
+          border-radius: 3px;
         }
 
         /* ═══════════ ACCORDION & LINKS ═══════════ */
@@ -553,7 +643,7 @@ function LoginContent() {
         .a-disclaimer {
           font-size: 12px;
           line-height: 1.5;
-          color: #111111;
+          color: #0f1111;
           margin-top: 14px;
           margin-bottom: 14px;
         }
@@ -660,7 +750,7 @@ function LoginContent() {
         .a-alert-content p {
           font-size: 12px;
           line-height: 1.5;
-          color: #111111;
+          color: #0f1111;
         }
 
         /* ═══════════ FOOTER ═══════════ */
@@ -716,7 +806,7 @@ function LoginContent() {
           padding: 0 6px;
           font-size: 12px;
           font-family: inherit;
-          color: #111111;
+          color: #0f1111;
           outline: none;
           background-color: #f7f8fa;
           cursor: pointer;
@@ -739,7 +829,7 @@ function LoginContent() {
           align-items: center;
           gap: 6px;
           font-size: 13px;
-          color: #111111;
+          color: #0f1111;
           cursor: pointer;
           font-weight: 400;
         }
@@ -751,7 +841,7 @@ function LoginContent() {
 
         /* ═══════════ SOCIAL BUTTONS ═══════════ */
         .a-social-buttons {
-          margin-top: 14px;
+          margin-top: 10px;
           display: flex;
           flex-direction: column;
           gap: 8px;
@@ -763,9 +853,9 @@ function LoginContent() {
           justify-content: center;
           gap: 8px;
           width: 100%;
-          height: 31px;
+          height: 35px;
           border: 1px solid #adb1b8;
-          border-radius: 3px;
+          border-radius: 100px;
           font-size: 13px;
           font-family: inherit;
           cursor: pointer;
@@ -802,7 +892,7 @@ function LoginContent() {
           align-items: center;
           font-size: 13px;
           margin-bottom: 14px;
-          color: #111111;
+          color: #0f1111;
         }
         .a-info-bar-text {
           font-weight: 400;
@@ -831,7 +921,7 @@ function LoginContent() {
         }
         .a-checkbox-label {
           font-size: 12px;
-          color: #111111;
+          color: #0f1111;
           line-height: 1.4;
           cursor: pointer;
         }
@@ -879,7 +969,7 @@ function LoginContent() {
             /* ══════════════ PROFILE COMPLETION (Social Sign-in) ══════════════ */
             <>
               <h1 className="a-heading">Complete Profile</h1>
-              <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: '14px', color: '#111' }}>
+              <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: '14px', color: '#0f1111' }}>
                 Almost there! You have verified your identity as <strong>{socialEmail}</strong> ({socialName}).
                 Please provide your phone number and delivery address to finish your Balochi Bazzar account.
               </p>
@@ -944,11 +1034,11 @@ function LoginContent() {
             /* ══════════════ LOGIN FLOW ══════════════ */
             <>
               {loginStep === 1 ? (
-                /* LOGIN STEP 1: Enter Identifier */
+                /* LOGIN STEP 1: Enter Identifier (Image 1) */
                 <form onSubmit={handleContinueToStep2}>
-                  <h1 className="a-heading">Sign in</h1>
+                  <h1 className="a-heading">Sign in or create account</h1>
                   <div className="a-input-row">
-                    <label className="a-label">Email or mobile phone number</label>
+                    <label className="a-label">Enter mobile number or email</label>
                     <input
                       className="a-input"
                       type="text"
@@ -958,8 +1048,8 @@ function LoginContent() {
                     />
                   </div>
 
-                  <button type="submit" className="a-button-primary">
-                    Continue
+                  <button type="submit" className="a-button-primary" disabled={loading}>
+                    {loading ? 'Continuing…' : 'Continue'}
                   </button>
 
                   <p className="a-disclaimer">
@@ -986,12 +1076,20 @@ function LoginContent() {
 
                   <div className="a-card-divider" />
 
-                  <div className="a-label" style={{ fontWeight: 400, marginBottom: '6px' }}>
-                    Or sign in using social networks:
+                  <div className="a-label" style={{ fontWeight: 400, fontSize: '13px', color: '#111' }}>
+                    Buying for work?
+                  </div>
+                  <a href="#" className="a-link" onClick={(e) => { e.preventDefault(); alert('Wholesale and Business accounts are coming soon!'); }}>
+                    Create a free business account
+                  </a>
+
+                  {/* Social Providers inside Login Card */}
+                  <div className="a-card-divider" />
+                  <div className="a-label" style={{ fontWeight: 400, fontSize: '12px', color: '#555', textAlign: 'center', marginBottom: '8px' }}>
+                    Or connect with social accounts:
                   </div>
 
                   <div className="a-social-buttons">
-                    {/* Google Button */}
                     <button
                       type="button"
                       className="a-button-social a-button-google"
@@ -1007,7 +1105,6 @@ function LoginContent() {
                       Google
                     </button>
 
-                    {/* Facebook Button */}
                     <button
                       type="button"
                       className="a-button-social a-button-facebook"
@@ -1021,8 +1118,49 @@ function LoginContent() {
                     </button>
                   </div>
                 </form>
+              ) : loginStep === 'NEW_USER' ? (
+                /* INTERMEDIATE SCREEN: New User Prompt (Image 2) */
+                <>
+                  <h1 className="a-heading" style={{ fontSize: '24px' }}>Looks like you're new to Balochi Bazzar</h1>
+                  
+                  {/* Identifier summary */}
+                  <div className="a-info-bar">
+                    <span className="a-info-bar-text" style={{ fontSize: '15px' }}>{loginIdentifier}</span>
+                    <button type="button" className="a-link a-info-bar-change" onClick={() => { setLoginStep(1); setError(''); setSuccess(''); }}>
+                      Change
+                    </button>
+                  </div>
+
+                  <p className="a-subtitle">Let's create an account using your email</p>
+
+                  <button
+                    type="button"
+                    className="a-button-primary"
+                    onClick={() => {
+                      setMode('SIGNUP');
+                      setSignupStep(1);
+                      setRegEmail(loginIdentifier);
+                      setError('');
+                      setSuccess('');
+                    }}
+                  >
+                    Proceed to create an account
+                  </button>
+
+                  <div className="a-card-divider" />
+
+                  <div className="a-label" style={{ fontWeight: 700, fontSize: '13px' }}>Already a customer?</div>
+                  <button
+                    type="button"
+                    className="a-link"
+                    style={{ fontSize: '13px', marginTop: '8px' }}
+                    onClick={() => { setLoginStep(1); setError(''); setSuccess(''); }}
+                  >
+                    Sign in with another email or mobile
+                  </button>
+                </>
               ) : (
-                /* LOGIN STEP 2: Enter Password or OTP */
+                /* LOGIN STEP 2: Password or OTP */
                 <>
                   <h1 className="a-heading">Sign in</h1>
 
@@ -1129,156 +1267,163 @@ function LoginContent() {
           ) : (
             /* ══════════════ SIGNUP/REGISTER FLOW ══════════════ */
             <>
-              <h1 className="a-heading">Create account</h1>
-              <form onSubmit={handleRegisterSubmit}>
-                <div className="a-input-row">
-                  <label className="a-label">Your name</label>
-                  <input
-                    className="a-input"
-                    type="text"
-                    placeholder="First and last name"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="a-input-row">
-                  <label className="a-label">Email address</label>
-                  <div className="a-inline-row">
+              {signupStep === 1 ? (
+                /* SIGNUP STEP 1: Matches Image 3 */
+                <form onSubmit={handleSignupStep1Submit}>
+                  <h1 className="a-heading">Create account</h1>
+                  
+                  <div className="a-input-row">
+                    <label className="a-label">Enter mobile number or email</label>
                     <input
                       className="a-input"
-                      type="email"
+                      type="text"
                       value={regEmail}
                       onChange={(e) => setRegEmail(e.target.value)}
                       required
                     />
-                    <button type="button" className="a-button-secondary" disabled={regCodeLoading} onClick={handleSendRegisterOtp}>
-                      {regCodeLoading ? 'Sending…' : regCodeSent ? 'Resend' : 'Send OTP'}
+                  </div>
+
+                  <div className="a-input-row">
+                    <label className="a-label">Your name</label>
+                    <input
+                      className="a-input"
+                      type="text"
+                      placeholder="First and last name"
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="a-input-row">
+                    <label className="a-label">Password (at least 6 characters)</label>
+                    <input
+                      className="a-input"
+                      type={showRegPwd ? 'text' : 'password'}
+                      placeholder="At least 6 characters"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="a-link"
+                      style={{ position: 'absolute', right: '10px', top: '24px', fontSize: '11px' }}
+                      onClick={() => setShowRegPwd(!showRegPwd)}
+                    >
+                      {showRegPwd ? 'Hide' : 'Show'}
                     </button>
                   </div>
-                </div>
 
-                <div className="a-input-row">
-                  <label className="a-label">Verification OTP Code</label>
-                  <input
-                    className="a-input"
-                    type="text"
-                    placeholder="Enter the code sent to your email"
-                    value={regCode}
-                    onChange={(e) => setRegCode(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="a-info-message">
+                    <span className="a-info-icon">i</span>
+                    <span>Passwords must be at least 6 characters.</span>
+                  </div>
 
-                <div className="a-input-row">
-                  <label className="a-label">Mobile phone number</label>
-                  <input
-                    className="a-input"
-                    type="tel"
-                    placeholder="e.g. 0332-7579515"
-                    value={regPhone}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    required
-                  />
-                  <div className="a-label-desc">Format: XXXX-XXXXXXX</div>
-                </div>
+                  <div className="a-input-row">
+                    <label className="a-label">Re-enter password</label>
+                    <input
+                      className="a-input"
+                      type={showRegPwd ? 'text' : 'password'}
+                      value={regConfirmPassword}
+                      onChange={(e) => setRegConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="a-input-row">
-                  <label className="a-label">Password</label>
-                  <input
-                    className="a-input"
-                    type={showRegPwd ? 'text' : 'password'}
-                    placeholder="At least 4 characters"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    required
-                  />
+                  <button type="submit" disabled={regCodeLoading} className="a-button-primary" style={{ marginTop: '14px' }}>
+                    {regCodeLoading ? 'Sending OTP…' : 'Verify email'}
+                  </button>
+
+                  <div className="a-card-divider" />
+
+                  <div className="a-label" style={{ fontWeight: 700, fontSize: '13px' }}>Already a customer?</div>
                   <button
                     type="button"
                     className="a-link"
-                    style={{ position: 'absolute', right: '10px', top: '24px', fontSize: '11px' }}
-                    onClick={() => setShowRegPwd(!showRegPwd)}
+                    style={{ fontSize: '13px', marginTop: '4px' }}
+                    onClick={() => { setMode('LOGIN'); setLoginStep(1); setError(''); setSuccess(''); }}
                   >
-                    {showRegPwd ? 'Hide' : 'Show'}
+                    Sign in instead
                   </button>
-                </div>
 
-                {/* Additional profile completion requirements */}
-                <div className="a-input-row">
-                  <label className="a-label">Gwadar Sector</label>
-                  <select className="a-select" value={regSector} onChange={(e) => setRegSector(e.target.value)}>
-                    {gwadarSectors.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
+                  <p className="a-disclaimer" style={{ marginTop: '18px', marginBottom: 0 }}>
+                    By creating an account, you agree to Balochi Bazzar's{' '}
+                    <a href="#" className="a-link">Conditions of Use</a> and{' '}
+                    <a href="#" className="a-link">Privacy Notice</a>.
+                  </p>
+                </form>
+              ) : (
+                /* SIGNUP STEP 2: Verify OTP + Collect Phone & Sector */
+                <form onSubmit={handleRegisterSubmit}>
+                  <h1 className="a-heading">Verify email</h1>
+                  
+                  {/* Pre-populated email display */}
+                  <div className="a-info-bar">
+                    <span className="a-info-bar-text" style={{ fontWeight: 'bold' }}>{regEmail}</span>
+                    <button type="button" className="a-link a-info-bar-change" onClick={() => { setSignupStep(1); setError(''); setSuccess(''); }}>
+                      Change
+                    </button>
+                  </div>
 
-                <div className="a-input-row">
-                  <label className="a-label">Street / House Address</label>
-                  <input
-                    className="a-input"
-                    type="text"
-                    placeholder="e.g. House #45, Lane 3"
-                    value={regStreet}
-                    onChange={(e) => setRegStreet(e.target.value)}
-                  />
-                </div>
+                  <p className="a-subtitle" style={{ fontSize: '12.5px', color: '#555', marginBottom: '16px' }}>
+                    To verify your email, we've sent a One-Time Password (OTP) code to your address above.
+                  </p>
 
-                {/* Birthday & Gender - Optional details to make it rich */}
-                <div className="a-input-row">
-                  <label className="a-label">Birthday (Optional)</label>
-                  <div className="a-birthday-row">
-                    <select className="a-select" value={regBirthMonth} onChange={(e) => setRegBirthMonth(e.target.value)}>
-                      <option>Month</option>
-                      {months.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                    <select className="a-select" value={regBirthDay} onChange={(e) => setRegBirthDay(e.target.value)}>
-                      <option>Day</option>
-                      {days.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                    <select className="a-select" value={regBirthYear} onChange={(e) => setRegBirthYear(e.target.value)}>
-                      <option>Year</option>
-                      {years.map(y => <option key={y} value={y}>{y}</option>)}
+                  <div className="a-input-row">
+                    <label className="a-label">Enter OTP Code <span>*</span></label>
+                    <input
+                      className="a-input"
+                      type="text"
+                      placeholder="6-digit verification code"
+                      value={regCode}
+                      onChange={(e) => setRegCode(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="a-input-row">
+                    <label className="a-label">Mobile phone number <span>*</span></label>
+                    <input
+                      className="a-input"
+                      type="tel"
+                      placeholder="e.g. 0332-7579515"
+                      value={regPhone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      required
+                    />
+                    <div className="a-label-desc">Format: XXXX-XXXXXXX (Gwadar Delivery Contact)</div>
+                  </div>
+
+                  <div className="a-input-row">
+                    <label className="a-label">Gwadar Sector <span>*</span></label>
+                    <select className="a-select" value={regSector} onChange={(e) => setRegSector(e.target.value)}>
+                      {gwadarSectors.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
-                </div>
 
-                <div className="a-input-row">
-                  <label className="a-label">Gender (Optional)</label>
-                  <div className="a-gender-row">
-                    <label>
-                      <input type="radio" name="gender" value="Male" checked={regGender === 'Male'} onChange={() => setRegGender('Male')} />
-                      Male
-                    </label>
-                    <label>
-                      <input type="radio" name="gender" value="Female" checked={regGender === 'Female'} onChange={() => setRegGender('Female')} />
-                      Female
-                    </label>
-                    <label>
-                      <input type="radio" name="gender" value="Other" checked={regGender === 'Other'} onChange={() => setRegGender('Other')} />
-                      Other
-                    </label>
+                  <div className="a-input-row">
+                    <label className="a-label">Street / House Address (Optional)</label>
+                    <input
+                      className="a-input"
+                      type="text"
+                      placeholder="e.g. House #45, Lane 3"
+                      value={regStreet}
+                      onChange={(e) => setRegStreet(e.target.value)}
+                    />
                   </div>
-                </div>
 
-                <button type="submit" disabled={loading} className="a-button-primary" style={{ marginTop: '10px' }}>
-                  {loading ? 'Creating account…' : 'Create your Balochi Bazzar account'}
-                </button>
-
-                <p className="a-disclaimer">
-                  By creating an account, you agree to Balochi Bazzar's{' '}
-                  <a href="#" className="a-link">Conditions of Use</a> and{' '}
-                  <a href="#" className="a-link">Privacy Notice</a>.
-                </p>
-
-                <div className="a-card-divider" />
-
-                <div style={{ fontSize: '13px' }}>
-                  Already have an account?{' '}
-                  <button type="button" className="a-link" onClick={() => { setMode('LOGIN'); setLoginStep(1); setError(''); setSuccess(''); }}>
-                    Sign in ▶
+                  <button type="submit" disabled={loading} className="a-button-primary" style={{ marginTop: '14px' }}>
+                    {loading ? 'Creating account…' : 'Create your Balochi Bazzar account'}
                   </button>
-                </div>
-              </form>
+
+                  <p className="a-disclaimer" style={{ marginTop: '18px', marginBottom: 0 }}>
+                    By creating an account, you agree to Balochi Bazzar's{' '}
+                    <a href="#" className="a-link">Conditions of Use</a> and{' '}
+                    <a href="#" className="a-link">Privacy Notice</a>.
+                  </p>
+                </form>
+              )}
             </>
           )}
         </div>
@@ -1292,7 +1437,7 @@ function LoginContent() {
             <button
               className="a-button-secondary"
               style={{ width: '350px' }}
-              onClick={() => { setMode('SIGNUP'); setError(''); setSuccess(''); }}
+              onClick={() => { setMode('SIGNUP'); setSignupStep(1); setRegEmail(loginIdentifier); setError(''); setSuccess(''); }}
             >
               Create your Balochi Bazzar account
             </button>
