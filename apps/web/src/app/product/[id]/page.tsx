@@ -172,7 +172,7 @@ export default function ProductDetailPage() {
     <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '6rem' }}>
       
       {/* 3-Column Daraz Product Layout */}
-      <div className="product-detail-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 0.9fr', gap: '2rem', alignItems: 'start' }}>
         
         {/* COLUMN 1: PRODUCT IMAGES */}
         <div>

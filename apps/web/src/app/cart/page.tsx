@@ -59,7 +59,7 @@ export default function CartPage() {
           <a href="/catalog" className="btn btn-accent">Explore Catalog</a>
         </div>
       ) : (
-        <div className="cart-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: '2rem', alignItems: 'flex-start' }}>
           
           {/* Cart Items List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
