@@ -1003,6 +1003,175 @@ select.form-input {
   width: 100%;
 }
 
+/* Mobile-only app header styles (hidden on desktop/tablet) */
+.mobile-app-header {
+  display: none;
+  background: #f85606;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-location-bar {
+  background: #d03f00;
+  color: #ffffff;
+  font-size: 10px;
+  padding: 6px 12px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.mobile-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.mobile-back-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #ffffff;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-page-title {
+  flex-grow: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding-left: 4px;
+}
+
+.mobile-search-box {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 18px;
+  flex-grow: 1;
+  height: 34px;
+  padding: 0 12px;
+  gap: 6px;
+}
+
+.mobile-search-input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 12px;
+  flex-grow: 1;
+  color: #212121;
+  height: 100%;
+}
+
+.mobile-search-icon, .mobile-camera-icon {
+  font-size: 13px;
+  color: #757575;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-camera-icon {
+  cursor: pointer;
+}
+
+.mobile-header-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mobile-header-icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #ffffff;
+  position: relative;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.mobile-icon-badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: #ffffff;
+  color: #f85606;
+  font-size: 8px;
+  font-weight: 800;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f85606;
+  line-height: 1;
+}
+
+/* Quick App Channels Row (hidden on desktop/tablet) */
+.mobile-app-channels {
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin: 1rem 0;
+  padding: 12px 8px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.channel-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #212121;
+  cursor: pointer;
+}
+
+.channel-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff1eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  transition: transform 0.1s ease;
+}
+
+.channel-item:active .channel-circle {
+  transform: scale(0.9);
+}
+
+.channel-emoji {
+  font-size: 18px;
+}
+
+.channel-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  color: #212121;
+  white-space: nowrap;
+}
+
 /* Fixed Bottom Navigation Bar for Mobile (Daraz style) */
 .mobile-bottom-nav {
   display: none;
@@ -1092,9 +1261,15 @@ select.form-input {
   }
 
   header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    display: none !important;
+  }
+
+  .mobile-app-header {
+    display: block;
+  }
+
+  .mobile-app-channels {
+    display: grid;
   }
 
   .header-main {

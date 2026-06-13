@@ -96,7 +96,7 @@ export default function LayoutWrapper({
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: '#131a22',
+          background: 'linear-gradient(135deg, #ff6b2b 0%, #f85606 100%)',
           zIndex: 999999,
           display: 'flex',
           flexDirection: 'column',
@@ -115,18 +115,18 @@ export default function LayoutWrapper({
             animation: 'pulse 1.8s infinite ease-in-out'
           }}>
             <div style={{
-              width: '80px',
-              height: '80px',
-              backgroundColor: '#ff9900',
-              color: 'white',
-              borderRadius: '16px',
+              width: '85px',
+              height: '85px',
+              backgroundColor: '#ffffff',
+              color: '#f85606',
+              borderRadius: '20px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 900,
-              fontSize: '46px',
+              fontSize: '48px',
               fontStyle: 'italic',
-              boxShadow: '0 10px 30px rgba(255, 153, 0, 0.3)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.15)',
             }}>
               B
             </div>
@@ -136,18 +136,18 @@ export default function LayoutWrapper({
               color: '#ffffff',
               letterSpacing: '1px'
             }}>
-              BALOCHI <span style={{ color: '#ff9900', fontWeight: '400', fontStyle: 'italic' }}>BAZZAR</span>
+              BALOCHI <span style={{ color: '#ffe5d9', fontWeight: '400', fontStyle: 'italic' }}>BAZAR</span>
             </span>
             <div style={{
               width: '40px',
               height: '3px',
-              backgroundColor: '#ff9900',
+              backgroundColor: '#ffffff',
               borderRadius: '2px',
               marginTop: '0.5rem',
             }}></div>
             <span style={{
               fontSize: '11px',
-              color: '#a2a6a6',
+              color: '#ffe5d9',
               letterSpacing: '0.5px',
               marginTop: '4px'
             }}>

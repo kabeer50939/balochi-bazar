@@ -307,6 +307,30 @@ export default function HomePage() {
         ))}
       </div>
 
+      {/* Mobile-only Quick App Channels (matches native Expo app icons/actions) */}
+      <div className="mobile-app-channels">
+        <a href="/catalog?mall=true" className="channel-item" onClick={(e) => { e.preventDefault(); alert('BazarMall: Flagship catalog is currently synced with our main inventory.'); }}>
+          <div className="channel-circle"><span className="channel-emoji">👑</span></div>
+          <span className="channel-label">BazarMall</span>
+        </a>
+        <a href="/catalog?rent=true" className="channel-item">
+          <div className="channel-circle"><span className="channel-emoji">👗</span></div>
+          <span className="channel-label">Rentals</span>
+        </a>
+        <a href="/catalog?custom=true" className="channel-item">
+          <div className="channel-circle"><span className="channel-emoji">✂️</span></div>
+          <span className="channel-label">Stitching</span>
+        </a>
+        <a href="/catalog?flash=true" className="channel-item" onClick={(e) => { e.preventDefault(); alert('Flash Sale: Scroll down to view active local flash discount deals!'); }}>
+          <div className="channel-circle"><span className="channel-emoji">⚡</span></div>
+          <span className="channel-label">Flash Sale</span>
+        </a>
+        <a href="/catalog?shipping=free" className="channel-item" onClick={(e) => { e.preventDefault(); alert('Free Shipping: Enjoy Rs. 0 delivery charge across all Gwadar sectors!'); }}>
+          <div className="channel-circle"><span className="channel-emoji">🚚</span></div>
+          <span className="channel-label">Free Shipping</span>
+        </a>
+      </div>
+
       {/* 2. Highlight Icons Row */}
       <section style={{
         display: 'grid',

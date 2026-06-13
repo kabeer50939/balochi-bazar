@@ -153,6 +153,55 @@ export default function Header() {
         }
       `}</style>
 
+      {/* Mobile-only native app style header */}
+      <div className="mobile-app-header">
+        {pathname === '/' && (
+          <div className="mobile-location-bar">
+            📍 Deliver to Pakistan (Gwadar Sector)
+          </div>
+        )}
+        <div className="mobile-search-row">
+          {pathname !== '/' && (
+            <button type="button" className="mobile-back-btn" onClick={() => router.back()} aria-label="Go Back">
+              ⬅️
+            </button>
+          )}
+          
+          {pathname !== '/cart' && pathname !== '/orders' && pathname !== '/login' ? (
+            <form onSubmit={handleSearchSubmit} className="mobile-search-box">
+              <span className="mobile-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search in Balochi Bazar..."
+                className="mobile-search-input"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <span className="mobile-camera-icon" onClick={() => alert('Camera search is only supported in native Expo app.')}>📷</span>
+            </form>
+          ) : (
+            <div className="mobile-page-title">
+              {pathname === '/cart' && 'My Cart'}
+              {pathname?.startsWith('/orders') && 'My Account & Orders'}
+              {pathname === '/login' && 'Login / Register'}
+            </div>
+          )}
+
+          <div className="mobile-header-icons">
+            <button type="button" className="mobile-header-icon-btn" onClick={() => alert('Connecting to Gwadar Atelier support chat...')}>
+              💬
+              <span className="mobile-icon-badge">3</span>
+            </button>
+            {pathname !== '/cart' && (
+              <a href="/cart" className="mobile-header-icon-btn">
+                🛒
+                <span className="mobile-icon-badge">{cartCount}</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Top Utility Bar */}
       <div className="top-bar">
         <div className="container" style={{ display: 'flex', width: '100%' }}>
