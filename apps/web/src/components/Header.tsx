@@ -204,7 +204,7 @@ export default function Header() {
           )}
 
           {/* Cart & Login Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
             <a href="/cart" className="cart-btn">
               🛒
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}

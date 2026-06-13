@@ -329,7 +329,7 @@ export default function HomePage() {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#757575' }}>Loading flash items...</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
+          <div className="responsive-product-grid">
             {products.slice(0, 6).map(prod => (
               <a href={`/product/${prod.id}`} key={prod.id} className="daraz-card">
                 <div className="card-img-container">
@@ -368,11 +368,7 @@ export default function HomePage() {
         {loading ? (
           <div style={{ padding: '4rem', textAlign: 'center', color: '#757575' }}>Loading custom catalog feed...</div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '12px'
-          }}>
+          <div className="responsive-product-grid">
             {products.map(prod => (
               <a href={`/product/${prod.id}`} key={prod.id} className="daraz-card">
                 <div className="card-img-container">

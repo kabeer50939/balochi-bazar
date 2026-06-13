@@ -219,7 +219,7 @@ export default function CheckoutPage() {
 
       {error && <div style={{ padding: '1rem', background: 'var(--danger)', color: 'white', borderRadius: '6px', marginBottom: '2rem' }}>{error}</div>}
 
-      <form onSubmit={handleCheckoutSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem', alignItems: 'flex-start' }}>
+      <form onSubmit={handleCheckoutSubmit} className="checkout-form-grid">
         
         {/* Left Side: Delivery Details Form */}
         <div className="glass" style={{ padding: '2.5rem' }}>

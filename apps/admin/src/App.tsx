@@ -173,6 +173,13 @@ export default function App() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const changeTab = (tab: 'DASHBOARD' | 'ORDERS' | 'RENTALS' | 'INVENTORY' | 'USERS', filter?: any) => {
+    setActiveTab(tab);
+    if (filter) setOrdersFilter(filter);
+    setSidebarOpen(false);
+  };
 
   // Sidebar Accordion states
   const [expandedGroups, setExpandedGroups] = useState({
@@ -714,8 +721,26 @@ export default function App() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          {/* Mobile hamburger menu toggle */}
+          <button 
+            className="mobile-hamburger"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: '20px',
+              cursor: 'pointer',
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px'
+            }}
+          >
+            ☰
+          </button>
           {/* Balochi Bazar Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => setActiveTab('DASHBOARD')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => changeTab('DASHBOARD')}>
             <div style={{ width: '28px', height: '28px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', fontStyle: 'italic' }}>B</div>
             <span style={{ fontSize: '18px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>
               Balochi Bazar <span style={{ color: 'var(--primary)', fontWeight: '400' }}>Seller Center</span>
@@ -779,8 +804,21 @@ export default function App() {
 
       {/* Main Workspace Frame */}
       <div className="admin-container">
+        {/* Mobile Sidebar backdrop */}
+        {sidebarOpen && (
+          <div 
+            className="sidebar-backdrop"
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 1000,
+            }}
+          />
+        )}
         {/* Sidebar Accordion Panel */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           {/* Category Group 1: Analytics */}
           <div className="sidebar-menu-group">
             <div className={`sidebar-group-header ${expandedGroups.analytics ? 'open' : ''}`} onClick={() => toggleGroup('analytics')}>
@@ -790,7 +828,7 @@ export default function App() {
             {expandedGroups.analytics && (
               <ul className="menu">
                 <li>
-                  <button onClick={() => setActiveTab('DASHBOARD')} className={`menu-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('DASHBOARD')} className={`menu-item ${activeTab === 'DASHBOARD' ? 'active' : ''}`}>
                     <IconDashboard />
                     Business Advisor
                   </button>
@@ -808,19 +846,19 @@ export default function App() {
             {expandedGroups.orders && (
               <ul className="menu">
                 <li>
-                  <button onClick={() => { setActiveTab('ORDERS'); setOrdersFilter('PENDING'); }} className={`menu-item ${activeTab === 'ORDERS' && ordersFilter !== 'RETURNED' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('ORDERS', 'PENDING')} className={`menu-item ${activeTab === 'ORDERS' && ordersFilter !== 'RETURNED' ? 'active' : ''}`}>
                     <IconOrder />
                     Manage Orders
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('ORDERS'); setOrdersFilter('RETURNED'); }} className={`menu-item ${activeTab === 'ORDERS' && ordersFilter === 'RETURNED' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('ORDERS', 'RETURNED')} className={`menu-item ${activeTab === 'ORDERS' && ordersFilter === 'RETURNED' ? 'active' : ''}`}>
                     <IconReturn />
                     Return Orders
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('RENTALS')} className={`menu-item ${activeTab === 'RENTALS' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('RENTALS')} className={`menu-item ${activeTab === 'RENTALS' ? 'active' : ''}`}>
                     <IconRental />
                     Rent Return Tracker
                   </button>
@@ -838,7 +876,7 @@ export default function App() {
             {expandedGroups.catalog && (
               <ul className="menu">
                 <li>
-                  <button onClick={() => setActiveTab('INVENTORY')} className={`menu-item ${activeTab === 'INVENTORY' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('INVENTORY')} className={`menu-item ${activeTab === 'INVENTORY' ? 'active' : ''}`}>
                     <IconProduct />
                     Manage Products
                   </button>
@@ -856,7 +894,7 @@ export default function App() {
             {expandedGroups.users && (
               <ul className="menu">
                 <li>
-                  <button onClick={() => setActiveTab('USERS')} className={`menu-item ${activeTab === 'USERS' ? 'active' : ''}`}>
+                  <button onClick={() => changeTab('USERS')} className={`menu-item ${activeTab === 'USERS' ? 'active' : ''}`}>
                     <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', marginRight: '8px' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                     Manage Users
                   </button>
