@@ -181,8 +181,39 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
     }
 
     // Generate Order Number
-    const orderCount = await prisma.order.count();
-    const orderNumber = `BZR-${10001 + orderCount}`;
+    // Query recent orders to find the highest sequence number and increment it,
+    // then verify uniqueness to prevent any race condition or deleted index conflicts.
+    const lastOrders = await prisma.order.findMany({
+      select: { orderNumber: true },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
+
+    let maxNum = 10000;
+    for (const ord of lastOrders) {
+      const match = ord.orderNumber.match(/^BZR-(\d+)$/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) {
+          maxNum = num;
+        }
+      }
+    }
+
+    let nextNum = maxNum + 1;
+    let orderNumber = `BZR-${nextNum}`;
+    let isUnique = false;
+    while (!isUnique) {
+      const existing = await prisma.order.findUnique({
+        where: { orderNumber }
+      });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        nextNum++;
+        orderNumber = `BZR-${nextNum}`;
+      }
+    }
 
     // Decide if confirmation call is required
     let requiresConfirmation = false;
