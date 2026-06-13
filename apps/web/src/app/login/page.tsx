@@ -379,7 +379,7 @@ function LoginContent() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          font-family: "Amazon Ember", Arial, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           color: #0f1111;
           padding: 18px 18px 40px;
         }
@@ -422,7 +422,7 @@ function LoginContent() {
 
         /* ═══════════ TYPOGRAPHY ═══════════ */
         .a-heading {
-          font-size: 28px;
+          font-size: 22px;
           font-weight: 400;
           line-height: 1.2;
           margin-bottom: 14px;
@@ -501,7 +501,9 @@ function LoginContent() {
 
         /* ═══════════ BUTTONS ═══════════ */
         .a-button-primary {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 100%;
           height: 31px;
           border: 1px solid #FCD200;
@@ -514,8 +516,6 @@ function LoginContent() {
           cursor: pointer;
           font-weight: 400;
           transition: all 0.1s;
-          text-align: center;
-          line-height: 29px;
           outline: none;
         }
 
@@ -536,11 +536,12 @@ function LoginContent() {
         }
 
         .a-button-secondary {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 100%;
           text-align: center;
           height: 31px;
-          line-height: 29px;
           border: 1px solid #adb1b8;
           border-radius: 100px;
           background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
@@ -583,7 +584,7 @@ function LoginContent() {
           width: auto;
           padding: 0 12px;
           height: 31px;
-          line-height: 29px;
+          border-radius: 3px;
         }
 
         /* ═══════════ ACCORDION & LINKS ═══════════ */
@@ -1040,7 +1041,7 @@ function LoginContent() {
                           <button
                             type="button"
                             className="a-button-social a-button-google"
-                            style={{ flex: 1, height: '28px', lineHeight: '26px', fontSize: '11px' }}
+                            style={{ flex: 1, height: '28px', fontSize: '11px' }}
                             onClick={handleGoogleLogin}
                             disabled={loading}
                           >
@@ -1049,7 +1050,7 @@ function LoginContent() {
                           <button
                             type="button"
                             className="a-button-social a-button-facebook"
-                            style={{ flex: 1, height: '28px', lineHeight: '26px', fontSize: '11px' }}
+                            style={{ flex: 1, height: '28px', fontSize: '11px' }}
                             onClick={handleFacebookLogin}
                             disabled={loading}
                           >
@@ -1072,7 +1073,7 @@ function LoginContent() {
               ) : loginStep === 'NEW_USER' ? (
                 /* INTERMEDIATE SCREEN: New User Prompt (Image 2) */
                 <>
-                  <h1 className="a-heading" style={{ fontSize: '28px' }}>Looks like you're new to BALOCHI BAZZAR</h1>
+                  <h1 className="a-heading" style={{ fontSize: '22px' }}>Looks like you're new to BALOCHI BAZZAR</h1>
                   
                   {/* Identifier summary */}
                   <div className="a-info-bar">
