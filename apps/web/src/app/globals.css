@@ -1248,6 +1248,13 @@ select.form-input {
 
 /* Responsive Grid/Flex Stacks */
 @media (max-width: 768px) {
+  :root {
+    --primary: #f85606;
+    --primary-hover: #d03f00;
+    --primary-light: #fff1eb;
+    --warning: #f85606;
+  }
+
   .container {
     padding: 0 10px;
   }

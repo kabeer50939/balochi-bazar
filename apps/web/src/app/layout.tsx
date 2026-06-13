@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import LayoutWrapper from './LayoutWrapper';
 
 export const metadata: Metadata = {
-  title: 'Balochi Bazzar - Balochi Doch & Rentals in Gwadar',
+  title: 'Balochi Bazar - Balochi Doch & Rentals in Gwadar',
   description: 'Premium e-commerce and renting of Balochi cultural suits, Sareeg, Chaddar, and customized hand embroidery in Gwadar city.',
   verification: {
     google: 'NbbYVaeccg52JYTqQAZhJMV4K7-mdCkkDd4oqAK-EsU',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Balochi Bazzar',
+    title: 'Balochi Bazar',
   },
 };
 
@@ -23,7 +23,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#ff9900',
+  themeColor: '#f85606',
 };
 
 export default function RootLayout({

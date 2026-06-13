@@ -977,9 +977,9 @@ function LoginContent() {
               BALOCHI BAZZAR
             </text>
             {/* Curved smile arrow */}
-            <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="var(--primary)" strokeWidth="2.2" strokeLinecap="round" />
             {/* Arrowhead */}
-            <path d="M 134 32 L 141 33 L 138 39" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 134 32 L 141 33 L 138 39" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
 
@@ -1497,8 +1497,8 @@ export default function LoginPage() {
             <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="19" fill="#111" letterSpacing="-0.5">
               BALOCHI BAZZAR
             </text>
-            <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" />
-            <path d="M 134 32 L 141 33 L 138 39" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="var(--primary)" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M 134 32 L 141 33 L 138 39" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div style={{ fontSize: '13px', color: '#555', fontFamily: 'Arial, sans-serif' }}>
             Loading...

@@ -2,13 +2,13 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Balochi Bazzar',
-    short_name: 'Bazzar',
+    name: 'Balochi Bazar',
+    short_name: 'Bazar',
     description: 'Premium Balochi cultural suits and dress rentals in Gwadar',
     start_url: '/',
     display: 'standalone',
-    background_color: '#131a22',
-    theme_color: '#ff9900',
+    background_color: '#f85606',
+    theme_color: '#f85606',
     icons: [
       {
         src: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=192&q=80',
