@@ -1104,27 +1104,62 @@ select.form-input {
   }
 
   .logo {
-    font-size: 18px;
+    font-size: 16px !important;
+    font-weight: 900;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .logo span {
+    display: none; /* Hide 'BAZZAR' on mobile */
   }
 
   .search-form {
-    height: 36px;
+    flex-grow: 1;
+    max-width: 100%;
+    height: 34px;
+    margin: 0;
   }
 
   .search-input {
-    padding: 0 10px;
+    padding: 0 8px;
     font-size: 11px;
   }
 
   .search-btn {
-    width: 40px;
+    width: 36px;
     font-size: 12px;
   }
 
-  /* Hide raw cart/signin buttons on header since we have bottom nav */
+  /* Style cart icon on mobile header App Bar */
   .header-main > div:last-child {
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* Hide raw sign-in buttons from mobile header bar */
+  .header-main > div:last-child > a.btn {
     display: none !important;
+  }
+  
+  .header-main > div:last-child > div.header-dropdown-wrapper {
+    display: none !important;
+  }
+
+  .cart-btn {
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .cart-count {
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+    top: -2px;
+    right: -2px;
   }
 
   .home-banner-section {
