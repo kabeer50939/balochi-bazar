@@ -374,12 +374,12 @@ function LoginContent() {
         }
 
         .a-page {
-          background-color: #ffffff;
+          background-color: #f6f6f6;
           min-height: 100vh;
           display: flex;
           flex-direction: column;
           align-items: center;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          font-family: "Amazon Ember", Arial, sans-serif;
           color: #0f1111;
           padding: 18px 18px 40px;
         }
@@ -404,6 +404,7 @@ function LoginContent() {
           padding: 20px 26px;
           margin-bottom: 22px;
           box-sizing: border-box;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         @media (max-width: 400px) {
@@ -411,9 +412,11 @@ function LoginContent() {
             border: none;
             width: 100%;
             padding: 20px 10px;
+            box-shadow: none;
           }
           .a-page {
             padding: 10px 10px 30px;
+            background-color: #ffffff;
           }
         }
 
@@ -490,9 +493,9 @@ function LoginContent() {
         }
 
         .a-info-icon-svg {
-          fill: #0066c0;
-          width: 14px;
-          height: 14px;
+          color: #0066c0;
+          width: 16px;
+          height: 16px;
           flex-shrink: 0;
         }
 
@@ -615,7 +618,6 @@ function LoginContent() {
           padding: 0;
           display: flex;
           align-items: center;
-          gap: 4px;
           outline: none;
         }
 
@@ -624,20 +626,8 @@ function LoginContent() {
           text-decoration: underline;
         }
 
-        .a-help-arrow {
-          font-size: 9px;
-          transition: transform 0.1s;
-          display: inline-block;
-          color: #555;
-        }
-
-        .a-help-arrow.expanded {
-          transform: rotate(90deg);
-        }
-
         .a-help-content {
           margin-top: 8px;
-          padding-left: 14px;
           display: flex;
           flex-direction: column;
           gap: 6px;
@@ -653,42 +643,6 @@ function LoginContent() {
         }
 
         /* ═══════════ SECTION DIVIDERS ═══════════ */
-        .a-divider {
-          text-align: center;
-          position: relative;
-          margin-top: 22px;
-          margin-bottom: 12px;
-          width: 350px;
-        }
-
-        @media (max-width: 400px) {
-          .a-divider {
-            width: 100%;
-          }
-        }
-
-        .a-divider::after {
-          content: "";
-          width: 100%;
-          height: 1px;
-          background-color: #e7e7e7;
-          position: absolute;
-          top: 50%;
-          left: 0;
-          z-index: 1;
-        }
-
-        .a-divider h5 {
-          background-color: #ffffff;
-          padding: 0 8px;
-          display: inline-block;
-          position: relative;
-          z-index: 2;
-          color: #767676;
-          font-size: 12px;
-          font-weight: 400;
-        }
-
         .a-card-divider {
           border-top: 1px solid #e7e7e7;
           margin: 18px 0;
@@ -1064,8 +1018,8 @@ function LoginContent() {
                   </p>
 
                   <div className="a-help-container">
-                    <button type="button" className="a-help-trigger" onClick={() => setShowHelp(!showHelp)}>
-                      <span className={`a-help-arrow ${showHelp ? 'expanded' : ''}`}>▶</span> Need help?
+                    <button type="button" className="a-help-trigger a-link" onClick={() => setShowHelp(!showHelp)}>
+                      Need help?
                     </button>
                     {showHelp && (
                       <div className="a-help-content">
@@ -1118,7 +1072,7 @@ function LoginContent() {
               ) : loginStep === 'NEW_USER' ? (
                 /* INTERMEDIATE SCREEN: New User Prompt (Image 2) */
                 <>
-                  <h1 className="a-heading" style={{ fontSize: '24px' }}>Looks like you're new to BALOCHI BAZZAR</h1>
+                  <h1 className="a-heading" style={{ fontSize: '28px' }}>Looks like you're new to BALOCHI BAZZAR</h1>
                   
                   {/* Identifier summary */}
                   <div className="a-info-bar">
@@ -1313,8 +1267,8 @@ function LoginContent() {
                   </div>
 
                   <div className="a-info-message">
-                    <svg className="a-info-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    <svg className="a-info-icon-svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
                     <span style={{ fontSize: '12px', color: '#111' }}>Passwords must be at least 6 characters.</span>
                   </div>
