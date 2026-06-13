@@ -10,6 +10,20 @@ export const metadata: Metadata = {
   verification: {
     google: 'NbbYVaeccg52JYTqQAZhJMV4K7-mdCkkDd4oqAK-EsU',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Balochi Bazzar',
+  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: '#ff9900',
 };
 
 export default function RootLayout({
