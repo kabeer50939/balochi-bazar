@@ -370,19 +370,19 @@ export default function HomePage() {
 
       {/* 3. Flash Sale Section */}
       <section style={{ backgroundColor: 'var(--bg-secondary)', padding: '15px', borderRadius: 'var(--radius-md)', marginBottom: '2.5rem', border: '1px solid var(--border-color)' }}>
-        <div className="section-title-bar" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '15px' }}>
+        <div className="section-title-bar">
           <div className="flash-sale-header">
-            <span className="flash-sale-title" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>On Sale Now</span>
+            <span className="flash-sale-title">On Sale Now</span>
             <div className="countdown-box">
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginRight: '6px' }}>Ending in</span>
+              <span className="flash-ending-text">Ending in</span>
               <span className="time-bubble">{formatTime(timeLeft.hours)}</span>
-              <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>:</span>
+              <span className="time-colon">:</span>
               <span className="time-bubble">{formatTime(timeLeft.minutes)}</span>
-              <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>:</span>
+              <span className="time-colon">:</span>
               <span className="time-bubble">{formatTime(timeLeft.seconds)}</span>
             </div>
           </div>
-          <a href="/catalog" style={{ fontSize: '13px', color: 'var(--primary)', textDecoration: 'none', fontWeight: 'bold' }}>SHOP ALL ➔</a>
+          <a href="/catalog" className="flash-shop-all">SHOP ALL ➔</a>
         </div>
 
         {error && <div style={{ color: 'var(--primary)', fontSize: '14px', padding: '10px' }}>{error}</div>}

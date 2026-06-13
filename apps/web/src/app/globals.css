@@ -539,7 +539,30 @@ select.form-input {
   font-family: var(--font-serif);
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-dark);
+  color: var(--primary);
+}
+
+.flash-ending-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-right: 6px;
+}
+
+.flash-shop-all {
+  font-size: 13px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.flash-shop-all:hover {
+  color: var(--primary-hover);
+}
+
+.time-colon {
+  color: var(--primary);
+  font-weight: bold;
 }
 
 .countdown-box {
@@ -1394,6 +1417,44 @@ select.form-input {
   .cart-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  /* Mobile adjustments for On Sale Now header */
+  .section-title-bar {
+    margin-bottom: 1rem;
+    padding-bottom: 6px;
+  }
+
+  .flash-sale-header {
+    gap: 8px;
+  }
+
+  .flash-sale-title {
+    font-size: 15px;
+    font-family: var(--font-sans);
+  }
+
+  .countdown-box {
+    gap: 4px;
+  }
+
+  .flash-ending-text {
+    font-size: 10px;
+    margin-right: 2px;
+  }
+
+  .time-bubble {
+    font-size: 10px;
+    padding: 2px 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .time-colon {
+    font-size: 10px;
+  }
+
+  .flash-shop-all {
+    font-size: 11px;
   }
 }
 
