@@ -206,8 +206,35 @@ export default function HomePage() {
   return (
     <div className="container" style={{ paddingBottom: '4rem' }}>
       
-      {/* 1. Main Banner Grid: Hero Banner Slider */}
+      {/* 1. Main Banner Grid: Hero Banner Slider & Sidebar */}
       <section className="home-banner-section">
+        {/* Left Category Sidebar (Visible on Desktop only) */}
+        <ul className="category-sidebar">
+          {categoriesData.map((cat) => (
+            <li key={cat.id} className="category-item-container">
+              <a href={`/catalog?category=${cat.id}`} className="category-item">
+                <span>{cat.icon} {cat.name}</span>
+                <span>▶</span>
+              </a>
+              {/* Hover Draw Submenus */}
+              <div className="category-submenu-drawer">
+                {cat.sections.map((section, idx) => (
+                  <div key={idx} className="drawer-section">
+                    <div className="drawer-section-title">{section.title}</div>
+                    <div className="drawer-links">
+                      {section.items.map((item, itemIdx) => (
+                        <a key={itemIdx} href={`/catalog?category=${cat.id}`} className="drawer-link">
+                          {item}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+
         {/* Right Slider / Interactive Carousel */}
         <div className="hero-slider">
           <div className="slider-container">
@@ -270,6 +297,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 1.5. Responsive Horizontal Category Scroll (Daraz mobile style) */}
+      <div className="mobile-categories-scroll">
+        {categoriesData.map((cat) => (
+          <a href={`/catalog?category=${cat.id}`} key={cat.id} className="mobile-category-pill">
+            <span className="category-pill-icon">{cat.icon}</span>
+            <span className="category-pill-name">{cat.name.replace(/Balochi|made|Tikk|\/ Border/g, '').trim()}</span>
+          </a>
+        ))}
+      </div>
+
       {/* 2. Highlight Icons Row */}
       <section style={{
         display: 'grid',
@@ -329,7 +366,7 @@ export default function HomePage() {
         {loading ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#757575' }}>Loading flash items...</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
+          <div className="responsive-product-grid">
             {products.slice(0, 6).map(prod => (
               <a href={`/product/${prod.id}`} key={prod.id} className="daraz-card">
                 <div className="card-img-container">
@@ -368,11 +405,7 @@ export default function HomePage() {
         {loading ? (
           <div style={{ padding: '4rem', textAlign: 'center', color: '#757575' }}>Loading custom catalog feed...</div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '12px'
-          }}>
+          <div className="responsive-product-grid">
             {products.map(prod => (
               <a href={`/product/${prod.id}`} key={prod.id} className="daraz-card">
                 <div className="card-img-container">

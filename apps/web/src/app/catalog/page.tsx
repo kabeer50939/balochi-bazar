@@ -155,11 +155,7 @@ function CatalogPageContent() {
               <button onClick={clearAllFilters} className="btn btn-primary">Clear Filters</button>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '12px'
-            }}>
+            <div className="responsive-product-grid">
               {filteredProducts.map((prod) => (
                 <div key={prod.id} className="daraz-card">
                   <div className="card-img-container" style={{ paddingTop: '100%' }}>
