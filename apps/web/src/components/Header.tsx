@@ -297,6 +297,36 @@ export default function Header() {
           </div>
         )}
       </header>
+
+      {/* Fixed Bottom Navigation Bar for Mobile (Daraz style) */}
+      <div className="mobile-bottom-nav">
+        <a href="/" className={`mobile-nav-item ${pathname === '/' ? 'active' : ''}`}>
+          <span className="nav-icon">🏠</span>
+          <span className="nav-label">Home</span>
+        </a>
+        <a href="/catalog" className={`mobile-nav-item ${pathname?.startsWith('/catalog') ? 'active' : ''}`}>
+          <span className="nav-icon">🛍️</span>
+          <span className="nav-label">Catalog</span>
+        </a>
+        <a href="/cart" className={`mobile-nav-item ${pathname === '/cart' ? 'active' : ''}`}>
+          <span className="nav-icon" style={{ position: 'relative' }}>
+            🛒
+            {cartCount > 0 && <span className="cart-count-badge">{cartCount}</span>}
+          </span>
+          <span className="nav-label">Cart</span>
+        </a>
+        {user ? (
+          <a href="/orders" className={`mobile-nav-item ${pathname === '/orders' ? 'active' : ''}`}>
+            <span className="nav-icon">👤</span>
+            <span className="nav-label">Account</span>
+          </a>
+        ) : (
+          <a href="/login" className={`mobile-nav-item ${pathname === '/login' ? 'active' : ''}`}>
+            <span className="nav-icon">👤</span>
+            <span className="nav-label">Login</span>
+          </a>
+        )}
+      </div>
     </>
   );
 }

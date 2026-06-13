@@ -270,6 +270,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 1.5. Responsive Horizontal Category Scroll (Daraz mobile style) */}
+      <div className="mobile-categories-scroll">
+        {categoriesData.map((cat) => (
+          <a href={`/catalog?category=${cat.id}`} key={cat.id} className="mobile-category-pill">
+            <span className="category-pill-icon">{cat.icon}</span>
+            <span className="category-pill-name">{cat.name.replace(/Balochi|made|Tikk|\/ Border/g, '').trim()}</span>
+          </a>
+        ))}
+      </div>
+
       {/* 2. Highlight Icons Row */}
       <section style={{
         display: 'grid',
