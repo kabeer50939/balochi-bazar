@@ -238,12 +238,14 @@ function LoginContent() {
     setRegCodeLoading(true); setError(''); setSuccess('');
     try {
       const res = await fetch(getApiUrl('/api/auth/send-otp'), {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: regEmail, type: 'REGISTER' })
       });
       const data = await res.json();
+      setRegCodeLoading(false);
       if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
-      setRegCodeSent(true); setRegCodeLoading(false);
+      setRegCodeSent(true);
       setSuccess(data.message || 'Verification code sent to your email.');
     } catch (err: any) { setError(err.message || 'Failed to send verification code.'); setRegCodeLoading(false); }
   };
@@ -377,7 +379,7 @@ function LoginContent() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          font-family: "Amazon Ember", Arial, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           color: #0f1111;
           padding: 18px 18px 40px;
         }
@@ -421,6 +423,7 @@ function LoginContent() {
           line-height: 1.2;
           margin-bottom: 14px;
           color: #0f1111;
+          letter-spacing: -0.3px;
         }
 
         .a-subtitle {
@@ -480,22 +483,23 @@ function LoginContent() {
           align-items: center;
           gap: 6px;
           font-size: 12px;
-          color: #2b6cb0;
+          color: #111111;
           margin-top: 6px;
           margin-bottom: 12px;
         }
 
-        .a-info-icon {
-          color: #0066c0;
-          font-size: 14px;
-          font-weight: bold;
+        .a-info-icon-svg {
+          fill: #0066c0;
+          width: 14px;
+          height: 14px;
+          flex-shrink: 0;
         }
 
         /* ═══════════ BUTTONS ═══════════ */
         .a-button-primary {
           display: block;
           width: 100%;
-          height: 35px;
+          height: 31px;
           border: 1px solid #FCD200;
           border-radius: 100px;
           background: #FFD814;
@@ -507,7 +511,7 @@ function LoginContent() {
           font-weight: 400;
           transition: all 0.1s;
           text-align: center;
-          line-height: 33px;
+          line-height: 29px;
           outline: none;
         }
 
@@ -531,8 +535,8 @@ function LoginContent() {
           display: block;
           width: 100%;
           text-align: center;
-          height: 35px;
-          line-height: 33px;
+          height: 31px;
+          line-height: 29px;
           border: 1px solid #adb1b8;
           border-radius: 100px;
           background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
@@ -576,7 +580,6 @@ function LoginContent() {
           padding: 0 12px;
           height: 31px;
           line-height: 29px;
-          border-radius: 3px;
         }
 
         /* ═══════════ ACCORDION & LINKS ═══════════ */
@@ -652,8 +655,8 @@ function LoginContent() {
         .a-divider {
           text-align: center;
           position: relative;
-          margin-top: 26px;
-          margin-bottom: 14px;
+          margin-top: 22px;
+          margin-bottom: 12px;
           width: 350px;
         }
 
@@ -853,7 +856,7 @@ function LoginContent() {
           justify-content: center;
           gap: 8px;
           width: 100%;
-          height: 35px;
+          height: 31px;
           border: 1px solid #adb1b8;
           border-radius: 100px;
           font-size: 13px;
@@ -862,6 +865,7 @@ function LoginContent() {
           font-weight: 400;
           outline: none;
           transition: all 0.1s;
+          line-height: 29px;
         }
 
         .a-button-google {
@@ -931,8 +935,8 @@ function LoginContent() {
         {/* Centered logo container */}
         <div className="a-logo-container" onClick={() => { setMode('LOGIN'); setLoginStep(1); setError(''); setSuccess(''); setNeedsCompleteProfile(false); }}>
           <svg viewBox="0 0 170 45" width="150" height="40" xmlns="http://www.w3.org/2000/svg">
-            <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="21" fill="#111" letterSpacing="-0.8">
-              balochi<tspan fontWeight="normal">bazzar</tspan>
+            <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="19" fill="#111" letterSpacing="-0.5">
+              BALOCHI BAZZAR
             </text>
             {/* Curved smile arrow */}
             <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" />
@@ -971,7 +975,7 @@ function LoginContent() {
               <h1 className="a-heading">Complete Profile</h1>
               <p style={{ fontSize: '13px', lineHeight: '1.5', marginBottom: '14px', color: '#0f1111' }}>
                 Almost there! You have verified your identity as <strong>{socialEmail}</strong> ({socialName}).
-                Please provide your phone number and delivery address to finish your Balochi Bazzar account.
+                Please provide your phone number and delivery address to finish your BALOCHI BAZZAR account.
               </p>
               <form onSubmit={handleSocialRegisterSubmit}>
                 <div className="a-input-row">
@@ -1053,7 +1057,7 @@ function LoginContent() {
                   </button>
 
                   <p className="a-disclaimer">
-                    By continuing, you agree to Balochi Bazzar's{' '}
+                    By continuing, you agree to BALOCHI BAZZAR's{' '}
                     <a href="#" className="a-link">Conditions of Use</a> and{' '}
                     <a href="#" className="a-link">Privacy Notice</a>.
                   </p>
@@ -1064,7 +1068,7 @@ function LoginContent() {
                     </button>
                     {showHelp && (
                       <div className="a-help-content">
-                        <button type="button" className="a-link" onClick={() => alert('Password reset is handled by Balochi Bazzar Admin. Contact Customer Care.')}>
+                        <button type="button" className="a-link" onClick={() => alert('Password reset is handled by BALOCHI BAZZAR Admin. Contact Customer Care.')}>
                           Forgot Password
                         </button>
                         <a href="#" className="a-link" onClick={(e) => { e.preventDefault(); alert('Please contact support@balochibazzar.com for assistance.'); }}>
@@ -1121,7 +1125,7 @@ function LoginContent() {
               ) : loginStep === 'NEW_USER' ? (
                 /* INTERMEDIATE SCREEN: New User Prompt (Image 2) */
                 <>
-                  <h1 className="a-heading" style={{ fontSize: '24px' }}>Looks like you're new to Balochi Bazzar</h1>
+                  <h1 className="a-heading" style={{ fontSize: '24px' }}>Looks like you're new to BALOCHI BAZZAR</h1>
                   
                   {/* Identifier summary */}
                   <div className="a-info-bar">
@@ -1177,7 +1181,7 @@ function LoginContent() {
                       <div className="a-input-row">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
                           <label className="a-label" style={{ margin: 0 }}>Password</label>
-                          <button type="button" className="a-link" style={{ fontSize: '12px' }} onClick={() => alert('Password reset is handled by Balochi Bazzar Admin. Contact Customer Care.')}>
+                          <button type="button" className="a-link" style={{ fontSize: '12px' }} onClick={() => alert('Password reset is handled by BALOCHI BAZZAR Admin. Contact Customer Care.')}>
                             Forgot Password?
                           </button>
                         </div>
@@ -1316,8 +1320,10 @@ function LoginContent() {
                   </div>
 
                   <div className="a-info-message">
-                    <span className="a-info-icon">i</span>
-                    <span>Passwords must be at least 6 characters.</span>
+                    <svg className="a-info-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <span style={{ fontSize: '12px', color: '#111' }}>Passwords must be at least 6 characters.</span>
                   </div>
 
                   <div className="a-input-row">
@@ -1348,7 +1354,7 @@ function LoginContent() {
                   </button>
 
                   <p className="a-disclaimer" style={{ marginTop: '18px', marginBottom: 0 }}>
-                    By creating an account, you agree to Balochi Bazzar's{' '}
+                    By creating an account, you agree to BALOCHI BAZZAR's{' '}
                     <a href="#" className="a-link">Conditions of Use</a> and{' '}
                     <a href="#" className="a-link">Privacy Notice</a>.
                   </p>
@@ -1414,11 +1420,11 @@ function LoginContent() {
                   </div>
 
                   <button type="submit" disabled={loading} className="a-button-primary" style={{ marginTop: '14px' }}>
-                    {loading ? 'Creating account…' : 'Create your Balochi Bazzar account'}
+                    {loading ? 'Creating account…' : 'CREATE YOUR BALOCHI BAZZAR ACCOUNT'}
                   </button>
 
                   <p className="a-disclaimer" style={{ marginTop: '18px', marginBottom: 0 }}>
-                    By creating an account, you agree to Balochi Bazzar's{' '}
+                    By creating an account, you agree to BALOCHI BAZZAR's{' '}
                     <a href="#" className="a-link">Conditions of Use</a> and{' '}
                     <a href="#" className="a-link">Privacy Notice</a>.
                   </p>
@@ -1432,14 +1438,14 @@ function LoginContent() {
         {!needsCompleteProfile && mode === 'LOGIN' && loginStep === 1 && (
           <>
             <div className="a-divider">
-              <h5>New to Balochi Bazzar?</h5>
+              <h5>New to BALOCHI BAZZAR?</h5>
             </div>
             <button
               className="a-button-secondary"
               style={{ width: '350px' }}
               onClick={() => { setMode('SIGNUP'); setSignupStep(1); setRegEmail(loginIdentifier); setError(''); setSuccess(''); }}
             >
-              Create your Balochi Bazzar account
+              Create your BALOCHI BAZZAR account
             </button>
           </>
         )}
@@ -1452,7 +1458,7 @@ function LoginContent() {
             <a href="#">Help</a>
           </div>
           <div className="a-footer-copyright">
-            © 2005-{new Date().getFullYear()}, Balochi Bazzar or its affiliates
+            © 2005-{new Date().getFullYear()}, BALOCHI BAZZAR or its affiliates
           </div>
         </footer>
       </div>
@@ -1474,8 +1480,8 @@ export default function LoginPage() {
           flexDirection: 'column', gap: '14px',
         }}>
           <svg viewBox="0 0 170 45" width="150" height="40" xmlns="http://www.w3.org/2000/svg">
-            <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="21" fill="#111" letterSpacing="-0.8">
-              balochi<tspan fontWeight="normal">bazzar</tspan>
+            <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="19" fill="#111" letterSpacing="-0.5">
+              BALOCHI BAZZAR
             </text>
             <path d="M 15 33 Q 75 44 140 33" fill="none" stroke="#FF9900" strokeWidth="2.2" strokeLinecap="round" />
             <path d="M 134 32 L 141 33 L 138 39" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
