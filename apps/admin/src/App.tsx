@@ -49,12 +49,27 @@ interface Order {
   orderItems: OrderItem[];
   rentals: RentalDetail[];
 }
+interface Customer {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  email: string | null;
+  isBlacklisted: boolean;
+  isOtpVerified: boolean;
+  ipAddress: string | null;
+  deviceFingerprint: string | null;
+  createdAt: string;
+  cancelledOrdersCount: number;
+  totalOrdersCount: number;
+}
+
 interface Stats {
   totalSales: number;
   pendingTailoringCount: number;
   activeRentalsCount: number;
   totalOrdersCount: number;
   totalProductsCount: number;
+  totalUsersCount?: number;
 }
 
 // Custom Inline SVG Icons
@@ -98,12 +113,12 @@ const Sparkline = ({ points, color = 'var(--primary)' }: { points: number[]; col
 
 export default function App() {
   const getApiUrl = (path: string = '') => {
-    if (import.meta.env.VITE_API_URL) {
-      return `${import.meta.env.VITE_API_URL}${path}`;
-    }
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     if (host === 'localhost' || host === '127.0.0.1') {
       return `http://${host}:5000${path}`;
+    }
+    if (import.meta.env.VITE_API_URL) {
+      return `${import.meta.env.VITE_API_URL}${path}`;
     }
     return `https://balochi-bazar-backend.vercel.app${path}`;
   };
@@ -136,7 +151,7 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
 
   // Active panel state
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ORDERS' | 'RENTALS' | 'INVENTORY'>('DASHBOARD');
+  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ORDERS' | 'RENTALS' | 'INVENTORY' | 'USERS'>('DASHBOARD');
 
   // Business Advisor Metrics Filter State
   const [metricsTimeFilter, setMetricsTimeFilter] = useState<'REALTIME' | 'YESTERDAY' | '7DAYS' | '30DAYS'>('REALTIME');
@@ -148,15 +163,18 @@ export default function App() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [rentals, setRentals] = useState<RentalDetail[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
 
   // Sidebar Accordion states
   const [expandedGroups, setExpandedGroups] = useState({
     analytics: true,
     orders: true,
     catalog: true,
+    users: true,
   });
 
-  const toggleGroup = (group: 'analytics' | 'orders' | 'catalog') => {
+  const toggleGroup = (group: 'analytics' | 'orders' | 'catalog' | 'users') => {
     setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
   };
 
@@ -284,6 +302,22 @@ export default function App() {
         }
       })
       .catch(console.error);
+
+    // Customers list
+    fetch(getApiUrl('/api/admin/customers'), { headers: { Authorization: `Bearer ${activeToken}` } })
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) handleAuthError();
+          throw new Error('Customers request failed');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCustomers(data);
+        }
+      })
+      .catch(console.error);
   };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -318,6 +352,47 @@ export default function App() {
     sessionStorage.removeItem('bazar_admin_role');
     setToken(null);
     setUserRole('');
+  };
+
+  const handleToggleBlacklist = async (userId: string, currentStatus: boolean) => {
+    if (!confirm(`Are you sure you want to ${currentStatus ? 'whitelist' : 'blacklist'} this user?`)) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/admin/customers/${userId}/blacklist`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ isBlacklisted: !currentStatus })
+      });
+      if (!res.ok) throw new Error('Failed to update blacklist status');
+      const data = await res.json();
+      alert(data.message);
+      fetchDashboardData(token!);
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`WARNING: Deleting user "${userName}" will also delete all their orders, rentals, and addresses. This action cannot be undone. Are you sure you want to delete this user?`)) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/admin/customers/${userId}`), {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to delete user');
+      }
+      const data = await res.json();
+      alert(data.message);
+      fetchDashboardData(token!);
+    } catch (e: any) {
+      alert(e.message);
+    }
   };
 
   const confirmPayment = async (orderId: string, status: 'PAID' | 'FAILED') => {
@@ -568,6 +643,7 @@ export default function App() {
       rentals: stats.activeRentalsCount,
       visitors: visitorCount,
       conversion: conversionRate,
+      totalUsers: stats.totalUsersCount || 0,
     };
   };
 
@@ -763,6 +839,24 @@ export default function App() {
             )}
           </div>
 
+          {/* Category Group 4: Users */}
+          <div className="sidebar-menu-group">
+            <div className={`sidebar-group-header ${expandedGroups.users ? 'open' : ''}`} onClick={() => toggleGroup('users')}>
+              <span>👥 User Management</span>
+              <span className="arrow-icon">▶</span>
+            </div>
+            {expandedGroups.users && (
+              <ul className="menu">
+                <li>
+                  <button onClick={() => setActiveTab('USERS')} className={`menu-item ${activeTab === 'USERS' ? 'active' : ''}`}>
+                    <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', marginRight: '8px' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    Manage Users
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
+
           {/* Exit Link */}
           <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
             <button onClick={handleLogout} className="btn-daraz btn-daraz-secondary" style={{ width: '100%', fontSize: '11px', fontWeight: 'bold' }}>
@@ -881,6 +975,15 @@ export default function App() {
                     ▲ +0.15% <span style={{ color: 'var(--text-muted)', fontSize: '8px' }}>vs prev span</span>
                   </div>
                   <Sparkline points={[2.1, 2.3, 2.2, 2.5, 2.4, metricsData.conversion]} color="var(--warning)" />
+                </div>
+
+                <div className="metric-card" onClick={() => setActiveTab('USERS')} style={{ cursor: 'pointer' }}>
+                  <div className="metric-label">Registered Customers</div>
+                  <div className="metric-value">{metricsData.totalUsers}</div>
+                  <div className="metric-trend" style={{ color: 'var(--success)', fontWeight: '500' }}>
+                    View & Manage Accounts
+                  </div>
+                  <Sparkline points={[2, 3, 4, 5, 5, metricsData.totalUsers]} color="var(--primary)" />
                 </div>
               </div>
 
@@ -1668,6 +1771,123 @@ export default function App() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* TAB 5: USERS & CUSTOMERS MANAGEMENT */}
+          {activeTab === 'USERS' && (() => {
+            const filteredCustomers = customers.filter((cust) => {
+              const search = customerSearchQuery.toLowerCase();
+              return (
+                cust.name.toLowerCase().includes(search) ||
+                cust.phoneNumber.includes(search) ||
+                (cust.email && cust.email.toLowerCase().includes(search))
+              );
+            });
+
+            return (
+              <div>
+                <div className="page-title-bar">
+                  <div>
+                    <h1 className="page-title">User Accounts & Risk Management</h1>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      Atelier Gwadar Registered Customers: <strong>{customers.length}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Search / Filters */}
+                <div className="daraz-card" style={{ padding: '0.75rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: '#f5f6f9', padding: '4px 10px', border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>🔍</span>
+                      <input 
+                        type="text" 
+                        placeholder="Search users by name, phone number or email..." 
+                        style={{ border: 'none', background: 'none', outline: 'none', fontSize: '11px', width: '100%' }}
+                        value={customerSearchQuery}
+                        onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Customers Table */}
+                <div className="daraz-card" style={{ padding: '0px', overflowX: 'auto' }}>
+                  <table className="daraz-table">
+                    <thead>
+                      <tr>
+                        <th>Customer Details</th>
+                        <th>Contact Information</th>
+                        <th>Joined Date</th>
+                        <th style={{ textAlign: 'center' }}>Total Orders</th>
+                        <th style={{ textAlign: 'center' }}>Cancelled/Fake</th>
+                        <th>Status</th>
+                        <th>Risk Info (IP & Fingerprint)</th>
+                        <th style={{ textAlign: 'center' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCustomers.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                            No registered customers found matching your search.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredCustomers.map((cust) => (
+                          <tr key={cust.id}>
+                            <td>
+                              <strong style={{ display: 'block', color: 'var(--text-primary)' }}>{cust.name}</strong>
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>ID: #{cust.id.slice(0, 8)}</span>
+                            </td>
+                            <td>
+                              <div>📞 {cust.phoneNumber}</div>
+                              {cust.email && <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>✉️ {cust.email}</div>}
+                            </td>
+                            <td>{new Date(cust.createdAt).toLocaleDateString()}</td>
+                            <td style={{ textAlign: 'center' }}><strong>{cust.totalOrdersCount}</strong></td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span style={{ color: cust.cancelledOrdersCount > 0 ? 'var(--danger)' : 'inherit', fontWeight: cust.cancelledOrdersCount > 0 ? 'bold' : 'normal' }}>
+                                {cust.cancelledOrdersCount}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`status-badge ${cust.isBlacklisted ? 'badge-cancelled' : 'badge-delivered'}`}>
+                                {cust.isBlacklisted ? '⛔ Blocked' : '✅ Active'}
+                              </span>
+                            </td>
+                            <td style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                              <div>IP: {cust.ipAddress || 'N/A'}</div>
+                              <div style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '140px' }} title={cust.deviceFingerprint || 'N/A'}>
+                                FP: {cust.deviceFingerprint || 'N/A'}
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div style={{ display: 'inline-flex', gap: '8px' }}>
+                                <button
+                                  className={`btn-daraz ${cust.isBlacklisted ? 'btn-daraz-success' : 'btn-daraz-danger'}`}
+                                  style={{ padding: '4px 8px', fontSize: '10px', minWidth: '70px' }}
+                                  onClick={() => handleToggleBlacklist(cust.id, cust.isBlacklisted)}
+                                >
+                                  {cust.isBlacklisted ? '✅ Unblock' : '⛔ Block'}
+                                </button>
+                                <button
+                                  className="btn-daraz"
+                                  style={{ padding: '4px 8px', fontSize: '10px', backgroundColor: '#d9534f', color: '#ffffff', borderColor: '#d43f3a' }}
+                                  onClick={() => handleDeleteUser(cust.id, cust.name)}
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             );

@@ -158,7 +158,6 @@ export default function Header() {
         <div className="container" style={{ display: 'flex', width: '100%' }}>
           <ul className="top-bar-links">
             <li><a href="#" className="top-bar-link">SAVE MORE ON APP</a></li>
-            <li><a href="/admin-link" className="top-bar-link" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>SELL ON BALOCHI BAZZAR (ADMIN)</a></li>
             <li><a href="#" className="top-bar-link">CUSTOMER CARE</a></li>
             <li><a href="/orders" className="top-bar-link">TRACK MY ORDER</a></li>
             {user ? (

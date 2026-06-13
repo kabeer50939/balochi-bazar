@@ -27,6 +27,88 @@ function LoginContent() {
   /* ── Signup Step: 1 (Form), 2 (OTP + Delivery Profile) ── */
   const [signupStep, setSignupStep] = useState<1 | 2>(1);
 
+  const syncStateWithHash = (hash: string) => {
+    if (hash === '#password') {
+      setMode('LOGIN');
+      setLoginStep(2);
+      setSignupStep(1);
+      setNeedsCompleteProfile(false);
+    } else if (hash === '#new-user') {
+      setMode('LOGIN');
+      setLoginStep('NEW_USER');
+      setSignupStep(1);
+      setNeedsCompleteProfile(false);
+    } else if (hash === '#register') {
+      setMode('SIGNUP');
+      setSignupStep(1);
+      setNeedsCompleteProfile(false);
+    } else if (hash === '#verify') {
+      setMode('SIGNUP');
+      setSignupStep(2);
+      setNeedsCompleteProfile(false);
+    } else if (hash === '#complete-profile') {
+      setNeedsCompleteProfile(true);
+    } else {
+      // Empty or fallback
+      setMode('LOGIN');
+      setLoginStep(1);
+      setSignupStep(1);
+      setNeedsCompleteProfile(false);
+    }
+  };
+
+  const navigateToState = (hash: string) => {
+    if (typeof window === 'undefined') return;
+    if (window.location.hash === hash) return;
+
+    if (!hash) {
+      window.history.pushState(null, '', window.location.pathname + window.location.search);
+      syncStateWithHash('');
+    } else {
+      window.location.hash = hash.replace('#', '');
+    }
+  };
+
+  const goToLoginStep = (step: 1 | 2 | 'NEW_USER') => {
+    if (step === 2) {
+      navigateToState('#password');
+    } else if (step === 'NEW_USER') {
+      navigateToState('#new-user');
+    } else {
+      navigateToState('');
+    }
+  };
+
+  const goToSignupStep = (step: 1 | 2) => {
+    if (step === 2) {
+      navigateToState('#verify');
+    } else {
+      navigateToState('#register');
+    }
+  };
+
+  const goToNeedsCompleteProfile = (val: boolean) => {
+    if (val) {
+      navigateToState('#complete-profile');
+    } else {
+      navigateToState('');
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Run once on load to sync with any initial hash
+    syncStateWithHash(window.location.hash);
+
+    const handleHashChange = () => {
+      syncStateWithHash(window.location.hash);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   /* ── Login Method: 'PASSWORD' or 'SMS_OTP' ── */
   const [loginMethod, setLoginMethod] = useState<'PASSWORD' | 'SMS_OTP'>('PASSWORD');
 
@@ -109,7 +191,7 @@ function LoginContent() {
       if (!res.ok) throw new Error(data.error || 'Social authentication failed');
       if (data.needsPhoneNumber) {
         setSocialEmail(data.email); setSocialName(data.name || '');
-        setNeedsCompleteProfile(true); setLoading(false);
+        goToNeedsCompleteProfile(true); setLoading(false);
         setSuccess('Google verified! Please complete your delivery profile.');
       } else {
         localStorage.setItem('bazar_token', data.token);
@@ -136,7 +218,7 @@ function LoginContent() {
       if (!res.ok) throw new Error(data.error || 'Social authentication failed');
       if (data.needsPhoneNumber) {
         setSocialEmail(data.email); setSocialName(data.name || '');
-        setNeedsCompleteProfile(true); setLoading(false);
+        goToNeedsCompleteProfile(true); setLoading(false);
         setSuccess('Facebook verified! Please complete your delivery profile.');
       } else {
         localStorage.setItem('bazar_token', data.token);
@@ -309,13 +391,13 @@ function LoginContent() {
 
       if (data.exists) {
         // User exists -> show password screen
-        setLoginStep(2);
+        goToLoginStep(2);
         if (identifier.includes('@')) {
           setEmailOtpEmail(identifier);
         }
       } else {
         // User does not exist -> show intermediate screen
-        setLoginStep('NEW_USER');
+        goToLoginStep('NEW_USER');
       }
     } catch (err: any) {
       setError(err.message || 'Checking user status failed.');
@@ -357,7 +439,7 @@ function LoginContent() {
       if (!res.ok) throw new Error(data.error || 'Failed to send verification code.');
       setRegCodeSent(true);
       setSuccess(data.message || 'Verification code sent to your email.');
-      setSignupStep(2);
+      goToSignupStep(2);
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code.');
       setRegCodeLoading(false);
@@ -889,7 +971,7 @@ function LoginContent() {
 
       <div className="a-page">
         {/* Centered logo container */}
-        <div className="a-logo-container" onClick={() => { setMode('LOGIN'); setLoginStep(1); setError(''); setSuccess(''); setNeedsCompleteProfile(false); }}>
+        <div className="a-logo-container" onClick={() => { goToLoginStep(1); setError(''); setSuccess(''); }}>
           <svg viewBox="0 0 170 45" width="150" height="40" xmlns="http://www.w3.org/2000/svg">
             <text x="10" y="28" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="bold" fontSize="19" fill="#111" letterSpacing="-0.5">
               BALOCHI BAZZAR
@@ -984,7 +1066,7 @@ function LoginContent() {
                   type="button"
                   className="a-button-secondary"
                   style={{ marginTop: '8px' }}
-                  onClick={() => setNeedsCompleteProfile(false)}
+                  onClick={() => goToNeedsCompleteProfile(false)}
                 >
                   Cancel
                 </button>
@@ -1078,7 +1160,7 @@ function LoginContent() {
                   {/* Identifier summary */}
                   <div className="a-info-bar">
                     <span className="a-info-bar-text" style={{ fontSize: '15px' }}>{loginIdentifier}</span>
-                    <button type="button" className="a-link a-info-bar-change" onClick={() => { setLoginStep(1); setError(''); setSuccess(''); }}>
+                    <button type="button" className="a-link a-info-bar-change" onClick={() => { goToLoginStep(1); setError(''); setSuccess(''); }}>
                       Change
                     </button>
                   </div>
@@ -1090,7 +1172,7 @@ function LoginContent() {
                     className="a-button-primary"
                     onClick={() => {
                       setMode('SIGNUP');
-                      setSignupStep(1);
+                      goToSignupStep(1);
                       setRegEmail(loginIdentifier);
                       setError('');
                       setSuccess('');
@@ -1106,7 +1188,7 @@ function LoginContent() {
                     type="button"
                     className="a-link"
                     style={{ fontSize: '13px', marginTop: '8px' }}
-                    onClick={() => { setLoginStep(1); setError(''); setSuccess(''); }}
+                    onClick={() => { goToLoginStep(1); setError(''); setSuccess(''); }}
                   >
                     Sign in with another email or mobile
                   </button>
@@ -1119,7 +1201,7 @@ function LoginContent() {
                   {/* Info Bar with current identifier */}
                   <div className="a-info-bar">
                     <span className="a-info-bar-text">{loginIdentifier}</span>
-                    <button type="button" className="a-link a-info-bar-change" onClick={() => { setLoginStep(1); setError(''); setSuccess(''); }}>
+                    <button type="button" className="a-link a-info-bar-change" onClick={() => { goToLoginStep(1); setError(''); setSuccess(''); }}>
                       Change
                     </button>
                   </div>
@@ -1296,7 +1378,7 @@ function LoginContent() {
                     type="button"
                     className="a-link"
                     style={{ fontSize: '13px', marginTop: '4px' }}
-                    onClick={() => { setMode('LOGIN'); setLoginStep(1); setError(''); setSuccess(''); }}
+                    onClick={() => { setMode('LOGIN'); goToLoginStep(1); setError(''); setSuccess(''); }}
                   >
                     Sign in instead
                   </button>
@@ -1315,7 +1397,7 @@ function LoginContent() {
                   {/* Pre-populated email display */}
                   <div className="a-info-bar">
                     <span className="a-info-bar-text" style={{ fontWeight: 'bold' }}>{regEmail}</span>
-                    <button type="button" className="a-link a-info-bar-change" onClick={() => { setSignupStep(1); setError(''); setSuccess(''); }}>
+                    <button type="button" className="a-link a-info-bar-change" onClick={() => { goToSignupStep(1); setError(''); setSuccess(''); }}>
                       Change
                     </button>
                   </div>

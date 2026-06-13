@@ -248,13 +248,17 @@ router.get('/stats', async (req, res) => {
     // Total counts
     const totalOrdersCount = await prisma.order.count();
     const totalProductsCount = await prisma.product.count();
+    const totalUsersCount = await prisma.user.count({
+      where: { role: 'CUSTOMER' }
+    });
 
     res.json({
       totalSales,
       pendingTailoringCount,
       activeRentalsCount,
       totalOrdersCount,
-      totalProductsCount
+      totalProductsCount,
+      totalUsersCount
     });
   } catch (err: any) {
     console.error('Fetch stats error:', err);
@@ -427,6 +431,61 @@ router.patch('/customers/:userId/blacklist', async (req, res) => {
   } catch (err: any) {
     console.error('Blacklist user error:', err);
     res.status(500).json({ error: 'Failed to update user blacklist status' });
+  }
+});
+
+// Delete Customer / User
+router.delete('/customers/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { orders: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const orderIds = user.orders.map(o => o.id);
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete RentalDetails for user's orders
+      if (orderIds.length > 0) {
+        await tx.rentalDetail.deleteMany({
+          where: { orderId: { in: orderIds } }
+        });
+
+        // 2. Delete OrderItems for user's orders
+        await tx.orderItem.deleteMany({
+          where: { orderId: { in: orderIds } }
+        });
+
+        // 3. Delete Orders
+        await tx.order.deleteMany({
+          where: { userId: userId }
+        });
+      }
+
+      // 4. Delete Addresses
+      await tx.address.deleteMany({
+        where: { userId: userId }
+      });
+
+      // 5. Delete User
+      await tx.user.delete({
+        where: { id: userId }
+      });
+    });
+
+    res.json({
+      success: true,
+      message: `User ${user.name} and all associated data (orders, rentals, addresses) have been successfully deleted.`
+    });
+  } catch (err: any) {
+    console.error('Delete user error:', err);
+    res.status(500).json({ error: err.message || 'Failed to delete user and their associated data' });
   }
 });
 
