@@ -61,6 +61,13 @@ interface Customer {
   createdAt: string;
   cancelledOrdersCount: number;
   totalOrdersCount: number;
+  addresses: {
+    id: string;
+    sectorName: string;
+    streetAddress: string;
+    landmark: string | null;
+    isDefault: boolean;
+  }[];
 }
 
 interface Stats {
@@ -165,6 +172,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   // Sidebar Accordion states
   const [expandedGroups, setExpandedGroups] = useState({
@@ -1868,6 +1876,13 @@ export default function App() {
                             <td style={{ textAlign: 'center' }}>
                               <div style={{ display: 'inline-flex', gap: '8px' }}>
                                 <button
+                                  className="btn-daraz btn-daraz-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '10px' }}
+                                  onClick={() => setSelectedCustomer(cust)}
+                                >
+                                  📋 Details
+                                </button>
+                                <button
                                   className={`btn-daraz ${cust.isBlacklisted ? 'btn-daraz-success' : 'btn-daraz-danger'}`}
                                   style={{ padding: '4px 8px', fontSize: '10px', minWidth: '70px' }}
                                   onClick={() => handleToggleBlacklist(cust.id, cust.isBlacklisted)}
@@ -2091,6 +2106,104 @@ export default function App() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FLOATING CUSTOMER DETAILS MODAL */}
+      {selectedCustomer && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          zIndex: 9999,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '1.5rem'
+        }} onClick={() => setSelectedCustomer(null)}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: '1.5rem',
+            borderRadius: '4px',
+            maxWidth: '600px',
+            width: '100%',
+            position: 'relative',
+            boxShadow: 'var(--shadow-lg)',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
+              <h3 style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                👤 Customer Profile Details
+              </h3>
+              <button onClick={() => setSelectedCustomer(null)} style={{ border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-muted)' }}>&times;</button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Basic Info */}
+              <div style={{ backgroundColor: '#f8f9fa', padding: '1rem', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '11px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Account Information</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '11px' }}>
+                  <div><strong>Full Name:</strong> {selectedCustomer.name}</div>
+                  <div><strong>Customer ID:</strong> {selectedCustomer.id}</div>
+                  <div><strong>Phone Number:</strong> {selectedCustomer.phoneNumber}</div>
+                  <div><strong>Email Address:</strong> {selectedCustomer.email || 'N/A'}</div>
+                  <div><strong>Joined Date:</strong> {new Date(selectedCustomer.createdAt).toLocaleString()}</div>
+                  <div><strong>OTP Verified:</strong> {selectedCustomer.isOtpVerified ? '✅ Yes' : '❌ No'}</div>
+                  <div><strong>Status:</strong> {selectedCustomer.isBlacklisted ? '⛔ Blocked' : '✅ Active'}</div>
+                </div>
+              </div>
+
+              {/* Order Statistics */}
+              <div style={{ backgroundColor: '#f8f9fa', padding: '1rem', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '11px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order History Summary</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '11px' }}>
+                  <div><strong>Total Orders:</strong> {selectedCustomer.totalOrdersCount}</div>
+                  <div><strong>Cancelled/Fake Orders:</strong> {selectedCustomer.cancelledOrdersCount}</div>
+                </div>
+              </div>
+
+              {/* Risk Management / Metadata */}
+              <div style={{ backgroundColor: '#f8f9fa', padding: '1rem', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '11px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Security & Device Info (At Sign Up)</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', fontSize: '11px' }}>
+                  <div><strong>Registration IP Address:</strong> {selectedCustomer.ipAddress || 'N/A'}</div>
+                  <div style={{ wordBreak: 'break-all' }}><strong>Device Fingerprint:</strong> {selectedCustomer.deviceFingerprint || 'N/A'}</div>
+                </div>
+              </div>
+
+              {/* Addresses Info */}
+              <div style={{ backgroundColor: '#f8f9fa', padding: '1rem', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '11px', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Registered Shipping Addresses</h4>
+                {selectedCustomer.addresses && selectedCustomer.addresses.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {selectedCustomer.addresses.map((addr) => (
+                      <div key={addr.id} style={{ padding: '0.5rem', backgroundColor: '#ffffff', borderRadius: '4px', border: addr.isDefault ? '1px solid var(--primary)' : '1px solid #dee2e6', position: 'relative' }}>
+                        {addr.isDefault && (
+                          <span style={{ position: 'absolute', top: '4px', right: '4px', backgroundColor: 'var(--primary)', color: '#ffffff', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 'bold' }}>
+                            DEFAULT
+                          </span>
+                        )}
+                        <div style={{ fontSize: '11px' }}>
+                          <div><strong>Sector Name:</strong> {addr.sectorName}</div>
+                          <div><strong>Street Address:</strong> {addr.streetAddress}</div>
+                          <div><strong>Landmark:</strong> {addr.landmark || 'N/A'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>No addresses registered yet.</div>
+                )}
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+              <button onClick={() => setSelectedCustomer(null)} className="btn-daraz btn-daraz-secondary" style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 'bold' }}>
+                Close
+              </button>
             </div>
           </div>
         </div>

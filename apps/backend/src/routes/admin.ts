@@ -371,6 +371,15 @@ router.get('/customers', async (req, res) => {
             status: true,
             totalAmount: true
           }
+        },
+        addresses: {
+          select: {
+            id: true,
+            sectorName: true,
+            streetAddress: true,
+            landmark: true,
+            isDefault: true
+          }
         }
       },
       orderBy: {
@@ -393,7 +402,8 @@ router.get('/customers', async (req, res) => {
         deviceFingerprint: u.deviceFingerprint,
         createdAt: u.createdAt,
         cancelledOrdersCount: cancelledCount,
-        totalOrdersCount: totalCount
+        totalOrdersCount: totalCount,
+        addresses: u.addresses
       };
     });
 
